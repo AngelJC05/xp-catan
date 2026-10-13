@@ -1,15 +1,12 @@
 # Colonos de Catán
-El proyecto busca desarrollar una versión simplificada y funcional del juego, 
-permitiendo que varios jugadores se conecten en línea para crear o unirse a 
-partidas y jugar por turnos.
+Versión simplificada y funcional del juego, que permite a varios jugadores
+conectarse en línea para crear o unirse a partidas y jugar por turnos.
+Este proyecto es una continuación mejorada de la base original:
+[colonos-de-catan](https://github.com/scrum-prueba-team2/colonos-de-catan).  
 
-## Proyecto
-Busca explorar la metodología Scrum, con un equipo de desarrolladores
-organizado en Sprints y un Backlog gestionado mediante Github Projects.
+## Metodología de trabajo
+El proyecto busca usar metodología XP **Extreme Programming**, trabajando
+en pareja para entregar cortas liberaciones que mejorarán la experiencia de juego.
 
-
-## Curent Sprint
-*Sprint 4 - Terminar funcionalidades y testeo de la aplicación*
-Terminar las funcionalidades menos críticas del juego y probar 
-partidas usando el frontend diseñado. Además de un despliegue 
-para su terminación.
+## Release
+**V1.1** - Aun por definidir
