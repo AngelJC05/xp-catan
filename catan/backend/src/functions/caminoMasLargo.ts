@@ -16,15 +16,19 @@ export function longitudCaminoMasLargo(
     });
     if (mias.size === 0) return 0;  //? Caso de 0 caminos
 
-    //* De momento solo se explora a partir del primer camino
-    const primera = mias.values().next().value;
-    const usadas = new Set<string>([primera]);
-    const [a, b] = extremos(primera);
+    //* Se prueba cada camino propio como inicio y se queda el recorrido mas largo
+    let mayor = 0;
+    for (const inicial of mias) {
+        const usadas = new Set<string>([inicial]);
+        const [a, b] = extremos(inicial);
 
-    return 1 + Math.max(
-        explorar(a, vertices, sessionId, mias, usadas),
-        explorar(b, vertices, sessionId, mias, usadas)
-    );
+        const largo = 1 + Math.max(
+            explorar(a, vertices, sessionId, mias, usadas),
+            explorar(b, vertices, sessionId, mias, usadas)
+        );
+        mayor = Math.max(mayor, largo);
+    }
+    return mayor;
 }
 
 
