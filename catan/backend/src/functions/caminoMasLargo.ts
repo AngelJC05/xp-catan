@@ -22,13 +22,26 @@ export function longitudCaminoMasLargo(
     const [a, b] = extremos(primera);
 
     return 1 + Math.max(
-        explorar(a, mias, usadas),
-        explorar(b, mias, usadas)
+        explorar(a, vertices, sessionId, mias, usadas),
+        explorar(b, vertices, sessionId, mias, usadas)
     );
 }
 
 
-function explorar(vertice: string, mias: Set<string>, usadas: Set<string>): number {
+function explorar(
+    vertice: string,
+    vertices: MapSchema<Vertice>,
+    sessionId: string,
+    mias: Set<string>,
+    usadas: Set<string>
+): number {
+
+    //* Una construccion rival en el vertice corta la cadena
+    const construccion = vertices.get(vertice);
+    if (construccion && construccion.propietario !== "" && construccion.propietario !== sessionId) {
+        return 0;
+    }
+
     let mejor = 0;
     for (const clave of aristasDelVertice(vertice)) {
         if (!mias.has(clave) || usadas.has(clave)) continue;
@@ -36,7 +49,7 @@ function explorar(vertice: string, mias: Set<string>, usadas: Set<string>): numb
         usadas.add(clave);
         const [a, b] = extremos(clave);
         const otroExtremo = a === vertice ? b : a;
-        mejor = Math.max(mejor, 1 + explorar(otroExtremo, mias, usadas));
+        mejor = Math.max(mejor, 1 + explorar(otroExtremo, vertices, sessionId, mias, usadas));
         usadas.delete(clave);
     }
     return mejor;
