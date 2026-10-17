@@ -14,6 +14,7 @@ export class Jugador extends Schema {
     @type({ map: "uint8" }) construccionesDisponibles = new MapSchema<number>();
     @type("string") ultimoAsentamiento: string;
     @type("uint8") caballerosJugados: number;
+    @type("uint8") longitudCamino: number;
 
 
     constructor(nombre: string = "") {
@@ -23,6 +24,7 @@ export class Jugador extends Schema {
         this.puntosParaGanar = 10;
         this.ultimoAsentamiento = "";
         this.caballerosJugados = 0;
+        this.longitudCamino = 0;
         generarRecursos(this.recursos);
         generarCartas(this.cartas_usables);
         generarCartas(this.cartas_inusables);
