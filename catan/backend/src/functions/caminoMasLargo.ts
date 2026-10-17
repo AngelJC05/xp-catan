@@ -27,6 +27,8 @@ export function longitudCaminoMasLargo(
             explorar(b, vertices, sessionId, mias, usadas)
         );
         mayor = Math.max(mayor, largo);
+        
+        if(mayor === mias.size) return mayor; //? No puede haber uno que supere
     }
     return mayor;
 }
