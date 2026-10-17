@@ -2,12 +2,57 @@ import { MapSchema } from "@colyseus/schema";
 import { Arista } from "../schemas/Arista.js";
 import { Vertice } from "../schemas/Vertices.js";
 
+//? Devuelve la longitud del camino mas largo de un jugador
 export function longitudCaminoMasLargo(
     vertices: MapSchema<Vertice>,
     aristas: MapSchema<Arista>,
     sessionId: string
 ): number {
-    //* Funcion que devolvera la longitud del camino mas largo para un jugador
+    
+    //* Claves de los caminos propios del jugador
+    const mias = new Set<string>();
+    aristas.forEach((arista, clave) => {
+        if (arista.propietario === sessionId) mias.add(clave);
+    });
+    if (mias.size === 0) return 0;  //? Caso de 0 caminos
 
-    return 0;
+    //* De momento solo se explora a partir del primer camino
+    const primera = mias.values().next().value;
+    const usadas = new Set<string>([primera]);
+    const [a, b] = extremos(primera);
+
+    return 1 + Math.max(
+        explorar(a, mias, usadas),
+        explorar(b, mias, usadas)
+    );
+}
+
+
+function explorar(vertice: string, mias: Set<string>, usadas: Set<string>): number {
+    let mejor = 0;
+    for (const clave of aristasDelVertice(vertice)) {
+        if (!mias.has(clave) || usadas.has(clave)) continue;
+
+        usadas.add(clave);
+        const [a, b] = extremos(clave);
+        const otroExtremo = a === vertice ? b : a;
+        mejor = Math.max(mejor, 1 + explorar(otroExtremo, mias, usadas));
+        usadas.delete(clave);
+    }
+    return mejor;
+}
+
+//* Devuelve clave de los 2 vertices que une una carretera
+function extremos(clave: string): [string, string] {
+    const [h, d, p] = clave.split(",").map(Number);
+    if (p === 0) return [`${h},${d},0`, `${h + 1},${d},1`];
+    if (p === 1) return [`${h},${d},0`, `${h},${d},1`];
+    return [`${h},${d},1`, `${h - 1},${d + 1},0`];
+}
+0
+//* Devuelve las claves de las carreteras que tocan un vertice
+function aristasDelVertice(clave: string): string[] {
+    const [h, d, p] = clave.split(",").map(Number);
+    if (p === 0) return [`${h},${d},0`, `${h},${d},1`, `${h + 1},${d - 1},2`];
+    return [`${h},${d},1`, `${h},${d},2`, `${h - 1},${d},0`];
 }
