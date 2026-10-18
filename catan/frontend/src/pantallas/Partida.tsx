@@ -665,6 +665,8 @@ function Partida({ sala, onSolicitarConstruccion, onSalir }: Props) {
             jugadores={jugadores}
             ordenJugadores={ordenJugadores}
             miSessionId={miSessionId}
+            ejercitoMasGrande={partidaActual?.ejercitoMasGrande ?? ''}
+            caminoMasLargo={partidaActual?.caminoMasLargo ?? ''}
           />
         </div>
         <div className="tablero" style={{ position: 'relative' }}>
