@@ -37,6 +37,9 @@ function InfoJugadores({ jugadores, ordenJugadores, miSessionId }: Props) {
               <span title="Caballeros jugados. Decide el ejercito mas grande">
                 {j.caballerosJugados} caballeros
               </span>
+              <span title="Largo de su camino mas largo. Con 5 o mas puede tener el titulo">
+                Camino: {j.longitudCamino}
+              </span>
               <span
                 title="Cartas de recurso en la mano"
                 className={enRiesgoDeDescarte(j) ? 'text-warning fw-bold' : 'text-white'}
