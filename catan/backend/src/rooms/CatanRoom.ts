@@ -25,6 +25,7 @@ import { jugarMonopolio } from "../functions/jugarMonopolio.js";
 import { siguienteTurnoPreconstruccion } from "../functions/siguienteTurnoPreconstruccion.js";
 import { comprarCarta } from "../functions/comprarCarta.js";
 import { sacarJugador } from "../functions/sacarJugador.js";
+import { actualizarCaminoMasLargo } from "../functions/actualizarCaminoMasLargo.js";
 
 
 export class CatanRoom extends Room {
@@ -584,6 +585,9 @@ export class CatanRoom extends Room {
             mensaje: resultado.mensaje
           })
         }
+
+        //* Revisar si el nuevo camino cambia quien tiene el camino mas largo
+        this.revisarCaminoMasLargo();
       }
     },
 
@@ -1403,6 +1407,34 @@ export class CatanRoom extends Room {
     }
     
   };
+
+  //? Recalcula el titulo de camino mas largo, avisa en el log y comprueba si el titular gano
+  revisarCaminoMasLargo() {
+    if (this.partida.fase === FasePartida.FINALIZADA) return;
+
+    //* Actualizar el camino mas largo y obtener el resultado
+    const resultado = actualizarCaminoMasLargo(
+      this.partida,
+      this.tablero.vertices,
+      this.tablero.aristas,
+      this.jugadores
+    );
+    if (resultado.error) return;
+
+
+    if (resultado.mensaje !== "") {
+      this.broadcast("log", {
+        jugador: "Sistema: ",
+        mensaje: resultado.mensaje
+      })
+    }
+
+    //* El titulo puede transferirse a otro y darle la victoria
+    const titular = this.jugadores.get(this.partida.caminoMasLargo);
+    if (titular) {
+      verificarVictoria(this.partida, titular, this.partida.caminoMasLargo, this);
+    }
+  }
 
   onCreate(options: any) {
     console.log("room created!", this.roomId);
