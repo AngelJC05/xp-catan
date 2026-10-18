@@ -1518,6 +1518,9 @@ export class CatanRoom extends Room {
 
       sacarJugador(this.partida, this.tablero, this.banca, this.jugadores, client.sessionId);
 
+      //* Por la eliminacion de sus construcciones el camino mas largo puede cambiar
+      this.revisarCaminoMasLargo();
+
       //* Actualizar el creador si era el que abandono
       if(eraCreador){
         this.setMetadata({
