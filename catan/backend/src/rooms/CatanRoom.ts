@@ -483,6 +483,9 @@ export class CatanRoom extends Room {
 
         //* Verificar si el jugador ha ganado
         verificarVictoria(this.partida, jugador, client.sessionId, this);
+
+        //* Un asentamiento nuevo puede cortar el camino mas largo de un rival
+        this.revisarCaminoMasLargo();
       }
 
     },
@@ -1197,6 +1200,11 @@ export class CatanRoom extends Room {
           mensajeError: resultado.mensaje
         })
         return;
+      }
+
+      // * Si el camino se construyo, revisar si cambia quien tiene el camino mas largo
+      if (!resultado.error) {
+        this.revisarCaminoMasLargo();
       }
 
       // * Reducir la cantidad de caminos gratis restantes
