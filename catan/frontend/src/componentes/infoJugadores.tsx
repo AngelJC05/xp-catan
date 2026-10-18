@@ -5,9 +5,17 @@ interface Props {
   jugadores: Jugadores;
   ordenJugadores: string[];
   miSessionId: string;
+  ejercitoMasGrande: string;
+  caminoMasLargo: string;
 }
 
-function InfoJugadores({ jugadores, ordenJugadores, miSessionId }: Props) {
+function InfoJugadores({
+  jugadores,
+  ordenJugadores,
+  miSessionId,
+  ejercitoMasGrande,
+  caminoMasLargo,
+}: Props) {
   const lista = ordenJugadores.length ? ordenJugadores : Object.keys(jugadores);
 
   return (
@@ -34,8 +42,17 @@ function InfoJugadores({ jugadores, ordenJugadores, miSessionId }: Props) {
               <span title="Cartas de desarrollo en la mano, usables mas inusables">
                 {totalCartas(j)} cartas
               </span>
-              <span title="Caballeros jugados. Decide el ejercito mas grande">
+              <span
+                title="Caballeros jugados. Decide el ejercito mas grande"
+                className={id === ejercitoMasGrande ? 'text-warning fw-bold' : 'text-white'}
+              >
                 {j.caballerosJugados} caballeros
+              </span>
+              <span
+                title="Largo de su camino mas largo. Con 5 o mas puede tener el titulo"
+                className={id === caminoMasLargo ? 'text-warning fw-bold' : 'text-white'}
+              >
+                Camino: {j.longitudCamino}
               </span>
               <span
                 title="Cartas de recurso en la mano"

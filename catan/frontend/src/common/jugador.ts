@@ -12,7 +12,7 @@ export interface Recursos {
 export const RECURSOS: Recurso[] = ['madera', 'trigo', 'lana', 'ladrillo', 'mineral'];
 
 
-/* cartas de desarrollo
+/* ============= CARTAS DE DESARROLLO =========================
    El backend las guarda en DOS mapas, cartas_usables y cartas_inusables. Las
    claves son el enum CartasDesarrollo y van entre comillas porque las claves de
    un MapSchema siempre llegan como texto. */
@@ -42,7 +42,7 @@ export const NOMBRE_CARTA: Record<string, string> = {
 };
 
 
-/* construcciones disponibles
+/* ============== CONSTRUCCIONES DISPONIBLES =========================
    generarConstruccionesDisponibles.ts: 5 asentamientos, 4 ciudades, 15 caminos.
    Las claves son el enum Construccion, sin el 0 (VACIO). */
 
@@ -65,9 +65,10 @@ export const NOMBRE_PIEZA: Record<string, string> = {
 };
 
 
-/* el jugador
+
+/* =============== DATOS DEL JUGADOR =======================
    La clave del mapa es el sessionId que Colyseus le asigna a cada cliente.
-   Los nueve campos son copia literal de backend/src/schemas/Jugador.ts. Lo
+   Los diez campos son copia literal de backend/src/schemas/Jugador.ts. Lo
    unico que el backend NO manda es el color: se calcula abajo. */
 
 export interface Jugador {
@@ -75,15 +76,12 @@ export interface Jugador {
   puntuacion: number;
   puntosParaGanar: number;
   recursos: Recursos;
-  /* Son dos mapas separados: las inusables se compraron este turno y pasan a
-     usables al pasar el turno. No los junten en uno solo. */
   cartas_usables: Cartas;
   cartas_inusables: Cartas;
   construccionesDisponibles: ConstruccionesDisponibles;
-  // Clave del vertice donde puso su ultimo asentamiento, para la preconstruccion.
   ultimoAsentamiento: string;
-  // Caballeros que ya jugo. Decide quien tiene el ejercito mas grande.
   caballerosJugados: number;
+  longitudCamino: number;
 }
 
 /* Aqui SI va un Record de clave suelta, porque las claves son sessionId que no
