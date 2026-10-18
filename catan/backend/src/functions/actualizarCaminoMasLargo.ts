@@ -47,6 +47,7 @@ export function actualizarCaminoMasLargo(
             jugadores,
             Math.max(MINIMO_CAMINO, titular.longitudCamino + 1)
         );
+        
         if (superador !== "") {
             const nuevo = jugadores.get(superador);
             titular.puntuacion -= 2;
@@ -59,9 +60,19 @@ export function actualizarCaminoMasLargo(
                 mensaje: `${nuevo.nombre} ha quitado el camino mas largo a ${titular.nombre}`
             };
         }
+
+        //* Si nadie lo supera pero ya no llega al minimo, el titulo queda vacio
+        if (titular.longitudCamino < MINIMO_CAMINO) {
+            titular.puntuacion -= 2;
+            titular.puntosParaGanar += 2;
+            partida.caminoMasLargo = "";
+            return {
+                error: false,
+                mensaje: `${titular.nombre} ha perdido el camino mas largo`
+            };
+        }
     }
 
-    //! Pendiente: perdida del titulo por un corte
     return {
         error: false,
         mensaje: ""
