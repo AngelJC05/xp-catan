@@ -16,6 +16,7 @@ export const jugadoresPrueba: Jugadores = {
     construccionesDisponibles: { '1': 3, '2': 4, '3': 11 },
     ultimoAsentamiento: '0,0,0',
     caballerosJugados: 2,
+    longitudCamino: 3,
   },
   aB7kLm2Qx: {
     nombre: 'coca',
@@ -28,6 +29,7 @@ export const jugadoresPrueba: Jugadores = {
     construccionesDisponibles: { '1': 4, '2': 4, '3': 13 },
     ultimoAsentamiento: '-1,1,1',
     caballerosJugados: 0,
+    longitudCamino: 6,
   },
   Rv9TpZo4c: {
     nombre: 'jair',
@@ -40,6 +42,7 @@ export const jugadoresPrueba: Jugadores = {
     construccionesDisponibles: { '1': 4, '2': 4, '3': 14 },
     ultimoAsentamiento: '2,-1,0',
     caballerosJugados: 0,
+    longitudCamino: 2,
   },
   Wq3sYh8Nd: {
     nombre: 'elayas',
@@ -51,6 +54,7 @@ export const jugadoresPrueba: Jugadores = {
     construccionesDisponibles: { '1': 2, '2': 3, '3': 9 },
     ultimoAsentamiento: '1,-2,1',
     caballerosJugados: 3,
+    longitudCamino: 4,
   },
 };
 
