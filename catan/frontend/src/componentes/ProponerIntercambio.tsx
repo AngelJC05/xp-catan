@@ -6,18 +6,22 @@ import type { Jugadores, Recurso, Recursos } from "../common/jugador";
 import { RECURSOS } from "../common/jugador";
 import { describirRecursos, type Oferta } from "../common/partida";
 
-// Lo que espera msgIntercambiarJugador en CatanRoom.
+// Lo que espera msgIntercambiarJugador en CatanRoom: cada recurso con su cantidad.
 export interface Propuesta {
-    recursoEntregado: Recurso;
-    cantidadEntregada: number;
-    recursoRecibido: Recurso;
-    cantidadRecibida: number;
+    ofrecidos: Partial<Record<Recurso, number>>;
+    solicitados: Partial<Record<Recurso, number>>;
 }
 
 // Cantidad maxima que se puede pedir: la banca empieza con 19 de cada recurso.
 const MAXIMO_PEDIR = 19;
 
-const numeros = (hasta: number) => Array.from({ length: hasta }, (_, i) => i + 1);
+const numeros = (hasta: number) => Array.from({ length: hasta + 1 }, (_, i) => i);
+
+const sinCantidades = (): Record<Recurso, number> => ({ madera: 0, trigo: 0, lana: 0, ladrillo: 0, mineral: 0 });
+
+// Solo se envian los recursos con cantidad mayor a 0.
+const conCantidad = (cantidades: Record<Recurso, number>) =>
+    Object.fromEntries(RECURSOS.filter((r) => cantidades[r] > 0).map((r) => [r, cantidades[r]]));
 
 interface Props {
     children?: ReactNode;
@@ -34,28 +38,23 @@ interface Props {
 
 function ProponerIntercambio({ children, ofertaActiva, jugadores, misRecursos, puedeProponer, enviando, onProponer }: Props) {
     const [abierto, setAbierto] = useState(false);
-    const [entregado, setEntregado] = useState<Recurso | ''>('');
-    const [cantidadEntregada, setCantidadEntregada] = useState(1);
-    const [recibido, setRecibido] = useState<Recurso | ''>('');
-    const [cantidadRecibida, setCantidadRecibida] = useState(1);
+    const [doy, setDoy] = useState(sinCantidades);
+    const [pido, setPido] = useState(sinCantidades);
 
-    // Solo se puede ofrecer un recurso que se tenga, y hasta la cantidad que se tiene.
-    const recursosQueTengo = RECURSOS.filter((r) => (misRecursos?.[r] ?? 0) > 0);
-    const maximoDar = entregado ? (misRecursos?.[entregado] ?? 0) : 0;
-    const valida = entregado !== '' && recibido !== '' && entregado !== recibido
-        && cantidadEntregada >= 1 && cantidadEntregada <= maximoDar;
+    // Se tiene que dar y pedir algo, y solo se puede dar hasta lo que se tiene.
+    const tengo = (r: Recurso) => misRecursos?.[r] ?? 0;
+    const valida = RECURSOS.some((r) => doy[r] > 0) && RECURSOS.some((r) => pido[r] > 0)
+        && RECURSOS.every((r) => doy[r] <= tengo(r));
 
     function abrir() {
-        setEntregado('');
-        setCantidadEntregada(1);
-        setRecibido('');
-        setCantidadRecibida(1);
+        setDoy(sinCantidades());
+        setPido(sinCantidades());
         setAbierto(true);
     }
 
     function confirmar() {
         if (!valida) return;
-        onProponer({ recursoEntregado: entregado, cantidadEntregada, recursoRecibido: recibido, cantidadRecibida });
+        onProponer({ ofrecidos: conCantidad(doy), solicitados: conCantidad(pido) });
         setAbierto(false);
     }
 
@@ -89,56 +88,38 @@ function ProponerIntercambio({ children, ofertaActiva, jugadores, misRecursos, p
                 {/*Cuerpo del modal*/}
                 <DialogContent>
                     <Typography color="text.secondary">
-                        Indica qué recurso das y cuál pides. Los demás jugadores verán la propuesta.
+                        Indica cuánto das y cuánto pides de cada recurso. Un recurso no puede ir en los dos lados.
                     </Typography>
 
-                    <Typography variant="subtitle2" sx={{ mt: 2 }}>Doy</Typography>
-                    <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                        <TextField
-                            select fullWidth size="small" label="Recurso"
-                            value={entregado}
-                            onChange={(e) => {
-                                const r = e.target.value as Recurso;
-                                setEntregado(r);
-                                setCantidadEntregada(1);
-                                if (r === recibido) setRecibido('');
-                            }}
-                        >
-                            {recursosQueTengo.map((r) => (
-                                <MenuItem key={r} value={r} className="text-capitalize">
-                                    {r} (tienes {misRecursos?.[r] ?? 0})
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                        <TextField
-                            select size="small" label="Cantidad" sx={{ minWidth: 100 }}
-                            value={cantidadEntregada}
-                            disabled={entregado === ''}
-                            onChange={(e) => setCantidadEntregada(Number(e.target.value))}
-                        >
-                            {numeros(Math.max(maximoDar, 1)).map((n) => <MenuItem key={n} value={n}>{n}</MenuItem>)}
-                        </TextField>
+                    <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                        <Typography variant="subtitle2" sx={{ flex: 1 }}>Recurso</Typography>
+                        <Typography variant="subtitle2" sx={{ width: 90, textAlign: 'center' }}>Doy</Typography>
+                        <Typography variant="subtitle2" sx={{ width: 90, textAlign: 'center' }}>Pido</Typography>
                     </Stack>
-
-                    <Typography variant="subtitle2" sx={{ mt: 2 }}>Pido</Typography>
-                    <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                        <TextField
-                            select fullWidth size="small" label="Recurso"
-                            value={recibido}
-                            onChange={(e) => setRecibido(e.target.value as Recurso)}
-                        >
-                            {RECURSOS.filter((r) => r !== entregado).map((r) => (
-                                <MenuItem key={r} value={r} className="text-capitalize">{r}</MenuItem>
-                            ))}
-                        </TextField>
-                        <TextField
-                            select size="small" label="Cantidad" sx={{ minWidth: 100 }}
-                            value={cantidadRecibida}
-                            onChange={(e) => setCantidadRecibida(Number(e.target.value))}
-                        >
-                            {numeros(MAXIMO_PEDIR).map((n) => <MenuItem key={n} value={n}>{n}</MenuItem>)}
-                        </TextField>
-                    </Stack>
+                    {/* Una fila por recurso: si se da no se puede pedir y al reves */}
+                    {RECURSOS.map((r) => (
+                        <Stack key={r} direction="row" spacing={1} sx={{ mt: 1, alignItems: 'center' }}>
+                            <Typography variant="body2" sx={{ flex: 1 }}>
+                                <span className="text-capitalize">{r}</span> (tienes {tengo(r)})
+                            </Typography>
+                            <TextField
+                                select size="small" sx={{ width: 90 }}
+                                value={doy[r]}
+                                disabled={tengo(r) === 0 || pido[r] > 0}
+                                onChange={(e) => setDoy({ ...doy, [r]: Number(e.target.value) })}
+                            >
+                                {numeros(tengo(r)).map((n) => <MenuItem key={n} value={n}>{n}</MenuItem>)}
+                            </TextField>
+                            <TextField
+                                select size="small" sx={{ width: 90 }}
+                                value={pido[r]}
+                                disabled={doy[r] > 0}
+                                onChange={(e) => setPido({ ...pido, [r]: Number(e.target.value) })}
+                            >
+                                {numeros(MAXIMO_PEDIR).map((n) => <MenuItem key={n} value={n}>{n}</MenuItem>)}
+                            </TextField>
+                        </Stack>
+                    ))}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setAbierto(false)}>Cancelar</Button>
