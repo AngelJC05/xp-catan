@@ -30,6 +30,12 @@ const ERROR_FASE_JUEGO: Record<FaseJuego, string> = {
     [FaseJuego.CARRETERAS]: "No es la fase de carreteras"
 };
 
+//* Mensajes que se pueden mostrar cuando se intenta construir en la fase equivocada de la preconstruccion
+const ERROR_PASO_PRECONSTRUCCION: Record<FasePreconstruccion, string> = {
+    [FasePreconstruccion.ASENTAMIENTO]: "Debes colocar un camino",
+    [FasePreconstruccion.CAMINO]: "Coloca primero un asentamiento"
+};
+
 //* Mensajes que se pueden mostrar cuando el jugador no tiene la carta que intenta usar
 const ERROR_SIN_CARTA: Record<Desarrollo, string> = {
     [Desarrollo.CABALLERO]: "No tienes la carta de caballero",
@@ -97,9 +103,10 @@ export function validar(contexto: Contexto, guardias: Guardia[]): string | null 
     return null;
 }
 
-//! Fabrica un guardia que exige que la preconstruccion este en el paso indicado
-export function enFasePreconstruccion(paso: FasePreconstruccion): Guardia {
-    return (contexto) => {
-        throw new Error("Sin implementar");
+//! Fabrica un guardia que exige que la preconstruccion este en la fase indicada
+export function enFasePreconstruccion(fase: FasePreconstruccion): Guardia {
+    return ({ partida }) => {
+        if (partida.fasePreconstruccion !== fase) return ERROR_PASO_PRECONSTRUCCION[fase];
+        return null;
     };
 }
