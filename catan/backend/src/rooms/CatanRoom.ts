@@ -6,7 +6,6 @@ import { buscarHexagonos } from "../functions/buscarHexagonos.js";
 import { darRecursosJugador } from "../functions/darRecursosJugador.js";
 import { verticesDelHexagono } from "../functions/verticesDelHexagono.js";
 import { lanzarDados } from "../functions/lanzarDados.js";
-import { mezclar } from "../common/mezclar.js";
 import { siguienteTurno } from "../functions/siguienteTurno.js";
 import { construirAsentamiento } from "../functions/construirAsentamiento.js";
 import { darMaterialInicial } from "../functions/darMaterialInicial.js";
@@ -27,6 +26,7 @@ import { comprarCarta } from "../functions/comprarCarta.js";
 import { sacarJugador } from "../functions/sacarJugador.js";
 import { actualizarCaminoMasLargo } from "../functions/actualizarCaminoMasLargo.js";
 import { manejarChat } from "./handlers/chat/chat.js";
+import { manejarIniciarPartida } from "./handlers/partida/iniciarPartida.js";
 
 
 export class CatanRoom extends Room {
@@ -41,8 +41,10 @@ export class CatanRoom extends Room {
 
 
   messages = {
-
+    
     msgChat: (client: Client, mensaje: { mensaje: string }) => manejarChat(this, client, mensaje),
+    
+    msgIniciarPartida: (client: Client) => manejarIniciarPartida(this, client),
 
     msgIntercambiarBanca: (
       client: Client,
@@ -253,55 +255,6 @@ export class CatanRoom extends Room {
       verificarVictoria(this.partida, jugador, client.sessionId, this);
     },
 
-    msgIniciarPartida: (client: Client) => {
-      //* Verificar que sea el creador de la sala
-      if (this.partida.creador !== client.sessionId) {
-        client.send("error", {
-          mensajeError: "Solo el creador puede iniciar la partida"
-        });
-        return;
-      }
-
-      //* Solo se puede iniciar si estamos en la fase de lobby
-      if (this.partida.fase !== FasePartida.LOBBY) {
-        client.send("error", {
-          mensajeError: "La partida ya ha comenzado"
-        });
-        return;
-      }
-
-      //* Verificar que al menos hayan 2 jugadores
-      if (this.jugadores.size < 2) {
-        client.send("error", {
-          mensajeError: "Se necesitan al menos 2 jugadores para iniciar la partida"
-        });
-        return;
-      }
-
-      //* Mezclamos el orden de los jugadores en la partida
-      mezclar(this.partida.ordenJugadores);
-
-      //* Le damos el turno al primer jugador en la lista
-      this.partida.turnoActual = this.partida.ordenJugadores[0];
-
-      //* Enviar un mensaje a todos que la partida comenzó
-      this.broadcast("inicio", {
-        mensaje: "La partida ha comenzado",
-      });
-
-      //* Cambiamos el estado de la partida a preconstruccion
-      this.partida.fase = FasePartida.PRECONSTRUCCION;
-
-      //* Actualización de metadata para mostrar en la Lobby
-      //* (setMetadata reemplaza todo, por eso conservamos el resto de campos)
-      this.setMetadata({
-        ...this.metadata,
-        estado: "EN JUEGO"
-      });
-
-      //* Cerar la sala para que nadie pueda entrar
-      this.lock();
-    },
 
     msgPasarTurno: (client: Client) => {
       //* Verificar que la partida siga en curso
