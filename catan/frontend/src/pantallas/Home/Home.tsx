@@ -5,6 +5,7 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import EquipoCard from "./componentes/EquipoCard";
 import HexIsla from "./componentes/HexIsla";
+import { VERSION_PORTADA } from "./utils/version";
 
 interface HomeProps {
   onAbrirMenu: () => void;
@@ -23,7 +24,7 @@ function Home({ onAbrirMenu }: HomeProps) {
       </nav>
 
       <header className="container text-center mb-5">
-        <Chip label="Beta 1.1 · version jugable" color="primary" variant="outlined" size="small" />
+        <Chip label={`Beta ${VERSION_PORTADA} · version jugable`} color="primary" variant="outlined" size="small" />
 
         <Container maxWidth="xs" className="my-3">
           <HexIsla />
