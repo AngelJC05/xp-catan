@@ -1,4 +1,4 @@
-import { FaseJuego, FasePartida } from "../../common/enums.js";
+import { Desarrollo, FaseJuego, FasePartida } from "../../common/enums.js";
 import { Jugador } from "../../schemas/Jugador.js";
 import { Partida } from "../../schemas/Partida.js";
 
@@ -61,5 +61,17 @@ export function enFaseJuego(fase: FaseJuego): Guardia {
     return ({ partida }) => {
         if (partida.faseJuego !== fase) return ERROR_FASE_JUEGO[fase];
         return null;
+    };
+}
+
+//? Las cartas de desarrollo solo se pueden usar una vez por turno
+export const puedeUsarCarta: Guardia = (contexto) => {
+    throw new Error("Sin implementar");
+};
+
+//! Fabrica un guardia que exige que el jugador tenga la carta de desarrollo indicada
+export function tieneCarta(carta: Desarrollo): Guardia {
+    return (contexto) => {
+        throw new Error("Sin implementar");
     };
 }

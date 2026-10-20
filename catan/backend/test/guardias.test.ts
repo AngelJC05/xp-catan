@@ -1,13 +1,16 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
 import { Partida } from "../src/schemas/Partida.js";
-import { FaseJuego, FasePartida } from "../src/common/enums.js";
+import { Jugador } from "../src/schemas/Jugador.js";
+import { Desarrollo, FaseJuego, FasePartida } from "../src/common/enums.js";
 import {
   enFaseJuego,
   enFasePartida,
   esCreador,
   esSuTurno,
-  partidaEnCurso
+  partidaEnCurso,
+  puedeUsarCarta,
+  tieneCarta
 } from "../src/rooms/validaciones/guardias.js";
 
 const ANGEL = "jugadorAngel";
@@ -98,6 +101,60 @@ describe("guardias de partida y turno", () => {
       enFaseJuego(FaseJuego.DADOS)({ partida, sessionId: ANGEL }),
       "Ya lanzaste los dados"
     );
+  });
+
+});
+
+describe("guardias de cartas", () => {
+
+  it("puedeUsarCarta no da error si aun no se uso una carta en el turno", () => {
+    const partida = armarPartida();
+    partida.cartaJugable = true;
+
+    assert.strictEqual(puedeUsarCarta({ partida, sessionId: ANGEL }), null);
+  });
+
+  it("puedeUsarCarta da error si ya se uso una carta en el turno", () => {
+    const partida = armarPartida();
+    partida.cartaJugable = false;
+
+    assert.strictEqual(puedeUsarCarta({ partida, sessionId: ANGEL }), "Solo una carta por turno");
+  });
+
+  it("tieneCarta no da error si el jugador tiene la carta", () => {
+    const partida = armarPartida();
+    const jugador = new Jugador("Angel");
+    jugador.cartas_usables.set(`${Desarrollo.CABALLERO}`, 1);
+
+    assert.strictEqual(tieneCarta(Desarrollo.CABALLERO)({ partida, sessionId: ANGEL, jugador }), null);
+  });
+
+  it("tieneCarta da error si el jugador no tiene la carta", () => {
+    const partida = armarPartida();
+    const jugador = new Jugador("Angel");
+    jugador.cartas_usables.set(`${Desarrollo.CABALLERO}`, 0);
+
+    assert.strictEqual(
+      tieneCarta(Desarrollo.CABALLERO)({ partida, sessionId: ANGEL, jugador }),
+      "No tienes la carta de caballero"
+    );
+  });
+
+  it("tieneCarta indica de cual carta se trata en el error", () => {
+    const partida = armarPartida();
+    const jugador = new Jugador("Angel");
+    jugador.cartas_usables.set(`${Desarrollo.MONOPOLIO}`, 0);
+
+    assert.strictEqual(
+      tieneCarta(Desarrollo.MONOPOLIO)({ partida, sessionId: ANGEL, jugador }),
+      "No tienes la carta de monopolio"
+    );
+  });
+
+  it("tieneCarta da error si no se encontro al jugador", () => {
+    const partida = armarPartida();
+
+    assert.notStrictEqual(tieneCarta(Desarrollo.CABALLERO)({ partida, sessionId: ANGEL }), null);
   });
 
 });
