@@ -8,30 +8,10 @@ import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import { DESARROLLADORES, LIDERAZGO, PAREJA_XP } from "./datos/equipo";
+import { colorParaNombre, iniciales } from "./utils/avatar";
 
 interface HomeProps {
   onAbrirMenu: () => void;
-}
-
-// Tonos oscuros de los terrenos del tablero: bosque, ladrillo, trigo, mar y
-// montaña. Oscuros para que las iniciales en blanco se lean bien.
-const COLORES_AVATAR = ["#2f6b3f", "#b64e36", "#b07a1f", "#176977", "#5d6773"];
-
-function colorParaNombre(nombre: string): string {
-  let hash = 0;
-  for (let i = 0; i < nombre.length; i++) {
-    hash = nombre.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return COLORES_AVATAR[Math.abs(hash) % COLORES_AVATAR.length];
-}
-
-function iniciales(nombre: string): string {
-  return nombre
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((parte) => parte[0].toUpperCase())
-    .join("");
 }
 
 // Terreno y número de cada ficha de la isla. Los colores son los mismos
