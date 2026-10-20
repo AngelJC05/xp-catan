@@ -12,10 +12,12 @@ export interface Envio {
 //? Funcion que devuelve un cliente falso que guarda todo lo que se le envia
 export function armarCliente(sessionId = "") {
   const enviados: Envio[] = [];
+  
   const client = {
     sessionId,
     send: (tipo: string, mensaje: unknown) => enviados.push({ tipo, mensaje })
   } as unknown as Client;
+
   return { client, enviados };
 }
 
@@ -27,10 +29,16 @@ export function armarSala(nombresPorId: Record<string, string> = {}) {
   for (const [sessionId, nombre] of Object.entries(nombresPorId)) {
     jugadores.set(sessionId, new Jugador(nombre));
   }
+  const estado = { bloqueada: false };
+
   const sala = {
     partida,
     jugadores,
-    broadcast: (tipo: string, mensaje: unknown) => difundidos.push({ tipo, mensaje })
+    metadata: {},
+    broadcast: (tipo: string, mensaje: unknown) => difundidos.push({ tipo, mensaje }),
+    setMetadata: (metadata: object) => { sala.metadata = metadata; },
+    lock: () => { estado.bloqueada = true; }
   } as unknown as CatanRoom;
-  return { sala, partida, jugadores, difundidos };
+  
+  return { sala, partida, jugadores, difundidos, estado };
 }
