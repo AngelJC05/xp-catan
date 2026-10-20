@@ -18,7 +18,7 @@ import { moverLadron } from "../functions/moverLadron.js";
 import { robarJugador } from "../functions/robarJugador.js";
 import { jugarCaballero } from "../functions/jugarCaballero.js";
 import { activarCartasCompradas } from "../functions/activarCartasCompradas.js";
-import { intercambiarRecursos } from "../functions/intercambiarRecursos.js";
+import { intercambiarRecursosMixtos } from "../functions/intercambiarRecursos.js";
 import { construirCamino } from "../functions/construirCaminos.js";
 import { jugarAbundancia } from "../functions/jugarAbundancia.js";
 import { jugarMonopolio } from "../functions/jugarMonopolio.js";
@@ -859,10 +859,14 @@ export class CatanRoom extends Room {
     msgIntercambiarJugador: (
       client: Client,
       mensaje: {
-        recursoEntregado: string,
-        cantidadEntregada: number,
-        recursoRecibido: string,
-        cantidadRecibida: number,
+        //* Formato de oferta mixta
+        ofrecidos?: Record<string, number>,
+        solicitados?: Record<string, number>,
+        //* Formato de un recurso por lado (el que manda hoy la pantalla)
+        recursoEntregado?: string,
+        cantidadEntregada?: number,
+        recursoRecibido?: string,
+        cantidadRecibida?: number,
       }
     ) => {
       //* Verificar que sea el turno del jugador
@@ -889,41 +893,27 @@ export class CatanRoom extends Room {
         return; 
       }
 
-      const jugador = this.jugadores.get(client.sessionId);
+      // * Si llega el formato de un recurso por lado se convierte en oferta mixta
+      const ofrecidos = mensaje.ofrecidos ?? { [mensaje.recursoEntregado]: mensaje.cantidadEntregada };
+      const solicitados = mensaje.solicitados ?? { [mensaje.recursoRecibido]: mensaje.cantidadRecibida };
 
-      // * Verificar que los recursos sean validos
-      if (
-        !jugador.recursos.has(mensaje.recursoEntregado) ||
-        !jugador.recursos.has(mensaje.recursoRecibido)
-      ) {
+      // * Validar y llenar la oferta
+      const oferta = this.partida.ofertaIntercambio;
+      const resultado = oferta.setOfertaMixta(client.sessionId, this.jugadores, ofrecidos, solicitados);
+      if (resultado.error) {
         client.send("error", {
-          mensajeError: "Los Recursos seleccionados no son validos"
+          mensajeError: resultado.mensaje
         })
         return;
       }
 
-      // * Verificar que las cantidades tengan sentido
-      if (mensaje.cantidadEntregada <= 0 || mensaje.cantidadRecibida <= 0) {
-        client.send("error", {
-          mensajeError: "No tienes suficientes recuros, mi loco"
-        })
-        return;
+      // * La pantalla aun lee los campos de un recurso, se llenan si la oferta es de 1 por lado
+      const listaOfrecidos = Object.entries(ofrecidos);
+      const listaSolicitados = Object.entries(solicitados);
+      if (listaOfrecidos.length === 1 && listaSolicitados.length === 1) {
+        [oferta.recursoOfrecido, oferta.cantidadOfrecida] = listaOfrecidos[0];
+        [oferta.recursoSolicitado, oferta.cantidadSolicitada] = listaSolicitados[0];
       }
-
-      // * No se permite pedir y dar lo mismo
-      if (mensaje.recursoEntregado === mensaje.recursoRecibido) {
-        client.send("error", {
-          mensajeError: "No puedes pedir y dar el mismo recurso"
-        })
-        return;
-      }
-
-      // * Llenado de la oferta
-      this.partida.ofertaIntercambio.setOferta(
-        client.sessionId, this.jugadores,
-        mensaje.recursoEntregado, mensaje.cantidadEntregada,
-        mensaje.recursoRecibido, mensaje.cantidadRecibida
-      );
 
       //* Log de la oferta de intercambio
       this.broadcast("log", {
@@ -990,15 +980,18 @@ export class CatanRoom extends Room {
         return;
       }
 
-      const jugador = this.jugadores.get(client.sessionId);
-      const jugadorOferta = this.jugadores.get(this.partida.ofertaIntercambio.jugador);
-
       // ? Acepto
       if (mensaje.respuesta === 1) {
+        // * Intercambiar los recursos, solo se mueven si ambos tienen lo necesario
+        const resultado = intercambiarRecursosMixtos(
+          this.partida.ofertaIntercambio.jugador,
+          client.sessionId,
+          this.jugadores,
+          this.partida.ofertaIntercambio
+        );
+
         // * Destruir la ofera si el jugador que propuso ya gastó
-        if (jugadorOferta.recursos.get(
-          this.partida.ofertaIntercambio.recursoOfrecido
-        ) < this.partida.ofertaIntercambio.cantidadOfrecida) {
+        if (resultado.faltaA === "oferente") {
           this.partida.ofertaIntercambio.limpiarOferta();
 
           client.send("error", {
@@ -1008,11 +1001,8 @@ export class CatanRoom extends Room {
           return;
         }
 
-        // * Verificar que el jugadr que acepta tenga suficientes recursos
-        if (jugador.recursos.get(
-          this.partida.ofertaIntercambio.recursoSolicitado
-        ) < this.partida.ofertaIntercambio.cantidadSolicitada) {
-          // * Automaticamente pasarlo a rechazo
+        // * Si al que acepta le faltan recursos pasa automaticamente a rechazo
+        if (resultado.faltaA === "aceptante") {
           this.partida.ofertaIntercambio.registrarRespuesta(client.sessionId, -1);
           // * Verificar si todos rechazaron
           if (this.partida.ofertaIntercambio.todosRechazaron()) {
@@ -1021,13 +1011,12 @@ export class CatanRoom extends Room {
           return;
         }
 
-        // * Intercambiar los recursos
-        intercambiarRecursos(
-          this.partida.ofertaIntercambio.jugador,
-          client.sessionId,
-          this.jugadores,
-          this.partida.ofertaIntercambio
-        );
+        if (resultado.error) {
+          client.send("error", {
+            mensajeError: resultado.mensaje
+          })
+          return;
+        }
 
         //* Log del intercambio de recursos
         this.broadcast("log", {
