@@ -4,13 +4,15 @@ import { Partida } from "../src/schemas/Partida.js";
 import { Jugador } from "../src/schemas/Jugador.js";
 import { Desarrollo, FaseJuego, FasePartida } from "../src/common/enums.js";
 import {
+  type Guardia,
   enFaseJuego,
   enFasePartida,
   esCreador,
   esSuTurno,
   partidaEnCurso,
   puedeUsarCarta,
-  tieneCarta
+  tieneCarta,
+  validar
 } from "../src/rooms/validaciones/guardias.js";
 
 const ANGEL = "jugadorAngel";
@@ -155,6 +157,64 @@ describe("guardias de cartas", () => {
     const partida = armarPartida();
 
     assert.notStrictEqual(tieneCarta(Desarrollo.CABALLERO)({ partida, sessionId: ANGEL }), null);
+  });
+
+});
+
+describe("validar", () => {
+
+  it("no da error si no hay ninguna guardia", () => {
+    const partida = armarPartida();
+
+    assert.strictEqual(validar({ partida, sessionId: ANGEL }, []), null);
+  });
+
+  it("no da error si todas las guardias pasan", () => {
+    const partida = armarPartida();
+
+    const error = validar(
+      { partida, sessionId: ANGEL },
+      [partidaEnCurso, esSuTurno, enFaseJuego(FaseJuego.ACCIONES)]
+    );
+
+    assert.strictEqual(error, null);
+  });
+
+  it("devuelve el error de la guardia que falla", () => {
+    const partida = armarPartida();
+
+    const error = validar(
+      { partida, sessionId: ALAN },
+      [partidaEnCurso, esSuTurno, enFaseJuego(FaseJuego.ACCIONES)]
+    );
+
+    assert.strictEqual(error, "No es tu turno");
+  });
+
+  it("devuelve el error de la primera guardia si fallan varias", () => {
+    const partida = armarPartida();
+    partida.fase = FasePartida.FINALIZADA;
+
+    const error = validar(
+      { partida, sessionId: ALAN },
+      [partidaEnCurso, esSuTurno]
+    );
+
+    assert.strictEqual(error, "La partida ha finalizado");
+  });
+
+  it("no revisa las guardias siguientes despues de un error", () => {
+    const partida = armarPartida();
+    let revisadas = 0;
+    const siempreFalla: Guardia = () => "Fallo";
+    const contadora: Guardia = () => {
+      revisadas++;
+      return null;
+    };
+
+    validar({ partida, sessionId: ANGEL }, [siempreFalla, contadora]);
+
+    assert.strictEqual(revisadas, 0);
   });
 
 });
