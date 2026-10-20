@@ -1,4 +1,5 @@
 import "./Home.css";
+import Alert from "@mui/material/Alert";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
@@ -122,7 +123,7 @@ function Home({ onAbrirMenu }: HomeProps) {
       </nav>
 
       <header className="container text-center mb-5">
-        <Chip label="Beta 1.0 · version jugable" color="primary" variant="outlined" size="small" />
+        <Chip label="Beta 1.1 · version jugable" color="primary" variant="outlined" size="small" />
         <div className="my-3">
           <HexIsla />
         </div>
@@ -131,11 +132,18 @@ function Home({ onAbrirMenu }: HomeProps) {
         </Typography>
         <p className="lead mx-auto mb-4 home__texto">
           La versión en línea de Catan que estamos construyendo para jugar por
-          turnos con tus amigos, desde cualquier navegador o celular.
+          turnos con tus amigos, desde el navegador de tu computadora.
+        </p>
+        <p className="text-body-secondary mx-auto mb-4 home__texto">
+          Versión mejorada con Extreme Programming (XP), basada en el proyecto
+          Scrum original.
         </p>
         <Button variant="contained" color="warning" size="large" onClick={onAbrirMenu}>
           Jugar ahora
         </Button>
+        <Alert severity="info" className="home__texto mx-auto mt-4">
+          La versión para celular aún no está preparada, por ahora se recomienda jugar desde una computadora.
+        </Alert>
       </header>
 
       <section className="container home__equipo">
