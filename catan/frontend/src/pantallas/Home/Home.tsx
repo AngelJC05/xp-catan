@@ -7,32 +7,11 @@ import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
+import { DESARROLLADORES, LIDERAZGO, PAREJA_XP } from "./datos/equipo";
 
 interface HomeProps {
   onAbrirMenu: () => void;
 }
-
-interface MiembroEquipo {
-  nombre: string;
-  rol: string;
-}
-
-const LIDERAZGO: MiembroEquipo[] = [
-  { nombre: "Angel Jiménez", rol: "Product owner" },
-  { nombre: "Oscar Menéndez", rol: "Scrum master" },
-];
-
-const PAREJA_XP: string[] = ["Angel Jiménez", "Alan Cerón"];
-
-const DESARROLLADORES: string[] = [
-  "Hengel Contreras",
-  "Obed García",
-  "Elias Molina",
-  "Yahir Zabaleta",
-  "Misael Sandoval",
-  "José Villela",
-  "Jaime Cardona",
-];
 
 // Tonos oscuros de los terrenos del tablero: bosque, ladrillo, trigo, mar y
 // montaña. Oscuros para que las iniciales en blanco se lean bien.
