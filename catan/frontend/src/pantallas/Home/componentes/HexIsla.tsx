@@ -27,7 +27,7 @@ export default function HexIsla() {
   };
 
   return (
-    <svg viewBox="0 0 400 220" className="home__hex-arte" aria-hidden="true">
+    <svg viewBox="0 0 400 220" className="w-100 h-auto" aria-hidden="true">
       {FICHAS_ISLA.map((ficha) => (
         <g key={`${ficha.cx}-${ficha.cy}`}>
           <polygon points={puntosHex(ficha.cx, ficha.cy)} fill={ficha.color} stroke="#f3ede0" strokeWidth={4} />

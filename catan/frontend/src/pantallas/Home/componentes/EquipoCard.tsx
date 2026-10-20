@@ -1,6 +1,7 @@
 import Avatar from "@mui/material/Avatar";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import Container from "@mui/material/Container";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import { DESARROLLADORES, LIDERAZGO, PAREJA_XP } from "../datos/equipo";
@@ -8,7 +9,7 @@ import { colorParaNombre, iniciales } from "../utils/avatar";
 
 export default function EquipoCard() {
   return (
-    <section className="container home__equipo">
+    <Container component="section" maxWidth="md">
       <Card variant="outlined">
         <CardContent>
 
@@ -73,6 +74,6 @@ export default function EquipoCard() {
 
         </CardContent>
       </Card>
-    </section>
+    </Container>
   );
 }
