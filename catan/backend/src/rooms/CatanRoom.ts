@@ -1,7 +1,7 @@
 import { Room, Client, CloseCode, Delayed } from "colyseus";
 import { CatanState } from "../states/CatanState.js";
 import { Jugador } from "../schemas/Jugador.js";
-import { Desarrollo, FaseJuego, FasePartida, FasePreconstruccion } from "../common/enums.js";
+import { Desarrollo, FaseJuego, FasePartida } from "../common/enums.js";
 import { buscarHexagonos } from "../functions/buscarHexagonos.js";
 import { darRecursosJugador } from "../functions/darRecursosJugador.js";
 import { verticesDelHexagono } from "../functions/verticesDelHexagono.js";
@@ -19,13 +19,13 @@ import { intercambiarRecursosMixtos } from "../functions/intercambiarRecursos.js
 import { construirCamino } from "../functions/construirCaminos.js";
 import { jugarAbundancia } from "../functions/jugarAbundancia.js";
 import { jugarMonopolio } from "../functions/jugarMonopolio.js";
-import { siguienteTurnoPreconstruccion } from "../functions/siguienteTurnoPreconstruccion.js";
 import { comprarCarta } from "../functions/comprarCarta.js";
 import { sacarJugador } from "../functions/sacarJugador.js";
 import { actualizarCaminoMasLargo } from "../functions/actualizarCaminoMasLargo.js";
 import { manejarChat } from "./handlers/chat/chat.js";
 import { manejarIniciarPartida } from "./handlers/partida/iniciarPartida.js";
 import { manejarColocarAsentamiento } from "./handlers/construccion/colocarAsentamiento.js";
+import { manejarColocarCamino } from "./handlers/construccion/colocarCamino.js";
 
 
 export class CatanRoom extends Room {
@@ -52,6 +52,12 @@ export class CatanRoom extends Room {
       client: Client,
       mensaje: { h: number, d: number, p: number }
     ) => manejarColocarAsentamiento(this, client, mensaje),
+
+    msgColocarCamino: (
+      client: Client, 
+      mensaje: { h: number, d: number, p: number }
+    ) => manejarColocarCamino(this, client, mensaje),
+
 
     msgIntercambiarBanca: (
       client: Client,
@@ -313,109 +319,6 @@ export class CatanRoom extends Room {
     },
 
 
-    msgColocarCamino: (
-      client: Client,
-      mensaje: { h: number, d: number, p: number }
-    ) => {
-
-      //* Verificar que la partida siga en curso
-      if (this.partida.fase === FasePartida.FINALIZADA) {
-        client.send("error", {
-          mensajeError: "La partida ha finalizado"
-        })
-        return;
-      }
-
-      //* Verificar que sea el turno del jugador
-      if (this.partida.turnoActual !== client.sessionId) {
-        client.send("error", {
-          mensajeError: "No es tu turno"
-        })
-        return;
-      }
-
-      //* Obtener el jugador del state y que exista
-      const jugador = this.jugadores.get(client.sessionId);
-      if (!jugador) return;
-      const { h, d, p } = mensaje;
-
-
-      //! FLUJO EN PRECONSTRUCCION
-      if (this.partida.fase === FasePartida.PRECONSTRUCCION) {
-
-        //* Comprobar que estemos en la fase de colocar camino
-        if (this.partida.fasePreconstruccion !== FasePreconstruccion.CAMINO) {
-          client.send("error", {
-            mensajeError: "Coloca primero un asentamiento"
-          })
-          return;
-        }
-
-        //* Intentar construir el camino
-        const resultado = construirCamino(
-          this.tablero.vertices, this.tablero.aristas, this.partida,
-          h, d, p, jugador, this.banca, client.sessionId
-        )
-
-        //* Si no se pudo construir, se notifica el error
-        if (resultado.error) {
-          client.send("error", {
-            mensajeError: resultado.mensaje
-          })
-          return;
-        }
-
-        //* Log de la construccion del camino
-        if(!resultado.error){
-          this.broadcast("log", {
-            jugador: this.jugadores.get(client.sessionId)?.nombre,
-            mensaje: resultado.mensaje
-          })
-        }
-
-        //? Ahora le toca al siguiente jugador poner un asentamiento
-        this.partida.fasePreconstruccion = FasePreconstruccion.ASENTAMIENTO;
-        siguienteTurnoPreconstruccion(this.partida);
-        return;
-      }
-
-      //! FLUJO EN JUEGO
-      if (this.partida.fase === FasePartida.JUEGO) {
-
-        //* Comprobar que estemos en la fase de acciones
-        if (this.partida.faseJuego !== FaseJuego.ACCIONES) {
-          client.send("error", {
-            mensajeError: "Debes lanzar los dados primero"
-          })
-          return;
-        }
-
-        //* Intentar construir el camino
-        const resultado = construirCamino(
-          this.tablero.vertices, this.tablero.aristas, this.partida,
-          h, d, p, jugador, this.banca, client.sessionId
-        )
-
-        //* Si no se pudo construir, se notifica el error
-        if (resultado.error) {
-          client.send("error", {
-            mensajeError: resultado.mensaje
-          })
-          return;
-        }
-
-        //* Log de la construccion del camino
-        if(!resultado.error){
-          this.broadcast("log", {
-            jugador: this.jugadores.get(client.sessionId)?.nombre,
-            mensaje: resultado.mensaje
-          })
-        }
-
-        //* Revisar si el nuevo camino cambia quien tiene el camino mas largo
-        this.revisarCaminoMasLargo();
-      }
-    },
 
     msgDescartarRecursos: (
       client: Client,
