@@ -1,4 +1,5 @@
 import "./Home.css";
+import Alert from "@mui/material/Alert";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
@@ -20,6 +21,8 @@ const LIDERAZGO: MiembroEquipo[] = [
   { nombre: "Angel Jiménez", rol: "Product owner" },
   { nombre: "Oscar Menéndez", rol: "Scrum master" },
 ];
+
+const PAREJA_XP: string[] = ["Angel Jiménez", "Alan Cerón"];
 
 const DESARROLLADORES: string[] = [
   "Hengel Contreras",
@@ -122,7 +125,7 @@ function Home({ onAbrirMenu }: HomeProps) {
       </nav>
 
       <header className="container text-center mb-5">
-        <Chip label="Beta 1.0 · version jugable" color="primary" variant="outlined" size="small" />
+        <Chip label="Beta 1.1 · version jugable" color="primary" variant="outlined" size="small" />
         <div className="my-3">
           <HexIsla />
         </div>
@@ -131,11 +134,18 @@ function Home({ onAbrirMenu }: HomeProps) {
         </Typography>
         <p className="lead mx-auto mb-4 home__texto">
           La versión en línea de Catan que estamos construyendo para jugar por
-          turnos con tus amigos, desde cualquier navegador o celular.
+          turnos con tus amigos, desde el navegador de tu computadora.
+        </p>
+        <p className="text-body-secondary mx-auto mb-4 home__texto">
+          Versión mejorada con Extreme Programming (XP), basada en el proyecto
+          Scrum original.
         </p>
         <Button variant="contained" color="warning" size="large" onClick={onAbrirMenu}>
           Jugar ahora
         </Button>
+        <Alert severity="info" className="home__texto mx-auto mt-4">
+          La versión para celular aún no está preparada, por ahora se recomienda jugar desde una computadora.
+        </Alert>
       </header>
 
       <section className="container home__equipo">
@@ -146,6 +156,26 @@ function Home({ onAbrirMenu }: HomeProps) {
             </Typography>
             <Divider className="mb-3" />
 
+            <Typography variant="subtitle1" component="h3" color="text.secondary" className="mb-2">
+              Pareja XP · versión 1.1
+            </Typography>
+            <ul className="list-unstyled row g-2 mb-4">
+              {PAREJA_XP.map((nombre) => (
+                <li className="col-12 col-sm-6" key={nombre}>
+                  <div className="d-flex align-items-center gap-3 border rounded p-2 bg-light">
+                    <Avatar sx={{ bgcolor: colorParaNombre(nombre) }}>{iniciales(nombre)}</Avatar>
+                    <div>
+                      <div className="fw-bold">{nombre}</div>
+                      <small className="text-body-secondary">Programador</small>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <Typography variant="subtitle1" component="h3" color="text.secondary" className="mb-2">
+              Equipo Scrum original · versión 1.0
+            </Typography>
             <div className="row g-3">
               {LIDERAZGO.map((persona) => (
                 <div className="col-12 col-sm-6" key={persona.nombre}>
