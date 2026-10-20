@@ -7,68 +7,12 @@ import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
+import HexIsla from "./componentes/HexIsla";
 import { DESARROLLADORES, LIDERAZGO, PAREJA_XP } from "./datos/equipo";
 import { colorParaNombre, iniciales } from "./utils/avatar";
 
 interface HomeProps {
   onAbrirMenu: () => void;
-}
-
-// Terreno y número de cada ficha de la isla. Los colores son los mismos
-// que usa componentes/tablero.css; 6 y 8 van en rojo como en el tablero.
-const FICHAS_ISLA = [
-  { cx: 120, cy: 70, color: "#6ab04c", numero: 8 },
-  { cx: 200, cy: 70, color: "#c96b4a", numero: 5 },
-  { cx: 280, cy: 70, color: "#f6e58d", numero: 10 },
-  { cx: 80, cy: 140, color: "#a5d6a7", numero: 3 },
-  { cx: 160, cy: 140, color: "#9aa0a6", numero: 6 },
-  { cx: 240, cy: 140, color: "#e8c97a", numero: null },
-  { cx: 320, cy: 140, color: "#6ab04c", numero: 11 },
-];
-
-function HexIsla() {
-  // Ilustración original inspirada en las fichas hexagonales de recursos
-  // del juego (no es arte oficial de Catan).
-  const puntosHex = (cx: number, cy: number) => {
-    const r = 46;
-    return Array.from({ length: 6 }, (_, i) => {
-      const angulo = (Math.PI / 180) * (60 * i - 30);
-      return `${cx + r * Math.cos(angulo)},${cy + r * Math.sin(angulo)}`;
-    }).join(" ");
-  };
-
-  return (
-    <svg viewBox="0 0 400 220" className="home__hex-arte" aria-hidden="true">
-      {FICHAS_ISLA.map((ficha) => (
-        <g key={`${ficha.cx}-${ficha.cy}`}>
-          <polygon points={puntosHex(ficha.cx, ficha.cy)} fill={ficha.color} stroke="#f3ede0" strokeWidth={4} />
-          {ficha.numero !== null ? (
-            <>
-              <circle cx={ficha.cx} cy={ficha.cy} r={15} fill="#f6efdd" stroke="#00000022" strokeWidth={1.5} />
-              <text
-                x={ficha.cx}
-                y={ficha.cy}
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize={17}
-                fontWeight={600}
-                fill={ficha.numero === 6 || ficha.numero === 8 ? "#b3261e" : "#2a2a2a"}
-              >
-                {ficha.numero}
-              </text>
-            </>
-          ) : (
-            // En el desierto empieza el ladrón.
-            <g>
-              <ellipse cx={ficha.cx} cy={ficha.cy + 14} rx={11} ry={5} fill="#333" />
-              <ellipse cx={ficha.cx} cy={ficha.cy + 2} rx={8} ry={12} fill="#333" />
-              <circle cx={ficha.cx} cy={ficha.cy - 13} r={7} fill="#333" />
-            </g>
-          )}
-        </g>
-      ))}
-    </svg>
-  );
 }
 
 function Home({ onAbrirMenu }: HomeProps) {
@@ -85,39 +29,49 @@ function Home({ onAbrirMenu }: HomeProps) {
 
       <header className="container text-center mb-5">
         <Chip label="Beta 1.1 · version jugable" color="primary" variant="outlined" size="small" />
+
         <div className="my-3">
           <HexIsla />
         </div>
+
         <Typography variant="h3" component="h1" gutterBottom>
           Construye, comercia, coloniza
         </Typography>
+
         <p className="lead mx-auto mb-4 home__texto">
           La versión en línea de Catan que estamos construyendo para jugar por
           turnos con tus amigos, desde el navegador de tu computadora.
         </p>
+
         <p className="text-body-secondary mx-auto mb-4 home__texto">
           Versión mejorada con Extreme Programming (XP), basada en el proyecto
           Scrum original.
         </p>
+
         <Button variant="contained" color="warning" size="large" onClick={onAbrirMenu}>
           Jugar ahora
         </Button>
+
         <Alert severity="info" className="home__texto mx-auto mt-4">
           La versión para celular aún no está preparada, por ahora se recomienda jugar desde una computadora.
         </Alert>
+
       </header>
 
       <section className="container home__equipo">
         <Card variant="outlined">
           <CardContent>
+
             <Typography variant="h5" component="h2" align="center" gutterBottom>
               El equipo
             </Typography>
+
             <Divider className="mb-3" />
 
             <Typography variant="subtitle1" component="h3" color="text.secondary" className="mb-2">
               Pareja XP · versión 1.1
             </Typography>
+
             <ul className="list-unstyled row g-2 mb-4">
               {PAREJA_XP.map((nombre) => (
                 <li className="col-12 col-sm-6" key={nombre}>
@@ -164,6 +118,7 @@ function Home({ onAbrirMenu }: HomeProps) {
                 </li>
               ))}
             </ul>
+            
           </CardContent>
         </Card>
       </section>
