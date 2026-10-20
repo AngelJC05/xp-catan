@@ -30,6 +30,15 @@ const ERROR_FASE_JUEGO: Record<FaseJuego, string> = {
     [FaseJuego.CARRETERAS]: "No es la fase de carreteras"
 };
 
+//* Mensajes que se pueden mostrar cuando el jugador no tiene la carta que intenta usar
+const ERROR_SIN_CARTA: Record<Desarrollo, string> = {
+    [Desarrollo.CABALLERO]: "No tienes la carta de caballero",
+    [Desarrollo.PUNTOS_VICTORIA]: "No tienes la carta de puntos de victoria",
+    [Desarrollo.CARRETERA]: "No tienes la carta de carreteras",
+    [Desarrollo.ABUNDANCIA]: "No tienes la carta de abundancia",
+    [Desarrollo.MONOPOLIO]: "No tienes la carta de monopolio"
+};
+
 //? La partida no debe haber finalizado
 export const partidaEnCurso: Guardia = ({ partida }) => {
     if (partida.fase === FasePartida.FINALIZADA) return "La partida ha finalizado";
@@ -65,13 +74,16 @@ export function enFaseJuego(fase: FaseJuego): Guardia {
 }
 
 //? Las cartas de desarrollo solo se pueden usar una vez por turno
-export const puedeUsarCarta: Guardia = (contexto) => {
-    throw new Error("Sin implementar");
+export const puedeUsarCarta: Guardia = ({ partida }) => {
+    if (!partida.cartaJugable) return "Solo una carta por turno";
+    return null;
 };
 
 //! Fabrica un guardia que exige que el jugador tenga la carta de desarrollo indicada
 export function tieneCarta(carta: Desarrollo): Guardia {
-    return (contexto) => {
-        throw new Error("Sin implementar");
+    return ({ jugador }) => {
+        if (!jugador) return "No se encontro al jugador";
+        if ((jugador.cartas_usables.get(`${carta}`) ?? 0) < 1) return ERROR_SIN_CARTA[carta];
+        return null;
     };
 }
