@@ -1,42 +1,13 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
-import { MapSchema } from "@colyseus/schema";
-import type { Client } from "colyseus";
-import type { CatanRoom } from "../src/rooms/CatanRoom.js";
-import { Jugador } from "../src/schemas/Jugador.js";
 import {
   enviarError,
   registrarLogDeJugador,
   registrarLogSistema
 } from "../src/rooms/ayudantes/notificaciones.js";
+import { armarCliente, armarSala } from "./ayudas/salaFalsa.js";
 
 const ANGEL = "jugadorAngel";
-
-interface Envio {
-  tipo: string;
-  mensaje: unknown;
-}
-
-//? Funcion que devuelve un cliente falso que guarda todo lo que se le envia
-function armarCliente() {
-  const enviados: Envio[] = [];
-  const client = {
-    send: (tipo: string, mensaje: unknown) => enviados.push({ tipo, mensaje })
-  } as unknown as Client;
-  return { client, enviados };
-}
-
-//? Funcion que devuelve una sala falsa con Angel como jugador y que guarda todo lo que se difunde
-function armarSala() {
-  const difundidos: Envio[] = [];
-  const jugadores = new MapSchema<Jugador>();
-  jugadores.set(ANGEL, new Jugador("Angel"));
-  const sala = {
-    jugadores,
-    broadcast: (tipo: string, mensaje: unknown) => difundidos.push({ tipo, mensaje })
-  } as unknown as CatanRoom;
-  return { sala, difundidos };
-}
 
 describe("notificaciones de la sala", () => {
 
@@ -51,7 +22,7 @@ describe("notificaciones de la sala", () => {
   });
 
   it("registrarLogDeJugador difunde el log con el nombre del jugador", () => {
-    const { sala, difundidos } = armarSala();
+    const { sala, difundidos } = armarSala({ [ANGEL]: "Angel" });
 
     registrarLogDeJugador(sala, ANGEL, " ha pasado su turno");
 
@@ -61,7 +32,7 @@ describe("notificaciones de la sala", () => {
   });
 
   it("registrarLogSistema difunde el log a nombre del sistema", () => {
-    const { sala, difundidos } = armarSala();
+    const { sala, difundidos } = armarSala({ [ANGEL]: "Angel" });
 
     registrarLogSistema(sala, "Todos los jugadores han terminado de descartar");
 
