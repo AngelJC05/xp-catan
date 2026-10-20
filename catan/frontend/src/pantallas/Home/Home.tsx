@@ -22,6 +22,8 @@ const LIDERAZGO: MiembroEquipo[] = [
   { nombre: "Oscar Menéndez", rol: "Scrum master" },
 ];
 
+const PAREJA_XP: string[] = ["Angel Jiménez", "Alan Cerón"];
+
 const DESARROLLADORES: string[] = [
   "Hengel Contreras",
   "Obed García",
@@ -154,6 +156,26 @@ function Home({ onAbrirMenu }: HomeProps) {
             </Typography>
             <Divider className="mb-3" />
 
+            <Typography variant="subtitle1" component="h3" color="text.secondary" className="mb-2">
+              Pareja XP · versión 1.1
+            </Typography>
+            <ul className="list-unstyled row g-2 mb-4">
+              {PAREJA_XP.map((nombre) => (
+                <li className="col-12 col-sm-6" key={nombre}>
+                  <div className="d-flex align-items-center gap-3 border rounded p-2 bg-light">
+                    <Avatar sx={{ bgcolor: colorParaNombre(nombre) }}>{iniciales(nombre)}</Avatar>
+                    <div>
+                      <div className="fw-bold">{nombre}</div>
+                      <small className="text-body-secondary">Programador</small>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <Typography variant="subtitle1" component="h3" color="text.secondary" className="mb-2">
+              Equipo Scrum original · versión 1.0
+            </Typography>
             <div className="row g-3">
               {LIDERAZGO.map((persona) => (
                 <div className="col-12 col-sm-6" key={persona.nombre}>
