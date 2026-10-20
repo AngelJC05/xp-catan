@@ -26,6 +26,7 @@ import { siguienteTurnoPreconstruccion } from "../functions/siguienteTurnoPrecon
 import { comprarCarta } from "../functions/comprarCarta.js";
 import { sacarJugador } from "../functions/sacarJugador.js";
 import { actualizarCaminoMasLargo } from "../functions/actualizarCaminoMasLargo.js";
+import { manejarChat } from "./handlers/chat/chat.js";
 
 
 export class CatanRoom extends Room {
@@ -41,30 +42,7 @@ export class CatanRoom extends Room {
 
   messages = {
 
-    msgChat: (
-      client: Client, 
-      mensaje: { mensaje: string}
-    ) => {
-      //* Verificar que la partida siga en curso
-      if (this.partida.fase === FasePartida.FINALIZADA) {
-        client.send("error", {
-          mensajeError: "La partida ha finalizado"
-        })
-        return;
-      }
-
-      //* Verificar que el mensaje no este vacio
-      if (mensaje.mensaje.trim() === "") {
-        return;
-      }
-
-      //* Enviar el mensaje a todos los jugadores
-      this.broadcast("chat", {
-        jugador: this.jugadores.get(client.sessionId)?.nombre,
-        mensaje: mensaje.mensaje
-      })
-      
-    },
+    msgChat: (client: Client, mensaje: { mensaje: string }) => manejarChat(this, client, mensaje),
 
     msgIntercambiarBanca: (
       client: Client,
