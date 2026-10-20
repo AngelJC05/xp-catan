@@ -2,11 +2,12 @@ import { describe, it } from "mocha";
 import assert from "node:assert";
 import { Partida } from "../src/schemas/Partida.js";
 import { Jugador } from "../src/schemas/Jugador.js";
-import { Desarrollo, FaseJuego, FasePartida } from "../src/common/enums.js";
+import { Desarrollo, FaseJuego, FasePartida, FasePreconstruccion } from "../src/common/enums.js";
 import {
   type Guardia,
   enFaseJuego,
   enFasePartida,
+  enFasePreconstruccion,
   esCreador,
   esSuTurno,
   partidaEnCurso,
@@ -215,6 +216,40 @@ describe("validar", () => {
     validar({ partida, sessionId: ANGEL }, [siempreFalla, contadora]);
 
     assert.strictEqual(revisadas, 0);
+  });
+
+});
+
+describe("guardia de preconstruccion", () => {
+
+  it("enFasePreconstruccion no da error si es el paso esperado", () => {
+    const partida = armarPartida();
+    partida.fasePreconstruccion = FasePreconstruccion.ASENTAMIENTO;
+
+    assert.strictEqual(
+      enFasePreconstruccion(FasePreconstruccion.ASENTAMIENTO)({ partida, sessionId: ANGEL }),
+      null
+    );
+  });
+
+  it("enFasePreconstruccion avisa que falta el camino si se espera un asentamiento", () => {
+    const partida = armarPartida();
+    partida.fasePreconstruccion = FasePreconstruccion.CAMINO;
+
+    assert.strictEqual(
+      enFasePreconstruccion(FasePreconstruccion.ASENTAMIENTO)({ partida, sessionId: ANGEL }),
+      "Debes colocar un camino"
+    );
+  });
+
+  it("enFasePreconstruccion avisa que falta el asentamiento si se espera un camino", () => {
+    const partida = armarPartida();
+    partida.fasePreconstruccion = FasePreconstruccion.ASENTAMIENTO;
+
+    assert.strictEqual(
+      enFasePreconstruccion(FasePreconstruccion.CAMINO)({ partida, sessionId: ANGEL }),
+      "Coloca primero un asentamiento"
+    );
   });
 
 });

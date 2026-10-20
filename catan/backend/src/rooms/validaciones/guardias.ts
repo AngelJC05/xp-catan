@@ -1,4 +1,4 @@
-import { Desarrollo, FaseJuego, FasePartida } from "../../common/enums.js";
+import { Desarrollo, FaseJuego, FasePartida, FasePreconstruccion } from "../../common/enums.js";
 import { Jugador } from "../../schemas/Jugador.js";
 import { Partida } from "../../schemas/Partida.js";
 
@@ -95,4 +95,11 @@ export function validar(contexto: Contexto, guardias: Guardia[]): string | null 
         if (error) return error;
     }
     return null;
+}
+
+//! Fabrica un guardia que exige que la preconstruccion este en el paso indicado
+export function enFasePreconstruccion(paso: FasePreconstruccion): Guardia {
+    return (contexto) => {
+        throw new Error("Sin implementar");
+    };
 }
