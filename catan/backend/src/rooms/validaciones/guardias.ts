@@ -90,5 +90,9 @@ export function tieneCarta(carta: Desarrollo): Guardia {
 
 //? Revisa las guardias en orden y devuelve el primer error, o null si todas pasan
 export function validar(contexto: Contexto, guardias: Guardia[]): string | null {
-    throw new Error("Sin implementar");
+    for (const guardia of guardias) {
+        const error = guardia(contexto);
+        if (error) return error;
+    }
+    return null;
 }
