@@ -4,7 +4,7 @@ import {
 } from "@mui/material";
 import type { Jugadores, Recurso, Recursos } from "../common/jugador";
 import { RECURSOS } from "../common/jugador";
-import type { Oferta } from "../common/partida";
+import { describirRecursos, type Oferta } from "../common/partida";
 
 // Lo que espera msgIntercambiarJugador en CatanRoom.
 export interface Propuesta {
@@ -67,8 +67,8 @@ function ProponerIntercambio({ children, ofertaActiva, jugadores, misRecursos, p
                 {ofertaActiva ? (
                     <Typography variant="body2">
                         <strong>{jugadores[ofertaActiva.jugador]?.nombre ?? 'Un jugador'}</strong> ofrece{' '}
-                        <strong>{ofertaActiva.cantidadOfrecida} {ofertaActiva.recursoOfrecido}</strong> por{' '}
-                        <strong>{ofertaActiva.cantidadSolicitada} {ofertaActiva.recursoSolicitado}</strong>.
+                        <strong>{describirRecursos(ofertaActiva.recursosOfrecidos)}</strong> por{' '}
+                        <strong>{describirRecursos(ofertaActiva.recursosSolicitados)}</strong>.
                         <br />
                         <small className="text-body-secondary">Propuesta activa</small>
                     </Typography>
