@@ -158,3 +158,17 @@ export function respuestaValida(respuesta: number): Guardia {
         return null;
     };
 }
+
+//? Exige que la partida siga en el lobby, que es el unico momento en que se puede entrar a la sala
+export const salaAbierta: Guardia = ({ partida }) => {
+    if (partida.fase !== FasePartida.LOBBY) return "La partida ya ha comenzado, no puedes unirte";
+    return null;
+};
+
+//! Fabrica un guardia que exige el codigo de acceso de la sala si lo tiene
+export function codigoAccesoValido(codigoSala: string, codigoIngresado?: string): Guardia {
+    return () => {
+        if (codigoSala !== "" && codigoIngresado !== codigoSala) return "Codigo de acceso incorrecto";
+        return null;
+    };
+}
