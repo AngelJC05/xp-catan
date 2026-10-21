@@ -23,6 +23,7 @@ import { manejarColocarAsentamiento } from "./handlers/construccion/colocarAsent
 import { manejarColocarCamino } from "./handlers/construccion/colocarCamino.js";
 import { manejarLanzarDados } from "./handlers/dados/lanzarDados.js";
 import { manejarMoverLadron } from "./handlers/ladron/moverLadron.js";
+import { manejarRobarJugador } from "./handlers/ladron/robarJugador.js";
 import { manejarDescartarRecursos } from "./handlers/descarte/descartarRecursos.js";
 
 
@@ -62,6 +63,11 @@ export class CatanRoom extends Room {
       client: Client, 
       mensaje: { h: number, d: number }
     ) => manejarMoverLadron(this, client, mensaje),
+
+    msgRobarJugador: (
+      client: Client, 
+      mensaje: { jugadorRobado: string }
+    ) => manejarRobarJugador(this, client, mensaje),
 
     msgDescartarRecursos: (
       client: Client, 
@@ -838,58 +844,7 @@ export class CatanRoom extends Room {
       this.partida.cartaJugable = false;
     },
 
-    msgRobarJugador: (
-      client: Client,
-      mensaje: { jugadorRobado: string}
-    ) => {
-      //* Verificar que la partida siga en curso
-      if (this.partida.fase === FasePartida.FINALIZADA) {
-        client.send("error", {
-          mensajeError: "La partida ha finalizado"
-        })
-        return;
-      }
 
-      //* Verificar que sea el turno del jugador
-      if (this.partida.turnoActual !== client.sessionId) {
-        client.send("error", {
-          mensajeError: "No es tu turno"
-        })
-        return;
-      }
-
-      //* Verificar que estemos en la fase de robar
-      if (this.partida.faseJuego !== FaseJuego.ROBO) {
-        client.send("error", {
-          mensajeError: "No es la fase de robar"
-        })
-        return;
-      }
-
-
-      //* Verificar que el jugador elegido este en la lista de robo
-      if(!this.partida.jugadoresParaRobar.includes(mensaje.jugadorRobado)){
-        client.send("error", {
-          mensajeError: "El jugador elegido no esta en la lista de robo"
-        })
-        return;
-      }
-
-      //* Robar un recurso al azar al jugador elegido
-
-      robarJugador(this.jugadores.get(client.sessionId), this.jugadores.get(mensaje.jugadorRobado));
-
-      //* Log del robo
-      this.broadcast("log", {
-        jugador: this.jugadores.get(client.sessionId)?.nombre,
-        mensaje: ` ha robado un recurso a ${this.jugadores.get(mensaje.jugadorRobado)?.nombre}`
-      })
-
-      //* Limpiar Lista y volver a acciones
-      this.partida.jugadoresParaRobar.clear();
-      this.partida.faseJuego = FaseJuego.ACCIONES;
-    }
-    
   };
 
   //? Recalcula el titulo de camino mas largo, avisa en el log y comprueba si el titular gano
