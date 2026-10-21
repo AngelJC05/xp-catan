@@ -5,6 +5,7 @@ import { Jugador } from "../src/schemas/Jugador.js";
 import { Desarrollo, FaseJuego, FasePartida, FasePreconstruccion } from "../src/common/enums.js";
 import {
   type Guardia,
+  debeDescartar,
   enFaseJuego,
   enFasePartida,
   enFasePreconstruccion,
@@ -250,6 +251,24 @@ describe("guardia de preconstruccion", () => {
       enFasePreconstruccion(FasePreconstruccion.CAMINO)({ partida, sessionId: ANGEL }),
       "Coloca primero un asentamiento"
     );
+  });
+
+});
+
+describe("guardia de descarte", () => {
+
+  it("debeDescartar no da error si el jugador esta en la lista de descarte", () => {
+    const partida = armarPartida();
+    partida.jugadoresParaDescartar.set(ANGEL, 4);
+
+    assert.strictEqual(debeDescartar({ partida, sessionId: ANGEL }), null);
+  });
+
+  it("debeDescartar da error si el jugador no esta en la lista de descarte", () => {
+    const partida = armarPartida();
+    partida.jugadoresParaDescartar.set(ALAN, 4);
+
+    assert.strictEqual(debeDescartar({ partida, sessionId: ANGEL }), "No tienes que descartar");
   });
 
 });

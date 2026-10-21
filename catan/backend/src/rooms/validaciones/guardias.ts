@@ -110,3 +110,8 @@ export function enFasePreconstruccion(fase: FasePreconstruccion): Guardia {
         return null;
     };
 }
+
+//? Solo los jugadores que estan en la lista de descarte pueden descartar recursos
+export const debeDescartar: Guardia = () => {
+    throw new Error("Sin implementar");
+};
