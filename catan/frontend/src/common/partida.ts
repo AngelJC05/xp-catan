@@ -22,12 +22,7 @@ export interface DatosPartida {
    demas votan. */
 export interface Oferta {
   jugador: string;
-  recursoOfrecido: string;
-  cantidadOfrecida: number;
-  recursoSolicitado: string;
-  cantidadSolicitada: number;
   respuestas: Record<string, number>;
-  // Oferta mixta: cada recurso con su cantidad.
   recursosOfrecidos: Record<string, number>;
   recursosSolicitados: Record<string, number>;
 }

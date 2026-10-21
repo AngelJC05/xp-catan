@@ -8,15 +8,10 @@ const CANTIDAD_MAXIMA = 19;
 export class OfertaIntercambio extends Schema {
 
     @type("string") jugador: string;
-    @type("string") recursoOfrecido: string;
-    @type("uint8") cantidadOfrecida: number;
-    @type("string") recursoSolicitado: string;
-    @type("uint8") cantidadSolicitada: number;
 
     @type({ map: "int8" })
     respuestas = new MapSchema<number>();
 
-    //* Oferta mixta: cada recurso con su cantidad
     @type({ map: "uint8" })
     recursosOfrecidos = new MapSchema<number>();
 
@@ -26,30 +21,6 @@ export class OfertaIntercambio extends Schema {
     constructor(){
         super();
         this.jugador = "";
-        this.recursoOfrecido = "";
-        this.cantidadOfrecida = 0;
-        this.recursoSolicitado = "";
-        this.cantidadSolicitada = 0;
-    }
-
-    setOferta(
-        jugador: string,
-        jugadores: MapSchema<Jugador>,
-        recursoOfrecido: string,
-        cantidadOfrecida: number,
-        recursoSolicitado: string,
-        cantidadSolicitada: number
-    ){
-        this.jugador = jugador;
-        this.recursoOfrecido = recursoOfrecido;
-        this.cantidadOfrecida = cantidadOfrecida;
-        this.recursoSolicitado = recursoSolicitado;
-        this.cantidadSolicitada = cantidadSolicitada;
-
-        this.respuestas.clear();
-        for (const [sessionId] of jugadores) {
-            if(sessionId !== jugador) this.respuestas.set(sessionId, 0);
-        }
     }
 
     //? Valida y guarda una oferta con varios recursos, si hay error no modifica nada
@@ -106,10 +77,6 @@ export class OfertaIntercambio extends Schema {
 
     limpiarOferta(){
         this.jugador = "";
-        this.recursoOfrecido = "";
-        this.cantidadOfrecida = 0;
-        this.recursoSolicitado = "";
-        this.cantidadSolicitada = 0;
         this.respuestas.clear();
         this.recursosOfrecidos.clear();
         this.recursosSolicitados.clear();
