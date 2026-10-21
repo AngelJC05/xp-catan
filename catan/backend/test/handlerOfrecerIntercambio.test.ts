@@ -82,6 +82,17 @@ describe("handler de ofrecer un intercambio", () => {
     assert.strictEqual(difundidos.length, 0);
   });
 
+  it("avisa en vez de fallar si el mensaje llega sin los recursos", () => {
+    const { sala } = armarJuego();
+    const { client, enviados } = armarCliente(ANGEL);
+
+    manejarOfrecerIntercambio(sala, client, {} as { ofrecidos: Record<string, number>, solicitados: Record<string, number> });
+
+    assert.deepStrictEqual(enviados, [
+      { tipo: "error", mensaje: { mensajeError: "Debes ofrecer al menos un recurso" } }
+    ]);
+  });
+
   it("avisa si pide y da el mismo recurso", () => {
     const { sala } = armarJuego();
     const { client, enviados } = armarCliente(ANGEL);

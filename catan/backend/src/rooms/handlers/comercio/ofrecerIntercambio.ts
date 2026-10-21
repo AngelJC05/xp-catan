@@ -5,6 +5,7 @@ import { enviarError, registrarLogDeJugador } from "../../ayudantes/notificacion
 import { enFaseJuego, esSuTurno, partidaEnCurso, sinOfertaActiva, validar } from "../../validaciones/guardias.js";
 
 //? Atiende el mensaje msgIntercambiarJugador: el jugador del turno publica una oferta con recursos de cada lado
+//? Si un cliente manda el mensaje sin alguno de los lados se trata como vacio, para que avise el error en vez de fallar
 export function manejarOfrecerIntercambio(
     sala: CatanRoom,
     client: Client,
@@ -24,8 +25,8 @@ export function manejarOfrecerIntercambio(
     const resultado = sala.partida.ofertaIntercambio.setOfertaMixta(
         client.sessionId,
         sala.jugadores,
-        mensaje.ofrecidos,
-        mensaje.solicitados
+        mensaje.ofrecidos ?? {},
+        mensaje.solicitados ?? {}
     );
 
     if (resultado.error) {
