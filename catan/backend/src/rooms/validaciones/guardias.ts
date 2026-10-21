@@ -129,27 +129,32 @@ export function jugadorRobable(sessionIdRobado: string): Guardia {
 
 //? No se puede hacer una oferta nueva mientras haya otra activa
 export const sinOfertaActiva: Guardia = ({ partida }) => {
-    throw new Error("Sin implementar");
+    if (partida.ofertaIntercambio.jugador !== "") return "Ya existe una oferta activa";
+    return null;
 };
 
 //? Para responder tiene que existir una oferta activa
 export const hayOfertaActiva: Guardia = ({ partida }) => {
-    throw new Error("Sin implementar");
+    if (partida.ofertaIntercambio.jugador === "") return "No hay una oferta activa";
+    return null;
 };
 
 //? Solo responden los jugadores que recibieron la oferta, no quien la hizo
 export const puedeResponderOferta: Guardia = ({ partida, sessionId }) => {
-    throw new Error("Sin implementar");
+    if (!partida.ofertaIntercambio.respuestas.has(sessionId)) return "No puedes responder a esta oferta";
+    return null;
 };
 
 //? Cada jugador solo puede responder una vez a una oferta
 export const aunNoRespondio: Guardia = ({ partida, sessionId }) => {
-    throw new Error("Sin implementar");
+    if (partida.ofertaIntercambio.respuestas.get(sessionId) !== 0) return "Ya respondiste a esta oferta";
+    return null;
 };
 
 //! Fabrica un guardia que exige que la respuesta sea 1 (aceptar) o -1 (rechazar)
 export function respuestaValida(respuesta: number): Guardia {
     return () => {
-        throw new Error("Sin implementar");
+        if (respuesta !== 1 && respuesta !== -1) return "Respuesta invalida";
+        return null;
     };
 }
