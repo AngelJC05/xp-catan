@@ -6,9 +6,6 @@ import { siguienteTurno } from "../functions/siguienteTurno.js";
 import { verificarVictoria } from "../functions/verificarVictoria.js";
 import { construirCiudad } from "../functions/construirCiudad.js";
 import { comerciarBanca } from "../functions/comerciarBanca.js";
-import { moverLadron } from "../functions/moverLadron.js";
-import { robarJugador } from "../functions/robarJugador.js";
-import { jugarCaballero } from "../functions/jugarCaballero.js";
 import { activarCartasCompradas } from "../functions/activarCartasCompradas.js";
 import { intercambiarRecursosMixtos } from "../functions/intercambiarRecursos.js";
 import { construirCamino } from "../functions/construirCaminos.js";
@@ -25,6 +22,7 @@ import { manejarMoverLadron } from "./handlers/ladron/moverLadron.js";
 import { manejarRobarJugador } from "./handlers/ladron/robarJugador.js";
 import { manejarDescartarRecursos } from "./handlers/descarte/descartarRecursos.js";
 import { manejarComprarCarta } from "./handlers/cartas/comprarCarta.js";
+import { manejarCartaCaballero } from "./handlers/cartas/cartaCaballero.js";
 
 
 export class CatanRoom extends Room {
@@ -75,6 +73,11 @@ export class CatanRoom extends Room {
     ) => manejarDescartarRecursos(this, client, mensaje),
 
     msgComprarCarta: (client: Client) => manejarComprarCarta(this, client),
+
+    msgCartaCaballero: (
+      client: Client, 
+      mensaje: { h: number, d: number }
+    ) => manejarCartaCaballero(this, client, mensaje),
 
     msgIntercambiarBanca: (
       client: Client,
@@ -240,116 +243,6 @@ export class CatanRoom extends Room {
 
     },
 
-
-
-
-    msgCartaCaballero: (
-      client: Client,
-      mensaje: { h: number, d: number }
-    ) => {
-      //* Verificar que la partida siga en curso
-      if (this.partida.fase === FasePartida.FINALIZADA) {
-        client.send("error", {
-          mensajeError: "La partida ha finalizado"
-        })
-        return;
-      }
-
-      //* Verificar que sea el turno del jugador
-      if (this.partida.turnoActual !== client.sessionId) {
-        client.send("error", {
-          mensajeError: "No es tu turno"
-        })
-        return;
-      }
-
-      //* Verificar si estamos en la fase de acciones
-      if (this.partida.faseJuego !== FaseJuego.ACCIONES) {
-        client.send("error", {
-          mensajeError: "Termina de lanzar los dados primero"
-        })
-        return;
-      }
-
-
-      //* Verificar que se permita usar carta
-      if (!this.partida.cartaJugable) {
-        client.send("error", {
-          mensajeError: "Solo una carta por turno"
-        })
-        return;
-      }
-
-
-      //* Verificar que el jugador tenga la carta de caballero
-      const jugador = this.jugadores.get(client.sessionId);
-      if (jugador.cartas_usables.get(`${Desarrollo.CABALLERO}`) < 1) {
-        client.send("error", {
-          mensajeError: "No tienes la carta de caballero"
-        })
-        return;
-      }
-
-      //* Mover al ladron y obtener los jugadores involucrados
-      const { h, d } = mensaje;
-      const resultado = moverLadron(
-        this.tablero,
-        this.jugadores,
-        client.sessionId,
-        h, d);
-
-
-      //* Si no se puede mover el ladron, notificar error
-      if (resultado.error) {
-        client.send("error", {
-          mensajeError: resultado.mensaje
-        })
-        return;
-      }
-
-      //* Log del uso de la carta de caballero
-      this.broadcast("log", {
-        jugador: this.jugadores.get(client.sessionId)?.nombre,
-        mensaje: " ha jugado una carta de caballero"
-      })
-
-      //* Eliminar la carta de caballero del jugador
-      jugarCaballero(this.jugadores, client.sessionId, this.partida, this); 
-
-      //* Verificar si el jugador ha ganado
-      verificarVictoria(this.partida, jugador, client.sessionId, this);
-      
-      //* Deshabilitar el uso de otra carta este turno
-      this.partida.cartaJugable = false;     
-
-      //* Extraemos los jugadores involucrados en el robo
-      const jugadoresInvolucrados = resultado.jugadoresInvolucrados;
-
-      //* Si no hay jugadores, pasamos a las ACCIONES
-      if (jugadoresInvolucrados.length == 0) {
-        this.partida.faseJuego = FaseJuego.ACCIONES;
-        return;
-      }
-
-      //* Si solo hubo un jugador, se le roba automaticamente
-      if (jugadoresInvolucrados.length === 1) {
-        robarJugador(
-          this.jugadores.get(client.sessionId),
-          this.jugadores.get(jugadoresInvolucrados[0])
-        )
-        this.partida.faseJuego = FaseJuego.ACCIONES;
-        return;
-      }
-
-      //* Si hay 2 o mas jugadores involucrados, se pasa la lista de jugadores
-      this.partida.jugadoresParaRobar.clear();
-      this.partida.jugadoresParaRobar.push(...jugadoresInvolucrados);
-
-
-      //? Entramos a fase especial para decidir a quien robar
-
-      this.partida.faseJuego = FaseJuego.ROBO;
-    },
 
     msgIntercambiarJugador: (
       client: Client,
