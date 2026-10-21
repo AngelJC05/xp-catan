@@ -17,11 +17,27 @@ export interface OpcionesSala {
 }
 
 //? Convierte lo que manda el cliente en la configuracion de la sala, rellenando lo que falte
-export function leerOpciones(opciones?: OpcionesCrear): OpcionesSala {
-    throw new Error("Sin implementar");
+export function leerOpciones(opciones: OpcionesCrear = {}): OpcionesSala {
+    return {
+        alias: opciones.alias || "Catan Room",
+        privada: opciones.privada || false,
+        codigoAcceso: opciones.codigoAcceso || "",
+        anfitrion: opciones.nombre || ""
+    };
 }
 
 //? Atiende la creacion de la sala (onCreate): guarda su configuracion y publica su metadata en el lobby
 export function manejarCreacion(sala: CatanRoom, opciones?: OpcionesCrear): void {
-    throw new Error("Sin implementar");
+    const { alias, privada, codigoAcceso, anfitrion } = leerOpciones(opciones);
+
+    //* Si se ingresa codigo de acceso, se guarda en la sala (no se publica en la metadata)
+    sala.codigoAcceso = codigoAcceso;
+
+    //* Seteamos la data de la sala
+    sala.setMetadata({
+        alias,
+        estado: "EN LOBBY",
+        privada,
+        anfitrion
+    });
 }
