@@ -1,8 +1,6 @@
 import { Room, Client, CloseCode, Delayed } from "colyseus";
 import { CatanState } from "../states/CatanState.js";
-import { FasePartida } from "../common/enums.js";
-import { verificarVictoria } from "../functions/verificarVictoria.js";
-import { actualizarCaminoMasLargo } from "../functions/actualizarCaminoMasLargo.js";
+import { revisarCaminoMasLargo } from "./ayudantes/revisarCaminoMasLargo.js";
 import { manejarChat } from "./handlers/chat/chat.js";
 import { manejarIniciarPartida } from "./handlers/partida/iniciarPartida.js";
 import { manejarColocarAsentamiento } from "./handlers/construccion/colocarAsentamiento.js";
@@ -126,32 +124,9 @@ export class CatanRoom extends Room {
 
   };
 
-  //? Recalcula el titulo de camino mas largo, avisa en el log y comprueba si el titular gano
+  //? Recalcula el titulo de camino mas largo
   revisarCaminoMasLargo() {
-    if (this.partida.fase === FasePartida.FINALIZADA) return;
-
-    //* Actualizar el camino mas largo y obtener el resultado
-    const resultado = actualizarCaminoMasLargo(
-      this.partida,
-      this.tablero.vertices,
-      this.tablero.aristas,
-      this.jugadores
-    );
-    if (resultado.error) return;
-
-
-    if (resultado.mensaje !== "") {
-      this.broadcast("log", {
-        jugador: "Sistema: ",
-        mensaje: resultado.mensaje
-      })
-    }
-
-    //* El titulo puede transferirse a otro y darle la victoria
-    const titular = this.jugadores.get(this.partida.caminoMasLargo);
-    if (titular) {
-      verificarVictoria(this.partida, titular, this.partida.caminoMasLargo, this);
-    }
+    revisarCaminoMasLargo(this);
   }
 
   onCreate(options: any) {
