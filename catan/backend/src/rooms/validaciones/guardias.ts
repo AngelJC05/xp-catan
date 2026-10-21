@@ -116,3 +116,10 @@ export const debeDescartar: Guardia = ({ partida, sessionId }) => {
     if (!partida.jugadoresParaDescartar.has(sessionId)) return "No tienes que descartar";
     return null;
 };
+
+//! Fabrica un guardia que exige que el jugador elegido este en la lista de jugadores que se pueden robar
+export function jugadorRobable(sessionIdRobado: string): Guardia {
+    return () => {
+        throw new Error("Sin implementar");
+    };
+}

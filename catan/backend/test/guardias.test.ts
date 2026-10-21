@@ -11,6 +11,7 @@ import {
   enFasePreconstruccion,
   esCreador,
   esSuTurno,
+  jugadorRobable,
   partidaEnCurso,
   puedeUsarCarta,
   tieneCarta,
@@ -269,6 +270,27 @@ describe("guardia de descarte", () => {
     partida.jugadoresParaDescartar.set(ALAN, 4);
 
     assert.strictEqual(debeDescartar({ partida, sessionId: ANGEL }), "No tienes que descartar");
+  });
+
+});
+
+describe("guardia de robo", () => {
+
+  it("jugadorRobable no da error si el jugador esta en la lista de robo", () => {
+    const partida = armarPartida();
+    partida.jugadoresParaRobar.push(ALAN);
+
+    assert.strictEqual(jugadorRobable(ALAN)({ partida, sessionId: ANGEL }), null);
+  });
+
+  it("jugadorRobable da error si el jugador no esta en la lista de robo", () => {
+    const partida = armarPartida();
+    partida.jugadoresParaRobar.push(ALAN);
+
+    assert.strictEqual(
+      jugadorRobable("otroJugador")({ partida, sessionId: ANGEL }),
+      "El jugador elegido no esta en la lista de robo"
+    );
   });
 
 });
