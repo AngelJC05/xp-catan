@@ -1,31 +1,33 @@
 import { Room, Client, CloseCode, Delayed } from "colyseus";
 import { CatanState } from "../states/CatanState.js";
 import { revisarCaminoMasLargo } from "./ayudantes/revisarCaminoMasLargo.js";
-import { manejarChat } from "./handlers/chat/chat.js";
-import { manejarIniciarPartida } from "./handlers/partida/iniciarPartida.js";
-import { manejarColocarAsentamiento } from "./handlers/construccion/colocarAsentamiento.js";
-import { manejarColocarCamino } from "./handlers/construccion/colocarCamino.js";
-import { manejarColocarCiudad } from "./handlers/construccion/colocarCiudad.js";
-import { manejarLanzarDados } from "./handlers/dados/lanzarDados.js";
-import { manejarPasarTurno } from "./handlers/turno/pasarTurno.js";
-import { manejarIntercambiarBanca } from "./handlers/comercio/intercambiarBanca.js";
-import { manejarOfrecerIntercambio } from "./handlers/comercio/ofrecerIntercambio.js";
-import { manejarResponderIntercambio } from "./handlers/comercio/responderIntercambio.js";
-import { manejarMoverLadron } from "./handlers/ladron/moverLadron.js";
-import { manejarRobarJugador } from "./handlers/ladron/robarJugador.js";
-import { manejarDescartarRecursos } from "./handlers/descarte/descartarRecursos.js";
-import { manejarComprarCarta } from "./handlers/cartas/comprarCarta.js";
-import { manejarCartaCaballero } from "./handlers/cartas/cartaCaballero.js";
-import { manejarCartaAbundancia } from "./handlers/cartas/cartaAbundancia.js";
-import { manejarCartaMonopolio } from "./handlers/cartas/cartaMonopolio.js";
-import { manejarCartaCarreteras } from "./handlers/cartas/cartaCarreteras.js";
-import { manejarCaminoGratis } from "./handlers/cartas/caminoGratis.js";
-import { manejarCreacion } from "./handlers/sala/crearSala.js";
-import { manejarUnirse } from "./handlers/sala/unirseASala.js";
-import { manejarSalida } from "./handlers/sala/salirDeSala.js";
-import { manejarCaidaConexion } from "./handlers/sala/perderConexion.js";
-import { manejarReconexion } from "./handlers/sala/reconectar.js";
-import { manejarDestruccion } from "./handlers/sala/destruirSala.js";
+import {
+  manejarChat,
+  manejarIniciarPartida,
+  manejarColocarAsentamiento,
+  manejarColocarCamino,
+  manejarColocarCiudad,
+  manejarLanzarDados,
+  manejarPasarTurno,
+  manejarIntercambiarBanca,
+  manejarOfrecerIntercambio,
+  manejarResponderIntercambio,
+  manejarMoverLadron,
+  manejarRobarJugador,
+  manejarDescartarRecursos,
+  manejarComprarCarta,
+  manejarCartaCaballero,
+  manejarCartaAbundancia,
+  manejarCartaMonopolio,
+  manejarCartaCarreteras,
+  manejarCaminoGratis,
+  manejarCreacion,
+  manejarUnirse,
+  manejarSalida,
+  manejarCaidaConexion,
+  manejarReconexion,
+  manejarDestruccion
+} from "./handlers/index.js";
 
 
 export class CatanRoom extends Room {
