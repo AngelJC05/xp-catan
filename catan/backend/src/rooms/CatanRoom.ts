@@ -14,7 +14,6 @@ import { intercambiarRecursosMixtos } from "../functions/intercambiarRecursos.js
 import { construirCamino } from "../functions/construirCaminos.js";
 import { jugarAbundancia } from "../functions/jugarAbundancia.js";
 import { jugarMonopolio } from "../functions/jugarMonopolio.js";
-import { comprarCarta } from "../functions/comprarCarta.js";
 import { sacarJugador } from "../functions/sacarJugador.js";
 import { actualizarCaminoMasLargo } from "../functions/actualizarCaminoMasLargo.js";
 import { manejarChat } from "./handlers/chat/chat.js";
@@ -25,6 +24,7 @@ import { manejarLanzarDados } from "./handlers/dados/lanzarDados.js";
 import { manejarMoverLadron } from "./handlers/ladron/moverLadron.js";
 import { manejarRobarJugador } from "./handlers/ladron/robarJugador.js";
 import { manejarDescartarRecursos } from "./handlers/descarte/descartarRecursos.js";
+import { manejarComprarCarta } from "./handlers/cartas/comprarCarta.js";
 
 
 export class CatanRoom extends Room {
@@ -73,6 +73,8 @@ export class CatanRoom extends Room {
       client: Client, 
       mensaje: { recurso: string }
     ) => manejarDescartarRecursos(this, client, mensaje),
+
+    msgComprarCarta: (client: Client) => manejarComprarCarta(this, client),
 
     msgIntercambiarBanca: (
       client: Client,
@@ -522,55 +524,6 @@ export class CatanRoom extends Room {
       }
     },
 
-    msgComprarCarta: (client: Client) => {
-        //* Verificar que la partida siga en curso
-        if(this.partida.fase === FasePartida.FINALIZADA){
-            client.send("error", {
-                mensajeError: "La partida ha finalizado"
-            })
-            return;
-        }
-
-        //* Verificar que sea el turno del jugador
-        if(this.partida.turnoActual !== client.sessionId){
-            client.send("error", {
-                mensajeError: "No es tu turno"
-            })
-            return;
-        }
-
-        //* Verificar que estamos en fase de acciones
-        if(this.partida.faseJuego !== FaseJuego.ACCIONES){
-            client.send("error", {
-                mensajeError: "Termina de lanzar los dados primero"
-            })
-            return;
-        }
-
-        //* Intentar comprar la carta
-        const resultado = comprarCarta(
-            this.jugadores.get(client.sessionId), this.banca
-        )
-
-        //* Si no se pudo comprar, notificar error
-        if(resultado.error){
-            client.send("error", {
-                mensajeError: resultado.mensaje
-            })
-            return;    
-        }
-
-        //* Log de la compra de la carta
-        if(!resultado.error){
-            this.broadcast("log", {
-                jugador: this.jugadores.get(client.sessionId)?.nombre,
-                mensaje: resultado.mensaje
-            })
-        }
-
-        //* Verificar si el jugador ha ganado
-        verificarVictoria(this.partida, this.jugadores.get(client.sessionId), client.sessionId, this);
-    },
 
     msgCartaCarreteras: (client: Client) => {
       // * Verificar que la partida siga en curso
