@@ -1,10 +1,8 @@
 import { Room, Client, CloseCode, Delayed } from "colyseus";
 import { CatanState } from "../states/CatanState.js";
 import { Jugador } from "../schemas/Jugador.js";
-import { Desarrollo, FaseJuego, FasePartida } from "../common/enums.js";
+import { FasePartida } from "../common/enums.js";
 import { verificarVictoria } from "../functions/verificarVictoria.js";
-import { jugarAbundancia } from "../functions/jugarAbundancia.js";
-import { jugarMonopolio } from "../functions/jugarMonopolio.js";
 import { sacarJugador } from "../functions/sacarJugador.js";
 import { actualizarCaminoMasLargo } from "../functions/actualizarCaminoMasLargo.js";
 import { manejarChat } from "./handlers/chat/chat.js";
@@ -22,6 +20,8 @@ import { manejarRobarJugador } from "./handlers/ladron/robarJugador.js";
 import { manejarDescartarRecursos } from "./handlers/descarte/descartarRecursos.js";
 import { manejarComprarCarta } from "./handlers/cartas/comprarCarta.js";
 import { manejarCartaCaballero } from "./handlers/cartas/cartaCaballero.js";
+import { manejarCartaAbundancia } from "./handlers/cartas/cartaAbundancia.js";
+import { manejarCartaMonopolio } from "./handlers/cartas/cartaMonopolio.js";
 import { manejarCartaCarreteras } from "./handlers/cartas/cartaCarreteras.js";
 import { manejarCaminoGratis } from "./handlers/cartas/caminoGratis.js";
 
@@ -112,148 +112,12 @@ export class CatanRoom extends Room {
     msgCartaAbundancia: (
       client: Client,
       mensaje: { recurso1: string, recurso2: string }
-    ) => {
-      //* Verificar que la partida siga en curso
-      if (this.partida.fase === FasePartida.FINALIZADA) {
-        client.send("error", {
-          mensajeError: "La partida ha finalizado"
-        })
-        return;
-      }
-
-      //* Verificar que sea el turno del jugador
-      if (this.partida.turnoActual !== client.sessionId) {
-        client.send("error", {
-          mensajeError: "No es tu turno"
-        })
-        return;
-      }
-
-      //* Verificar que estamos en fase de acciones
-      if (this.partida.faseJuego !== FaseJuego.ACCIONES) {
-        client.send("error", {
-          mensajeError: "Termina de lanzar los dados primero"
-        })
-        return;
-      }
-
-
-      //* Verificar si se permite usar carta
-      if (!this.partida.cartaJugable) {
-        client.send("error", {
-          mensajeError: "solo una carta por turno"
-        })
-        return;
-      }
-
-      //* Verificar que tenga la carta de abundancia
-      const jugador = this.jugadores.get(client.sessionId);
-      if (jugador.cartas_usables.get(`${Desarrollo.ABUNDANCIA}`) < 1) {
-        client.send("error", {
-          mensajeError: "No tienes la carta de abundancia"
-        })
-        return;
-      }
-
-
-      //* Intentar jugar la carta de abundancia
-      const resultado = jugarAbundancia(
-        jugador, this.banca, mensaje.recurso1, mensaje.recurso2
-      );
-
-      //* Si no puede jugar, notificar error
-      if (resultado.error) {
-        client.send("error", {
-          mensajeError: resultado.mensaje
-        })
-        return;
-      }
-
-      //* Log de la carta de abundancia
-      if (!resultado.error) {
-        this.broadcast("log", {
-          jugador: this.jugadores.get(client.sessionId)?.nombre,
-          mensaje: resultado.mensaje
-        })
-      }
-
-      //* Marcar que ya se utilizo una carta en este turno
-      this.partida.cartaJugable = false;
-
-    },
+    ) => manejarCartaAbundancia(this, client, mensaje),
 
     msgCartaMonopolio: (
       client: Client,
       mensaje: { recurso: string }
-    ) => {
-      //* Verificar que la partida siga en curso
-      if (this.partida.fase === FasePartida.FINALIZADA) {
-        client.send("error", {
-          mensajeError: "La partida ha finalizado"
-        });
-        return;
-      }
-
-      //* Verificar que sea el turno del jugador
-      if (this.partida.turnoActual !== client.sessionId) {
-        client.send("error", {
-          mensajeError: "No es tu turno"
-        });
-        return;
-      }
-
-      //* Verificar que estamos en fase de acciones
-      if (this.partida.faseJuego !== FaseJuego.ACCIONES) {
-        client.send("error", {
-          mensajeError: "Termina de lanzar los dados primero"
-        });
-        return;
-      }
-
-      //* Verificar que se permite usar carta
-      if (!this.partida.cartaJugable) {
-        client.send("error", {
-          mensajeError: "Solo una carta por turno"
-        });
-        return;
-      }
-
-      //* Verificar que tenga la carta de monopolio
-      const jugador = this.jugadores.get(client.sessionId);
-
-      if (jugador.cartas_usables.get(`${Desarrollo.MONOPOLIO}`) < 1) {
-        client.send("error", {
-          mensajeError: "No tienes la carta de monopolio"
-        });
-        return;
-      }
-
-      //* Intentar jugar la carta de monopolio
-      const resultado = jugarMonopolio(
-        this.jugadores,
-        client.sessionId,
-        mensaje.recurso
-      );
-
-      //* Si no se pudo jugar, notificar error
-      if (resultado.error) {
-        client.send("error", {
-          mensajeError: resultado.mensaje
-        });
-        return;
-      }
-
-      //* Log de la carta de monopolio
-      if (!resultado.error) {
-        this.broadcast("log", {
-          jugador: this.jugadores.get(client.sessionId)?.nombre,
-          mensaje: resultado.mensaje
-        })
-      }
-
-      //* Marcar que ya se utilizo una carta en este turno
-      this.partida.cartaJugable = false;
-    },
+    ) => manejarCartaMonopolio(this, client, mensaje),
 
 
   };
