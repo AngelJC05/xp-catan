@@ -4,7 +4,6 @@ import { Jugador } from "../schemas/Jugador.js";
 import { Desarrollo, FaseJuego, FasePartida } from "../common/enums.js";
 import { siguienteTurno } from "../functions/siguienteTurno.js";
 import { verificarVictoria } from "../functions/verificarVictoria.js";
-import { construirCiudad } from "../functions/construirCiudad.js";
 import { comerciarBanca } from "../functions/comerciarBanca.js";
 import { activarCartasCompradas } from "../functions/activarCartasCompradas.js";
 import { intercambiarRecursosMixtos } from "../functions/intercambiarRecursos.js";
@@ -17,6 +16,7 @@ import { manejarChat } from "./handlers/chat/chat.js";
 import { manejarIniciarPartida } from "./handlers/partida/iniciarPartida.js";
 import { manejarColocarAsentamiento } from "./handlers/construccion/colocarAsentamiento.js";
 import { manejarColocarCamino } from "./handlers/construccion/colocarCamino.js";
+import { manejarColocarCiudad } from "./handlers/construccion/colocarCiudad.js";
 import { manejarLanzarDados } from "./handlers/dados/lanzarDados.js";
 import { manejarMoverLadron } from "./handlers/ladron/moverLadron.js";
 import { manejarRobarJugador } from "./handlers/ladron/robarJugador.js";
@@ -54,6 +54,11 @@ export class CatanRoom extends Room {
       client: Client, 
       mensaje: { h: number, d: number, p: number }
     ) => manejarColocarCamino(this, client, mensaje),
+
+    msgColocarCiudad: (
+      client: Client, 
+      mensaje: { h: number, d: number, p: number }
+    ) => manejarColocarCiudad(this, client, mensaje),
 
     msgLanzarDados: (client: Client) => manejarLanzarDados(this, client),
 
@@ -124,74 +129,6 @@ export class CatanRoom extends Room {
 
     },
 
-
-    msgColocarCiudad: (
-      client: Client,
-      mensaje: { h: number, d: number, p: number }
-    ) => {
-      //* Verificar que la partida siga un curso
-      if (this.partida.fase === FasePartida.FINALIZADA) {
-        client.send("error", {
-          mensajeError: "La partida ha finalizado"
-        })
-        return;
-      }
-
-      //*Verificar que sea el turno del jugador
-      if (this.partida.turnoActual !== client.sessionId) {
-        client.send("error", {
-          mensajeError: "No es tu turno"
-        })
-        return;
-      }
-
-      //* Verificar que estemos en la fase de juego
-      if (this.partida.fase !== FasePartida.JUEGO) {
-        client.send("error", {
-          mensajeError: "No es la fase de juego"
-        });
-        return;
-      }
-
-      //* Verificar que estemos en la fase de acciones
-      if (this.partida.faseJuego !== FaseJuego.ACCIONES) {
-        client.send("error", {
-          mensajeError: "Debes lanzar los dados primero"
-        })
-        return;
-      }
-
-      //* Obtener el jugador del state y que exista
-      const jugador = this.jugadores.get(client.sessionId);
-      if (!jugador) return;
-      const { h, d, p } = mensaje;
-
-      //* Intentar construir la ciudad
-      const resultado = construirCiudad(
-        this.tablero.vertices,
-        h, d, p,
-        jugador, this.banca, client.sessionId
-      )
-
-      //* Si no se pudo construir, se notifica el error
-      if (resultado.error) {
-        client.send("error", {
-          mensajeError: resultado.mensaje
-        })
-        return;
-      }
-
-      //* Log de la construccion de la ciudad
-      if(!resultado.error){
-        this.broadcast("log", {
-          jugador: this.jugadores.get(client.sessionId)?.nombre,
-          mensaje: resultado.mensaje
-        })
-      }
-
-      //* Verificar si el jugador ha ganado
-      verificarVictoria(this.partida, jugador, client.sessionId, this);
-    },
 
 
     msgPasarTurno: (client: Client) => {
