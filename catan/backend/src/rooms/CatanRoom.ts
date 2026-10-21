@@ -3,7 +3,6 @@ import { CatanState } from "../states/CatanState.js";
 import { Jugador } from "../schemas/Jugador.js";
 import { Desarrollo, FaseJuego, FasePartida } from "../common/enums.js";
 import { verificarVictoria } from "../functions/verificarVictoria.js";
-import { comerciarBanca } from "../functions/comerciarBanca.js";
 import { intercambiarRecursosMixtos } from "../functions/intercambiarRecursos.js";
 import { construirCamino } from "../functions/construirCaminos.js";
 import { jugarAbundancia } from "../functions/jugarAbundancia.js";
@@ -17,6 +16,7 @@ import { manejarColocarCamino } from "./handlers/construccion/colocarCamino.js";
 import { manejarColocarCiudad } from "./handlers/construccion/colocarCiudad.js";
 import { manejarLanzarDados } from "./handlers/dados/lanzarDados.js";
 import { manejarPasarTurno } from "./handlers/turno/pasarTurno.js";
+import { manejarIntercambiarBanca } from "./handlers/comercio/intercambiarBanca.js";
 import { manejarMoverLadron } from "./handlers/ladron/moverLadron.js";
 import { manejarRobarJugador } from "./handlers/ladron/robarJugador.js";
 import { manejarDescartarRecursos } from "./handlers/descarte/descartarRecursos.js";
@@ -86,49 +86,9 @@ export class CatanRoom extends Room {
     ) => manejarCartaCaballero(this, client, mensaje),
 
     msgIntercambiarBanca: (
-      client: Client,
+      client: Client, 
       mensaje: { recursoEntregado: string, recursoRecibido: string }
-    ) => {
-      //* Verificar que sea el turno del jugador
-      if (this.partida.turnoActual !== client.sessionId) {
-        client.send("error", {
-          mensajeError: "No es tu turno"
-        })
-        return;
-      }
-
-      //* Verificar que estemos en la fase de acciones
-      if (this.partida.faseJuego !== FaseJuego.ACCIONES) {
-        client.send("error", {
-          mensajeError: "Termian de lanzar los dados primero"
-        })
-        return;
-      }
-
-      //* Intentar realizar el intercambio con la banca
-      const resultado = comerciarBanca(
-        this.jugadores.get(client.sessionId), this.banca, client.sessionId,
-        this.tablero.vertices, this.tablero.puertos,
-        mensaje.recursoEntregado, mensaje.recursoRecibido
-      );
-
-      //* Si el intercambio fallo, notificar error
-      if (resultado.error) {
-        client.send("error", {
-          mensajeError: resultado.mensaje
-        })
-        return;
-      }
-
-      //* Log del intecambio con la banca
-      if(!resultado.error){
-        this.broadcast("log", {
-          jugador: this.jugadores.get(client.sessionId)?.nombre,
-          mensaje: resultado.mensaje
-        })
-      }
-
-    },
+    ) => manejarIntercambiarBanca(this, client, mensaje),
 
     msgIntercambiarJugador: (
       client: Client,
