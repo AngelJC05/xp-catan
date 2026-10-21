@@ -23,6 +23,7 @@ import { manejarIniciarPartida } from "./handlers/partida/iniciarPartida.js";
 import { manejarColocarAsentamiento } from "./handlers/construccion/colocarAsentamiento.js";
 import { manejarColocarCamino } from "./handlers/construccion/colocarCamino.js";
 import { manejarLanzarDados } from "./handlers/dados/lanzarDados.js";
+import { manejarMoverLadron } from "./handlers/ladron/moverLadron.js";
 
 
 export class CatanRoom extends Room {
@@ -56,6 +57,11 @@ export class CatanRoom extends Room {
     ) => manejarColocarCamino(this, client, mensaje),
 
     msgLanzarDados: (client: Client) => manejarLanzarDados(this, client),
+
+    msgMoverLadron: (
+      client: Client, 
+      mensaje: { h: number, d: number }
+    ) => manejarMoverLadron(this, client, mensaje),
 
     msgIntercambiarBanca: (
       client: Client,
@@ -291,91 +297,6 @@ export class CatanRoom extends Room {
       }
     },
 
-    msgMoverLadron: (
-      client: Client,
-      mensaje: { h: number, d: number }
-    ) => {
-      //* Verificar que sea el turno del jugador
-      if (this.partida.turnoActual !== client.sessionId) {
-        client.send("error", {
-          mensajeError: "No es tu turno"
-        })
-        return;
-      }
-
-      //*Verificar que estemos en la fase de juego
-      if (this.partida.fase !== FasePartida.JUEGO) {
-        client.send("error", {
-          mensajeError: "No es la fase de juego"
-        })
-        return;
-      }
-
-      //* Verificar que estemos en la fase de mover al ladron
-      if (this.partida.faseJuego !== FaseJuego.LADRON) {
-        client.send("error", {
-          mensajeError: "No es la fase de mover al ladron"
-        })
-        return;
-      }
-
-
-      //* Mover al ladron y obtener los jugadores involucrados
-      const { h, d } = mensaje;
-      const resultado = moverLadron(
-        this.tablero,
-        this.jugadores,
-        client.sessionId,
-        h, d
-      );
-
-      if (resultado.error) {
-        client.send("error", {
-          mensajeError: resultado.mensaje
-        })
-        return;
-      }
-
-      //* Log de movimiento del ladron
-      if(!resultado.error){
-        this.broadcast("log", {
-          jugador: this.jugadores.get(client.sessionId)?.nombre,
-          mensaje: resultado.mensaje
-        })
-      }
-
-      //*Extraemos los jugadores involucrados en el robo
-      const jugadoresinvolucrados = resultado.jugadoresInvolucrados;
-
-      //* Si no hay jugadores pasamos a las acciones
-      if (jugadoresinvolucrados.length === 0) {
-        this.partida.faseJuego = FaseJuego.ACCIONES;
-        return;
-      }
-
-      //*Si solo hubo un jugador, se le roba automaticamente
-      if (jugadoresinvolucrados.length === 1) {
-        robarJugador(
-          this.jugadores.get(client.sessionId),
-          this.jugadores.get(jugadoresinvolucrados[0])
-        )
-        this.partida.faseJuego = FaseJuego.ACCIONES;
-
-        //* Log del robo automatico
-        this.broadcast("log", {
-          jugador: this.jugadores.get(client.sessionId)?.nombre,
-          mensaje: ` ha robado un recurso a ${this.jugadores.get(jugadoresinvolucrados[0])?.nombre}`
-        })
-        return;
-      }
-
-      //* Si hay 2 o mas jugadores involucrados, se pasa la lista de jugadores
-      this.partida.jugadoresParaRobar.clear();
-      this.partida.jugadoresParaRobar.push(...jugadoresinvolucrados);
-
-
-      this.partida.faseJuego = FaseJuego.ROBO
-    },
 
     msgCartaCaballero: (
       client: Client,
