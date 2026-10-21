@@ -112,6 +112,7 @@ export function enFasePreconstruccion(fase: FasePreconstruccion): Guardia {
 }
 
 //? Solo los jugadores que estan en la lista de descarte pueden descartar recursos
-export const debeDescartar: Guardia = () => {
-    throw new Error("Sin implementar");
+export const debeDescartar: Guardia = ({ partida, sessionId }) => {
+    if (!partida.jugadoresParaDescartar.has(sessionId)) return "No tienes que descartar";
+    return null;
 };
