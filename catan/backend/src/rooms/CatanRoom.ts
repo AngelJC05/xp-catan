@@ -1,9 +1,7 @@
 import { Room, Client, CloseCode, Delayed } from "colyseus";
 import { CatanState } from "../states/CatanState.js";
-import { Jugador } from "../schemas/Jugador.js";
 import { FasePartida } from "../common/enums.js";
 import { verificarVictoria } from "../functions/verificarVictoria.js";
-import { sacarJugador } from "../functions/sacarJugador.js";
 import { actualizarCaminoMasLargo } from "../functions/actualizarCaminoMasLargo.js";
 import { manejarChat } from "./handlers/chat/chat.js";
 import { manejarIniciarPartida } from "./handlers/partida/iniciarPartida.js";
@@ -24,6 +22,12 @@ import { manejarCartaAbundancia } from "./handlers/cartas/cartaAbundancia.js";
 import { manejarCartaMonopolio } from "./handlers/cartas/cartaMonopolio.js";
 import { manejarCartaCarreteras } from "./handlers/cartas/cartaCarreteras.js";
 import { manejarCaminoGratis } from "./handlers/cartas/caminoGratis.js";
+import { manejarCreacion } from "./handlers/sala/crearSala.js";
+import { manejarUnirse } from "./handlers/sala/unirseASala.js";
+import { manejarSalida } from "./handlers/sala/salirDeSala.js";
+import { manejarCaidaConexion } from "./handlers/sala/perderConexion.js";
+import { manejarReconexion } from "./handlers/sala/reconectar.js";
+import { manejarDestruccion } from "./handlers/sala/destruirSala.js";
 
 
 export class CatanRoom extends Room {
@@ -151,126 +155,27 @@ export class CatanRoom extends Room {
   }
 
   onCreate(options: any) {
-    console.log("room created!", this.roomId);
-    //* si se ingresa codigo de acceso, se setea al atributo de codigo de acceso a la sala
-    this.codigoAcceso = options.codigoAcceso || ""
-
-    //* seteamos la data de la sala
-    this.setMetadata({
-      alias: options.alias || "Catan Room",
-      estado: "EN LOBBY",
-      privada: options.privada || false,
-      anfitrion: options.nombre || ""
-    })
+    manejarCreacion(this, options);
   }
 
   onJoin(client: Client, options: any) {
-
-    if (this.partida.fase !== FasePartida.LOBBY) {
-      throw new Error("La partida ya ha comenzado, no puedes unirte");
-    }
-    if (this.codigoAcceso !== "") {
-      if (options.codigoAcceso !== this.codigoAcceso) {
-        throw new Error("Codigo de acceso incorrecto");
-      }
-    }
-    console.log(`${client.sessionId} joined the room`);
-
-    this.partida.ordenJugadores.push(client.sessionId);
-
-    this.jugadores.set(client.sessionId, new Jugador(options.nombre));
-
-    if (this.partida.creador == "") {
-      this.partida.creador = client.sessionId;
-    }
+    manejarUnirse(this, client, options);
   }
 
   onLeave(client: Client, code: CloseCode) {
-
-    console.log(`${client.sessionId} left the room`);
-
-    //* Primero revisamos si estamos en la fase de lobby
-    if (this.partida.fase === FasePartida.LOBBY) {
-      //* Sacamos al jugador que salio
-      this.jugadores.delete(client.sessionId);
-
-      //* Borrar al jugador del orden de jugadores
-      const indice = this.partida.ordenJugadores.indexOf(client.sessionId);
-      if (indice !== -1) {
-        this.partida.ordenJugadores.splice(indice, 1);
-      }
-
-      //* Si se fue el creador, el siguiente en entrar pasa a ser el anfitrión
-      if (this.partida.creador === client.sessionId) {
-        this.partida.creador = this.partida.ordenJugadores[0] ?? "";
-        this.setMetadata({
-          ...this.metadata,
-          anfitrion: this.jugadores.get(this.partida.creador)?.nombre ?? ""
-        });
-      }
-      return;
-    }
-
-    //* Si ya se estaba jugando se debe eliminar completamente
-    if (this.partida.fase === FasePartida.JUEGO || FasePartida.PRECONSTRUCCION) {
-      //* Ver si era el creador de la sala
-      const eraCreador = this.partida.creador === client.sessionId;
-
-      //* Avisar del abandono
-      this.broadcast("log", {
-        jugador: this.jugadores.get(client.sessionId)?.nombre,
-        mensaje: " ha abandonado la partida"
-      })
-
-      sacarJugador(this.partida, this.tablero, this.banca, this.jugadores, client.sessionId);
-
-      //* Por la eliminacion de sus construcciones el camino mas largo puede cambiar
-      this.revisarCaminoMasLargo();
-
-      //* Actualizar el creador si era el que abandono
-      if (eraCreador) {
-        this.setMetadata({
-          ...this.metadata,
-          anfitrion: this.jugadores.get(this.partida.creador)?.nombre ?? ""
-        })
-      }
-
-      //* Si al sacarlo se gana avisar
-      if (this.partida.fase === FasePartida.FINALIZADA) {
-        this.broadcast("log", {
-          jugador: "Sistema: ",
-          mensaje: `${this.jugadores.get(this.partida.ganador)?.nombre} gana por abandono...`
-        })
-      }
-    }
+    manejarSalida(this, client);
   }
 
   onDispose() {
-    console.log("room", this.roomId, "disposing...");
+    manejarDestruccion(this);
   }
 
-  //* Si un cliente se desconecta tiene 30 segundos para reconectarse
+  //* Si un cliente se desconecta tiene 60 segundos para reconectarse
   onDrop(client: Client, code: CloseCode) {
-
-    console.log(`${client.sessionId} droppef with code ${code}`);
-    //* Avisar en el log que alguient tuvo una caida de conexion
-    if (this.partida.fase !== FasePartida.LOBBY) {
-      this.broadcast("log", {
-        jugador: this.jugadores.get(client.sessionId)?.nombre,
-        mensaje: " perdio la conexion, tiene 1 minuto para reconectarse"
-      })
-    }
-
-    //*Activar la espera de reconexion por 60 segundos
-    this.allowReconnection(client, 30);
+    manejarCaidaConexion(this, client, code);
   }
 
   onReconnect(client: Client) {
-    console.log(`${client.sessionId} reconnected`);
-    //* Avisar que logro reconectarse
-    this.broadcast("log", {
-      jugador: "Sistema: ",
-      mensaje: `${this.jugadores.get(client.sessionId)?.nombre} se ha reconectado`
-    })
+    manejarReconexion(this, client);
   }
 }
