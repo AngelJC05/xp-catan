@@ -5,6 +5,11 @@ import { Jugador } from "../src/schemas/Jugador.js";
 import { Desarrollo, FaseJuego, FasePartida, FasePreconstruccion } from "../src/common/enums.js";
 import {
   type Guardia,
+  aunNoRespondio,
+  hayOfertaActiva,
+  puedeResponderOferta,
+  respuestaValida,
+  sinOfertaActiva,
   debeDescartar,
   enFaseJuego,
   enFasePartida,
@@ -291,6 +296,81 @@ describe("guardia de robo", () => {
       jugadorRobable("otroJugador")({ partida, sessionId: ANGEL }),
       "El jugador elegido no esta en la lista de robo"
     );
+  });
+
+});
+
+describe("guardias de ofertas de intercambio", () => {
+
+  it("sinOfertaActiva no da error si no hay oferta", () => {
+    const partida = armarPartida();
+
+    assert.strictEqual(sinOfertaActiva({ partida, sessionId: ANGEL }), null);
+  });
+
+  it("sinOfertaActiva da error si ya hay una oferta activa", () => {
+    const partida = armarPartida();
+    partida.ofertaIntercambio.jugador = ANGEL;
+
+    assert.strictEqual(sinOfertaActiva({ partida, sessionId: ANGEL }), "Ya existe una oferta activa");
+  });
+
+  it("hayOfertaActiva no da error si hay una oferta", () => {
+    const partida = armarPartida();
+    partida.ofertaIntercambio.jugador = ANGEL;
+
+    assert.strictEqual(hayOfertaActiva({ partida, sessionId: ALAN }), null);
+  });
+
+  it("hayOfertaActiva da error si no hay oferta", () => {
+    const partida = armarPartida();
+
+    assert.strictEqual(hayOfertaActiva({ partida, sessionId: ALAN }), "No hay una oferta activa");
+  });
+
+  it("puedeResponderOferta no da error a quien debe responder", () => {
+    const partida = armarPartida();
+    partida.ofertaIntercambio.respuestas.set(ALAN, 0);
+
+    assert.strictEqual(puedeResponderOferta({ partida, sessionId: ALAN }), null);
+  });
+
+  it("puedeResponderOferta da error a quien no esta en las respuestas, como quien ofrece", () => {
+    const partida = armarPartida();
+    partida.ofertaIntercambio.respuestas.set(ALAN, 0);
+
+    assert.strictEqual(
+      puedeResponderOferta({ partida, sessionId: ANGEL }),
+      "No puedes responder a esta oferta"
+    );
+  });
+
+  it("aunNoRespondio no da error si la respuesta sigue pendiente", () => {
+    const partida = armarPartida();
+    partida.ofertaIntercambio.respuestas.set(ALAN, 0);
+
+    assert.strictEqual(aunNoRespondio({ partida, sessionId: ALAN }), null);
+  });
+
+  it("aunNoRespondio da error si ya acepto o rechazo", () => {
+    const partida = armarPartida();
+    partida.ofertaIntercambio.respuestas.set(ALAN, -1);
+
+    assert.strictEqual(aunNoRespondio({ partida, sessionId: ALAN }), "Ya respondiste a esta oferta");
+  });
+
+  it("respuestaValida acepta 1 y -1", () => {
+    const partida = armarPartida();
+
+    assert.strictEqual(respuestaValida(1)({ partida, sessionId: ALAN }), null);
+    assert.strictEqual(respuestaValida(-1)({ partida, sessionId: ALAN }), null);
+  });
+
+  it("respuestaValida da error con cualquier otro valor", () => {
+    const partida = armarPartida();
+
+    assert.strictEqual(respuestaValida(0)({ partida, sessionId: ALAN }), "Respuesta invalida");
+    assert.strictEqual(respuestaValida(5)({ partida, sessionId: ALAN }), "Respuesta invalida");
   });
 
 });

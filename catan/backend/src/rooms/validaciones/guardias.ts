@@ -126,3 +126,30 @@ export function jugadorRobable(sessionIdRobado: string): Guardia {
         return null;
     };
 }
+
+//? No se puede hacer una oferta nueva mientras haya otra activa
+export const sinOfertaActiva: Guardia = ({ partida }) => {
+    throw new Error("Sin implementar");
+};
+
+//? Para responder tiene que existir una oferta activa
+export const hayOfertaActiva: Guardia = ({ partida }) => {
+    throw new Error("Sin implementar");
+};
+
+//? Solo responden los jugadores que recibieron la oferta, no quien la hizo
+export const puedeResponderOferta: Guardia = ({ partida, sessionId }) => {
+    throw new Error("Sin implementar");
+};
+
+//? Cada jugador solo puede responder una vez a una oferta
+export const aunNoRespondio: Guardia = ({ partida, sessionId }) => {
+    throw new Error("Sin implementar");
+};
+
+//! Fabrica un guardia que exige que la respuesta sea 1 (aceptar) o -1 (rechazar)
+export function respuestaValida(respuesta: number): Guardia {
+    return () => {
+        throw new Error("Sin implementar");
+    };
+}
