@@ -22,12 +22,16 @@ export function armarCliente(sessionId = "") {
 
 /* 
   ? Funcion que devuelve una sala falsa con tablero y banca reales, 
-  ? que guarda todo lo que se difunde y cuantas veces se revisa el camino mas largo
+  ? que guarda todo lo que se difunde, cuantas veces se revisa el camino mas largo y las esperas de reconexion
 */
 export function armarSala(nombresPorId: Record<string, string> = {}) {
   const difundidos: Envio[] = [];
   const { partida, jugadores, tablero, banca } = new CatanState();
-  const estado = { bloqueada: false, revisionesCamino: 0 };
+  const estado = {
+    bloqueada: false,
+    revisionesCamino: 0,
+    reconexiones: [] as { sessionId: string, segundos: number }[]
+  };
   
   for (const [sessionId, nombre] of Object.entries(nombresPorId)) {
     jugadores.set(sessionId, new Jugador(nombre));
@@ -44,6 +48,7 @@ export function armarSala(nombresPorId: Record<string, string> = {}) {
     broadcast: (tipo: string, mensaje: unknown) => difundidos.push({ tipo, mensaje }),
     setMetadata: (metadata: object) => { sala.metadata = metadata; },
     lock: () => { estado.bloqueada = true; },
+    allowReconnection: (client: Client, segundos: number) => { estado.reconexiones.push({ sessionId: client.sessionId, segundos }); },
     revisarCaminoMasLargo: () => { estado.revisionesCamino++; }
   } as unknown as CatanRoom;
   
