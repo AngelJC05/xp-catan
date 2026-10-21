@@ -2,10 +2,8 @@ import { Room, Client, CloseCode, Delayed } from "colyseus";
 import { CatanState } from "../states/CatanState.js";
 import { Jugador } from "../schemas/Jugador.js";
 import { Desarrollo, FaseJuego, FasePartida } from "../common/enums.js";
-import { siguienteTurno } from "../functions/siguienteTurno.js";
 import { verificarVictoria } from "../functions/verificarVictoria.js";
 import { comerciarBanca } from "../functions/comerciarBanca.js";
-import { activarCartasCompradas } from "../functions/activarCartasCompradas.js";
 import { intercambiarRecursosMixtos } from "../functions/intercambiarRecursos.js";
 import { construirCamino } from "../functions/construirCaminos.js";
 import { jugarAbundancia } from "../functions/jugarAbundancia.js";
@@ -18,6 +16,7 @@ import { manejarColocarAsentamiento } from "./handlers/construccion/colocarAsent
 import { manejarColocarCamino } from "./handlers/construccion/colocarCamino.js";
 import { manejarColocarCiudad } from "./handlers/construccion/colocarCiudad.js";
 import { manejarLanzarDados } from "./handlers/dados/lanzarDados.js";
+import { manejarPasarTurno } from "./handlers/turno/pasarTurno.js";
 import { manejarMoverLadron } from "./handlers/ladron/moverLadron.js";
 import { manejarRobarJugador } from "./handlers/ladron/robarJugador.js";
 import { manejarDescartarRecursos } from "./handlers/descarte/descartarRecursos.js";
@@ -61,6 +60,8 @@ export class CatanRoom extends Room {
     ) => manejarColocarCiudad(this, client, mensaje),
 
     msgLanzarDados: (client: Client) => manejarLanzarDados(this, client),
+
+    msgPasarTurno: (client: Client) => manejarPasarTurno(this, client),
 
     msgMoverLadron: (
       client: Client, 
@@ -128,58 +129,6 @@ export class CatanRoom extends Room {
       }
 
     },
-
-
-
-    msgPasarTurno: (client: Client) => {
-      //* Verificar que la partida siga en curso
-      if (this.partida.fase === FasePartida.FINALIZADA) {
-        client.send("error", {
-          mensajeError: "La partida ha finalizado"
-        });
-
-        return;
-      }
-
-      //* Verificar que sea tu turno
-      if (this.partida.turnoActual !== client.sessionId) {
-        client.send("error", {
-          mensajeError: "No es tu turno"
-        });
-
-        return;
-      }
-
-      //* Solo se puede pasar turno en fase de acciones
-      if (this.partida.faseJuego !== FaseJuego.ACCIONES) {
-        client.send("error", {
-          mensajeError: "Termina de lanzar los dados primero"
-        });
-
-        return;
-      }
-
-      //* Log de paso de turno
-      this.broadcast("log", {
-        jugador: this.jugadores.get(client.sessionId)?.nombre,
-        mensaje: " ha pasado su turno"
-      })
-
-      this.ofertas.clear();
-
-      /** Activar las cartas compradas del jugador */
-      activarCartasCompradas(this.jugadores.get(client.sessionId));
-
-      /** Permitir usar una carta en el siguiente turno */
-      this.partida.cartaJugable = true;
-
-      //* Cancelar ofertas de intercambio activas
-      this.partida.ofertaIntercambio.limpiarOferta()
-
-      siguienteTurno(this.partida);
-
-    },
-
 
     msgIntercambiarJugador: (
       client: Client,
