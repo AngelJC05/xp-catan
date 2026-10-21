@@ -6,7 +6,6 @@ import { siguienteTurno } from "../functions/siguienteTurno.js";
 import { verificarVictoria } from "../functions/verificarVictoria.js";
 import { construirCiudad } from "../functions/construirCiudad.js";
 import { comerciarBanca } from "../functions/comerciarBanca.js";
-import { descartarRecurso } from "../functions/descartarRecurso.js";
 import { moverLadron } from "../functions/moverLadron.js";
 import { robarJugador } from "../functions/robarJugador.js";
 import { jugarCaballero } from "../functions/jugarCaballero.js";
@@ -24,6 +23,7 @@ import { manejarColocarAsentamiento } from "./handlers/construccion/colocarAsent
 import { manejarColocarCamino } from "./handlers/construccion/colocarCamino.js";
 import { manejarLanzarDados } from "./handlers/dados/lanzarDados.js";
 import { manejarMoverLadron } from "./handlers/ladron/moverLadron.js";
+import { manejarDescartarRecursos } from "./handlers/descarte/descartarRecursos.js";
 
 
 export class CatanRoom extends Room {
@@ -62,6 +62,11 @@ export class CatanRoom extends Room {
       client: Client, 
       mensaje: { h: number, d: number }
     ) => manejarMoverLadron(this, client, mensaje),
+
+    msgDescartarRecursos: (
+      client: Client, 
+      mensaje: { recurso: string }
+    ) => manejarDescartarRecursos(this, client, mensaje),
 
     msgIntercambiarBanca: (
       client: Client,
@@ -228,74 +233,6 @@ export class CatanRoom extends Room {
     },
 
 
-
-    msgDescartarRecursos: (
-      client: Client,
-      mensaje: { recurso: string }
-    ) => {
-      //* Verificar si estamos en fase de descarte
-      if (this.partida.faseJuego !== FaseJuego.DESCARTE) {
-        client.send("error", {
-          mensajeError: "No es la fase de descarte"
-        })
-        return;
-      }
-
-      //* Verificar si el jugador esta en la lista de descarte
-      if (!this.partida.jugadoresParaDescartar.has(client.sessionId)) {
-        client.send("error", {
-          mensajeError: "No tienes que descartar"
-        })
-        return;
-      }
-
-      //* Encontrar al jugador que debe descartar
-      const jugadorPorDescartar = client.sessionId;
-
-      //* Intentar descartar
-      const resultado = descartarRecurso(
-        this.jugadores.get(jugadorPorDescartar),
-        this.banca,
-        mensaje.recurso
-      );
-
-
-      //*Error en descarte
-      if (resultado.error) {
-        client.send("error", {
-          mensajeError: resultado.mensaje
-        })
-        return;
-      }
-
-
-      //*Actualizar la cantidad de recursos que le faltan por descartar
-      this.partida.jugadoresParaDescartar.set(
-        jugadorPorDescartar,
-        this.partida.jugadoresParaDescartar.get(jugadorPorDescartar) - 1
-      );
-
-      //* Eliminarlo de la lista si ya no tiene que descartar
-      if (this.partida.jugadoresParaDescartar.get(jugadorPorDescartar) === 0) {
-        this.partida.jugadoresParaDescartar.delete(jugadorPorDescartar);
-        //* Log de terminacion de descarte
-        this.broadcast("log", {
-          jugador: this.jugadores.get(client.sessionId)?.nombre,
-          mensaje: " ha terminado de descartar"
-        })
-      }
-
-      //* Verificar si ya no hay jugadores que deben descartar, para pasar a fase de ladron
-      if (this.partida.jugadoresParaDescartar.size == 0) {
-        this.partida.faseJuego = FaseJuego.LADRON;
-        //* Log de todos descartaron
-        this.broadcast("log", {
-          jugador: "Sistema: ",
-          mensaje: "Todos los jugadores han terminado de descartar"
-        })
-        return;
-      }
-    },
 
 
     msgCartaCaballero: (
