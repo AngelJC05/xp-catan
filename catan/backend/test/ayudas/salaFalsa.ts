@@ -39,6 +39,7 @@ export function armarSala(nombresPorId: Record<string, string> = {}) {
     tablero,
     banca,
     metadata: {},
+    codigoAcceso: "",
     ofertas: new Map<string, unknown>(),
     broadcast: (tipo: string, mensaje: unknown) => difundidos.push({ tipo, mensaje }),
     setMetadata: (metadata: object) => { sala.metadata = metadata; },
