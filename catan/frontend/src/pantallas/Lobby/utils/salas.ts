@@ -35,3 +35,15 @@ export function salaDesdeListado(sala: RoomAvailable<MetadataSala>): SalaDisponi
     anfitrion: sala.metadata?.anfitrion || "",
   };
 }
+
+// Minúsculas y sin acentos, para que "pública" encuentre "Publica".
+function normalizar(texto: string): string {
+  return texto.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim();
+}
+
+// Salas cuyo nombre contiene el texto buscado; sin texto se devuelven todas.
+export function filtrarPorNombre(salas: SalaDisponible[], texto: string): SalaDisponible[] {
+  const buscado = normalizar(texto);
+  if (!buscado) return salas;
+  return salas.filter((sala) => normalizar(sala.nombre).includes(buscado));
+}
