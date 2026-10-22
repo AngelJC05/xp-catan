@@ -1,11 +1,12 @@
 import { MapSchema, Schema, type } from "@colyseus/schema"
-import { Terreno } from "../common/enums.js";
+import { ColorJugador } from "../common/enums.js";
 import { generarRecursos } from "../generators/generarRecursos.js";
 import { generarCartas } from "../generators/generarCartas.js";
 import { generarConstruccionesDisponibles } from "../generators/generarConstruccionesDisponibles.js";
 
 export class Jugador extends Schema {
     @type("string") nombre: string;
+    @type ("uint8") color: number;
     @type("uint16") puntuacion: number;
     @type("uint16") puntosParaGanar: number;
     @type({ map: "uint8" }) recursos = new MapSchema<number>();
@@ -20,6 +21,7 @@ export class Jugador extends Schema {
     constructor(nombre: string = "") {
         super();
         this.nombre = nombre;
+        this.color = ColorJugador.SIN_COLOR;
         this.puntuacion = 0;
         this.puntosParaGanar = 10;
         this.ultimoAsentamiento = "";
