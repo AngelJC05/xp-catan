@@ -1,5 +1,5 @@
 import type { Jugadores } from '../common/jugador';
-import { totalCartas, totalRecursos, enRiesgoDeDescarte, colorDeJugador } from '../common/jugador';
+import { totalCartas, totalRecursos, enRiesgoDeDescarte, colorDelJugador } from '../common/jugador';
 
 interface Props {
   jugadores: Jugadores;
@@ -29,7 +29,7 @@ function InfoJugadores({
         return (
           <div
             key={id}
-            style={{ backgroundColor: colorDeJugador(lista, id) }}
+            style={{ backgroundColor: colorDelJugador(jugadores, id) }}
             className="flex-fill min-w-0 overflow-hidden p-1 px-2 rounded-3 d-flex flex-column justify-content-center text-white border-0"
           >
             <div className="d-flex align-items-center gap-1 min-w-0">

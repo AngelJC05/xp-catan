@@ -1,3 +1,5 @@
+import { COLOR, hexDeColor } from './colores';
+
 export type Recurso = 'madera' | 'trigo' | 'lana' | 'ladrillo' | 'mineral';
 
 export interface Recursos {
@@ -93,6 +95,11 @@ export type Jugadores = Record<string, Jugador>;
    Si algun dia el backend agrega el campo, se borra esto y se lee de ahi. */
 
 export const COLORES = ['#D34F3E', '#3E7FD3', '#4CA36B', '#E0A030'];
+
+// Color que el backend le dio al jugador; sin jugador o sin color sale el gris neutro.
+export function colorDelJugador(jugadores: Jugadores, sessionId: string): string {
+  return hexDeColor(jugadores[sessionId]?.color ?? COLOR.SIN_COLOR);
+}
 
 export function colorDeJugador(ordenJugadores: string[], sessionId: string): string {
   const posicion = ordenJugadores.indexOf(sessionId);

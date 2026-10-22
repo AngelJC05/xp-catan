@@ -1,16 +1,14 @@
 import type { Jugadores } from '../common/jugador';
-import { colorDeJugador } from '../common/jugador';
+import { colorDelJugador } from '../common/jugador';
 
 interface Props {
   sessionIdTurno: string;
   jugadores: Jugadores;
-  ordenJugadores: string[];
 }
 
-function InfoTurno({ sessionIdTurno, jugadores, ordenJugadores }: Props) {
-  const lista = ordenJugadores.length > 0 ? ordenJugadores : Object.keys(jugadores);
+function InfoTurno({ sessionIdTurno, jugadores }: Props) {
   const nombre = jugadores[sessionIdTurno]?.nombre;
-  const color = colorDeJugador(lista, sessionIdTurno);
+  const color = colorDelJugador(jugadores, sessionIdTurno);
 
   return (
     <div

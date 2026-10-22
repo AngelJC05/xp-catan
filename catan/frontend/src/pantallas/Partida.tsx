@@ -771,7 +771,6 @@ function Partida({ sala, onSolicitarConstruccion, onSalir }: Props) {
           <InfoTurno
             sessionIdTurno={turnoActual}
             jugadores={jugadores}
-            ordenJugadores={ordenJugadores}
           />
           <Button
             className="flex-fill"
