@@ -7,7 +7,8 @@ import Lobby from "./pantallas/Lobby/Lobby";
 import IngresarNombre from "./pantallas/IngresarNombre/IngresarNombre";
 import CrearSala, { type DatosNuevaSala } from "./pantallas/CrearSala/CrearSala";
 import Reconectando from "./pantallas/Reconectando/Reconectando";
-import SalaEspera, { type JugadorVista } from "./pantallas/SalaEspera/SalaEspera";
+import SalaEspera from "./pantallas/SalaEspera/SalaEspera";
+import type { JugadorVista } from "./pantallas/SalaEspera/tipos";
 import PartidaTablero from "./pantallas/Partida";
 import { FASE_PARTIDA } from "./common/fases";
 import {
