@@ -11,9 +11,10 @@ import Typography from "@mui/material/Typography";
 import type { InfoSala } from "../sesionGuardada";
 import { ERROR_CODIGO_INCORRECTO, validarCodigoAcceso } from "../validacionSala";
 import { useSalasLobby } from "./hooks/useSalasLobby";
+import { useDebounce } from "./hooks/useDebounce";
 import TarjetaSala from "./componentes/TarjetaSala";
 import DialogoCodigo from "./componentes/DialogoCodigo";
-import type { SalaDisponible, SalaPorCodigo } from "./utils/salas";
+import { filtrarPorNombre, type SalaDisponible, type SalaPorCodigo } from "./utils/salas";
 
 interface LobbyProps {
   onCrearSala: () => void;
@@ -26,6 +27,10 @@ function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
   const [idInput, setIdInput] = useState("");
   const [salaSeleccionada, setSalaSeleccionada] = useState<string | null>(null);
   const { conexion, todasLasSalas, salas } = useSalasLobby();
+  // Buscador: se filtra cuando el jugador deja de escribir.
+  const [busqueda, setBusqueda] = useState("");
+  const busquedaEstable = useDebounce(busqueda);
+  const salasFiltradas = filtrarPorNombre(salas, busquedaEstable);
   // id de la sala a la que se está entrando, para bloquear clics repetidos.
   const [uniendo, setUniendo] = useState<string | null>(null);
   const [errorGeneral, setErrorGeneral] = useState<string | null>(null);
@@ -185,19 +190,40 @@ function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
               </CardContent>
             </Card>
           ) : (
-            <ul className="row g-3 list-unstyled mb-4">
-              {salas.map((sala) => (
-                <li key={sala.id} className="col-12 col-md-6">
-                  <TarjetaSala
-                    sala={sala}
-                    seleccionada={salaSeleccionada === sala.id}
-                    uniendo={uniendo}
-                    onSeleccionar={() => seleccionarSala(sala)}
-                    onUnirse={() => intentarUnirse(sala.id)}
-                  />
-                </li>
-              ))}
-            </ul>
+            <>
+              <TextField
+                type="search"
+                label="Buscar sala por nombre"
+                size="small"
+                fullWidth
+                autoComplete="off"
+                className="mb-3"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+              />
+
+              {salasFiltradas.length === 0 ? (
+                <Card variant="outlined" className="mb-4">
+                  <CardContent className="text-center fw-semibold text-body-secondary">
+                    No hay salas que coincidan con «{busquedaEstable.trim()}».
+                  </CardContent>
+                </Card>
+              ) : (
+                <ul className="row g-3 list-unstyled mb-4">
+                  {salasFiltradas.map((sala) => (
+                    <li key={sala.id} className="col-12 col-md-6">
+                      <TarjetaSala
+                        sala={sala}
+                        seleccionada={salaSeleccionada === sala.id}
+                        uniendo={uniendo}
+                        onSeleccionar={() => seleccionarSala(sala)}
+                        onUnirse={() => intentarUnirse(sala.id)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
           )}
         </section>
 
