@@ -28,6 +28,17 @@ describe("handlerElegirColor", () => {
         ]);
     });
 
+    it("debe rechazar si el jugador no existe", () => {
+        const { sala, jugadores } = armarPartida();
+        const {client, enviados} = armarCliente("jugadorInexistente");
+
+        manejarElegirColor(sala, client, { color: ColorJugador.AMARILLO });
+        assert.deepStrictEqual(enviados, [
+            { tipo: "error", mensaje: { mensajeError: "No se encontro al jugador" } }
+        ]);
+        assert.strictEqual(enviados.length, 1);
+    })
+
     it("debe avisar al jugador que ese color ya esta ocupado", () => {
         const { sala, jugadores, difundidos } = armarPartida();
         const {client, enviados} = armarCliente(ANGEL);
@@ -49,10 +60,10 @@ describe("handlerElegirColor", () => {
         manejarElegirColor(sala, client, { color: ColorJugador.AMARILLO });
         assert.strictEqual(jugadores.get(ANGEL).color, ColorJugador.SIN_COLOR);
         assert.deepStrictEqual(enviados, [
-            { tipo: "error", mensaje: { mensajeError: "No se puede elegir color fuera de la fase de lobby" } }
+            { tipo: "error", mensaje: { mensajeError: "La partida ya ha comenzado" } }
         ]);
     });
 
-    
+
 
 })
