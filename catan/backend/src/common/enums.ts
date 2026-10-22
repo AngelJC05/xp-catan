@@ -60,3 +60,17 @@ export enum FaseJuego {
     DESCARTE = 5,
     CARRETERAS = 6
 }
+
+export enum ColorJugador {
+    SIN_COLOR = 0,
+    AZUL = 1,
+    ROJO = 2,
+    VERDE = 3,
+    AMARILLO = 4,
+    ANARANJADO = 5,
+    CAFE = 6,
+    MORADO = 7,
+    ROSA = 8,
+    CELESTE = 9,
+    GRIS = 10
+}
