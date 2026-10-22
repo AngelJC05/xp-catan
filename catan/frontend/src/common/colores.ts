@@ -36,3 +36,18 @@ export const HEX_COLOR: Record<number, string> = {
 export function hexDeColor(color: number): string {
   return HEX_COLOR[color] ?? HEX_COLOR[COLOR.SIN_COLOR];
 }
+
+// Nombre para mostrar en la pantalla cada color
+export const NOMBRE_COLOR: Record<number, string> = {
+  [COLOR.SIN_COLOR]: 'Sin color',
+  [COLOR.AZUL]: 'Azul',
+  [COLOR.ROJO]: 'Rojo',
+  [COLOR.VERDE]: 'Verde',
+  [COLOR.AMARILLO]: 'Amarillo',
+  [COLOR.ANARANJADO]: 'Anaranjado',
+  [COLOR.CAFE]: 'Café',
+  [COLOR.MORADO]: 'Morado',
+  [COLOR.ROSA]: 'Rosa',
+  [COLOR.CELESTE]: 'Celeste',
+  [COLOR.NEGRO]: 'Negro',
+}
