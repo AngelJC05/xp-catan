@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import type { Room } from "@colyseus/sdk";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
@@ -11,6 +10,7 @@ import type { InfoSala } from "../sesionGuardada";
 import type { JugadorVista } from "./tipos";
 import TarjetaJugador from "./componentes/TarjetaJugador";
 import AsientoVacio from "./componentes/AsientoVacio";
+import CampoCopiable from "./componentes/CampoCopiable";
 
 interface SalaEsperaProps {
   room: Room;
@@ -23,8 +23,6 @@ interface SalaEsperaProps {
   onSalir: () => void;
 }
 
-type Copiado = "id" | "codigo" | null;
-
 function SalaEspera({
   room,
   infoSala,
@@ -35,25 +33,7 @@ function SalaEspera({
   onIniciarPartida,
   onSalir,
 }: SalaEsperaProps) {
-  const [copiado, setCopiado] = useState<Copiado>(null);
-  const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null);
   const puedeIniciar = jugadores.length >= minJugadores;
-
-  useEffect(() => () => {
-    if (temporizador.current) clearTimeout(temporizador.current);
-  }, []);
-
-  async function copiar(texto: string, cual: Exclude<Copiado, null>) {
-    try {
-      await navigator.clipboard.writeText(texto);
-      setCopiado(cual);
-      if (temporizador.current) clearTimeout(temporizador.current);
-      temporizador.current = setTimeout(() => setCopiado(null), 2000);
-    } catch {
-      // Si el navegador bloquea el portapapeles, el texto sigue visible
-      // y se puede copiar a mano.
-    }
-  }
 
   // Un "asiento" por cada cupo de la sala: si hay jugador lo mostramos,
   // si no, un asiento vacío que indica que todavía se espera a alguien.
@@ -61,7 +41,7 @@ function SalaEspera({
 
   return (
     <div className="bg-info-subtle min-vh-100 d-flex align-items-center justify-content-center px-3 py-4">
-      <Card variant="outlined" className="w-100 sala-espera__card" sx={{ maxWidth: 560 }}>
+      <Card variant="outlined" className="w-100" sx={{ maxWidth: 560 }}>
         <CardContent className="d-flex flex-column align-items-center text-center p-4">
           <div className="d-flex flex-wrap justify-content-center gap-2 mb-3">
             <Chip label="⏳ Sala de espera" color="primary" variant="outlined" size="small" />
@@ -114,44 +94,20 @@ function SalaEspera({
           </div>
 
           <div className="w-100 d-flex flex-column gap-2 mb-4">
-            <div className="d-flex flex-column flex-sm-row align-items-sm-center gap-2 p-3 border rounded text-start bg-body-tertiary">
-              <div className="flex-grow-1 text-break">
-                <Typography variant="overline" component="div" color="text.secondary">
-                  Identificador de sala
-                </Typography>
-                <code className="fs-5 fw-bold text-body">{room.roomId}</code>
-              </div>
-              <Button
-                variant="outlined"
-                size="small"
-                className="text-nowrap"
-                onClick={() => copiar(room.roomId, "id")}
-                aria-label="Copiar identificador de sala"
-              >
-                {copiado === "id" ? "✔ ¡Copiado!" : "📋 Copiar"}
-              </Button>
-            </div>
+            <CampoCopiable
+              etiqueta="Identificador de sala"
+              valor={room.roomId}
+              descripcionBoton="Copiar identificador de sala"
+            />
 
             {/* El código solo lo conoce quien lo escribió (creador o quien entró con él). */}
             {infoSala?.privada && infoSala.codigoAcceso && (
-              <div className="d-flex flex-column flex-sm-row align-items-sm-center gap-2 p-3 border border-danger-subtle rounded text-start bg-danger-subtle">
-                <div className="flex-grow-1 text-break">
-                  <Typography variant="overline" component="div" color="text.secondary">
-                    Código de acceso
-                  </Typography>
-                  <code className="fs-5 fw-bold text-body">{infoSala.codigoAcceso}</code>
-                </div>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  size="small"
-                  className="text-nowrap"
-                  onClick={() => copiar(infoSala.codigoAcceso ?? "", "codigo")}
-                  aria-label="Copiar código de acceso"
-                >
-                  {copiado === "codigo" ? "✔ ¡Copiado!" : "📋 Copiar"}
-                </Button>
-              </div>
+              <CampoCopiable
+                etiqueta="Código de acceso"
+                valor={infoSala.codigoAcceso}
+                descripcionBoton="Copiar código de acceso"
+                destacado
+              />
             )}
           </div>
 
