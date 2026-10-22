@@ -10,6 +10,7 @@ import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
 import { hexDeColor } from "../../common/colores";
 import type { InfoSala } from "../sesionGuardada";
+import SelectorColor from "./componentes/SelectorColor";
 
 export interface JugadorVista {
   sessionId: string;
@@ -22,8 +23,6 @@ export interface JugadorVista {
 
 interface SalaEsperaProps {
   room: Room;
-  // Alias, privacidad y código: el cliente no los recibe en el estado, así
-  // que Navegacion los guarda al crear o entrar. Puede ser null si faltan.
   infoSala: InfoSala | null;
   jugadores: JugadorVista[];
   maxJugadores: number;
@@ -122,6 +121,14 @@ function SalaEspera({
                           {jugador.nombre}
                         </span>
                         {jugador.esUsuarioActual && <Chip label="Tú" color="info" size="small" />}
+                        <SelectorColor
+                          color={jugador.color}
+                          ocupados={jugadores
+                            .filter((otro) => otro.sessionId !== jugador.sessionId)
+                            .map((otro) => otro.color)}
+                          editable={jugador.esUsuarioActual}
+                          onElegir={(color) => room.send("msgElegirColor", { color })}
+                        />
                       </CardContent>
                     </Card>
                   </li>
