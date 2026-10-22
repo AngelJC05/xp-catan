@@ -702,7 +702,7 @@ function Partida({ sala, onSolicitarConstruccion, onSalir }: Props) {
           )}
           <Tablero
             datos={datosTablero}
-            ordenJugadores={ordenJugadores}
+            jugadores={jugadores}
             miSessionId={miSessionId}
             // Mientras se envia un camino gratis se ocultan las aristas: evita
             // mandar dos y gastar los dos caminos con un doble clic.
