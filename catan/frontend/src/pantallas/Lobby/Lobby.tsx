@@ -1,5 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
-import type { RoomAvailable } from "@colyseus/sdk";
+import { useState, type FormEvent } from "react";
 import "./Lobby.css";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
@@ -15,46 +14,15 @@ import LinearProgress from "@mui/material/LinearProgress";
 import TextField from "@mui/material/TextField";
 import type { Theme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
-import { client } from "../colyseusClient";
 import type { InfoSala } from "../sesionGuardada";
 import { ERROR_CODIGO_INCORRECTO, LARGO_MAXIMO_CODIGO, validarCodigoAcceso } from "../validacionSala";
-
-export type SalaTipo = "publica" | "privada";
-
-export interface SalaDisponible {
-  id: string;
-  nombre: string;
-  tipo: SalaTipo;
-  jugadores: number;
-  maxJugadores: number;
-  anfitrion: string;
-}
-
-// Metadata que CatanRoom publica con setMetadata (ver onCreate en el backend).
-interface MetadataSala {
-  alias?: string;
-  estado?: string;
-  privada?: boolean;
-  anfitrion?: string;
-}
-
-type EstadoConexion = "conectando" | "conectado" | "error";
+import { useSalasLobby } from "./hooks/useSalasLobby";
+import type { SalaDisponible } from "./utils/salas";
 
 // Sala a la que se le está pidiendo el código de acceso.
 interface SalaPorCodigo {
   id: string;
   nombre: string;
-}
-
-function salaDesdeListado(sala: RoomAvailable<MetadataSala>): SalaDisponible {
-  return {
-    id: sala.roomId,
-    nombre: sala.metadata?.alias || "Catan Room",
-    tipo: sala.metadata?.privada ? "privada" : "publica",
-    jugadores: sala.clients,
-    maxJugadores: sala.maxClients,
-    anfitrion: sala.metadata?.anfitrion || "",
-  };
 }
 
 interface LobbyProps {
@@ -67,8 +35,7 @@ interface LobbyProps {
 function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
   const [idInput, setIdInput] = useState("");
   const [salaSeleccionada, setSalaSeleccionada] = useState<string | null>(null);
-  const [listado, setListado] = useState<RoomAvailable<MetadataSala>[]>([]);
-  const [conexion, setConexion] = useState<EstadoConexion>("conectando");
+  const { conexion, todasLasSalas, salas } = useSalasLobby();
   // id de la sala a la que se está entrando, para bloquear clics repetidos.
   const [uniendo, setUniendo] = useState<string | null>(null);
   const [errorGeneral, setErrorGeneral] = useState<string | null>(null);
@@ -77,62 +44,6 @@ function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
   const [salaPorCodigo, setSalaPorCodigo] = useState<SalaPorCodigo | null>(null);
   const [codigoAcceso, setCodigoAcceso] = useState("");
   const [errorCodigo, setErrorCodigo] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Nos unimos a la LobbyRoom del backend, que envía el listado completo al
-    // entrar ("rooms") y luego avisa cada vez que una sala aparece o cambia
-    // ("+") o se elimina ("-").
-    // Ojo: no filtramos por metadata en el servidor porque, al cambiar el
-    // estado a "EN JUEGO", la LobbyRoom no envía "-" (compara la sala con
-    // ella misma). Sí envía "+" con los datos nuevos, así que filtramos aquí.
-    let cancelado = false;
-    let salaLobby: Awaited<ReturnType<typeof client.joinOrCreate>> | null = null;
-
-    client
-      .joinOrCreate("lobby", { filter: { name: "catan" } })
-      .then((sala) => {
-        // En modo estricto React monta, desmonta y vuelve a montar el
-        // componente; si ya nos desmontaron, salimos de inmediato.
-        if (cancelado) {
-          sala.leave();
-          return;
-        }
-        salaLobby = sala;
-        setConexion("conectado");
-
-        sala.onMessage("rooms", (salas: RoomAvailable<MetadataSala>[]) => setListado(salas));
-
-        sala.onMessage("+", ([roomId, datos]: [string, RoomAvailable<MetadataSala>]) => {
-          setListado((prev) => {
-            const indice = prev.findIndex((s) => s.roomId === roomId);
-            if (indice === -1) return [...prev, datos];
-            const copia = [...prev];
-            copia[indice] = datos;
-            return copia;
-          });
-        });
-
-        sala.onMessage("-", (roomId: string) => {
-          setListado((prev) => prev.filter((s) => s.roomId !== roomId));
-        });
-      })
-      .catch((error) => {
-        console.error("Error conectando al lobby:", error);
-        if (!cancelado) setConexion("error");
-      });
-
-    return () => {
-      cancelado = true;
-      salaLobby?.leave();
-    };
-  }, []);
-
-  const todasLasSalas = listado.map(salaDesdeListado);
-
-  // Solo mostramos salas que todavía esperan jugadores.
-  const salas: SalaDisponible[] = listado
-    .filter((sala) => sala.metadata?.estado === "EN LOBBY" && sala.clients < sala.maxClients)
-    .map(salaDesdeListado);
 
   function seleccionarSala(sala: SalaDisponible) {
     setSalaSeleccionada(sala.id);
