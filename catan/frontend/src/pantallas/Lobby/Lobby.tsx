@@ -10,13 +10,13 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import LinearProgress from "@mui/material/LinearProgress";
 import TextField from "@mui/material/TextField";
 import type { Theme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import type { InfoSala } from "../sesionGuardada";
 import { ERROR_CODIGO_INCORRECTO, LARGO_MAXIMO_CODIGO, validarCodigoAcceso } from "../validacionSala";
 import { useSalasLobby } from "./hooks/useSalasLobby";
+import TarjetaSala from "./componentes/TarjetaSala";
 import type { SalaDisponible } from "./utils/salas";
 
 // Sala a la que se le está pidiendo el código de acceso.
@@ -198,67 +198,13 @@ function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
             <ul className="row g-3 list-unstyled mb-4">
               {salas.map((sala) => (
                 <li key={sala.id} className="col-12 col-md-6">
-                  {/* Franja de color a la izquierda: verde si es pública, roja si es privada.
-                      La sala seleccionada se marca con un contorno celeste. */}
-                  <Card
-                    variant="outlined"
-                    className="h-100"
-                    onClick={() => seleccionarSala(sala)}
-                    sx={{
-                      cursor: "pointer",
-                      borderLeft: 6,
-                      borderLeftColor: sala.tipo === "publica" ? "success.main" : "error.main",
-                      outline: salaSeleccionada === sala.id ? 3 : 0,
-                      outlineStyle: "solid",
-                      outlineColor: "info.main",
-                    }}
-                  >
-                    <CardContent className="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
-                      <div className="d-flex flex-column gap-1 flex-grow-1 text-truncate">
-                        <div className="d-flex align-items-center gap-2">
-                          <Typography variant="h6" component="span" noWrap>
-                            {sala.nombre}
-                          </Typography>
-                          <Chip
-                            label={sala.tipo === "publica" ? "🌍 Pública" : "🔒 Privada"}
-                            color={sala.tipo === "publica" ? "success" : "error"}
-                            variant="outlined"
-                            size="small"
-                          />
-                        </div>
-                        <small className="text-body-secondary">
-                          {sala.anfitrion ? `Anfitrión: ${sala.anfitrion}` : "Sin anfitrión"}
-                        </small>
-                        <div
-                          className="d-flex align-items-center gap-2"
-                          aria-label={`${sala.jugadores} de ${sala.maxJugadores} jugadores`}
-                        >
-                          <LinearProgress
-                            variant="determinate"
-                            color="info"
-                            value={(sala.jugadores / sala.maxJugadores) * 100}
-                            className="flex-grow-1 rounded"
-                            aria-hidden="true"
-                          />
-                          <small className="fw-bold text-body-secondary" aria-hidden="true">
-                            {sala.jugadores}/{sala.maxJugadores}
-                          </small>
-                        </div>
-                      </div>
-
-                      <Button
-                        variant="contained"
-                        color={sala.tipo === "privada" ? "error" : "primary"}
-                        disabled={uniendo !== null}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          intentarUnirse(sala.id);
-                        }}
-                      >
-                        {uniendo === sala.id ? "Entrando…" : sala.tipo === "privada" ? "🔑 Unirse" : "Unirse"}
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <TarjetaSala
+                    sala={sala}
+                    seleccionada={salaSeleccionada === sala.id}
+                    uniendo={uniendo}
+                    onSeleccionar={() => seleccionarSala(sala)}
+                    onUnirse={() => intentarUnirse(sala.id)}
+                  />
                 </li>
               ))}
             </ul>
