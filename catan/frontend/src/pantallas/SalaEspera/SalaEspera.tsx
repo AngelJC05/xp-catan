@@ -14,6 +14,7 @@ import type { InfoSala } from "../sesionGuardada";
 export interface JugadorVista {
   sessionId: string;
   nombre: string;
+  color: number;
   score: number;
   esUsuarioActual: boolean;
   esSuTurno: boolean;

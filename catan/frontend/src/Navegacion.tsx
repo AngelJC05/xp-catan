@@ -27,6 +27,7 @@ const MIN_JUGADORES = 2;
 interface JugadorEstado {
   nombre: string;
   puntuacion: number;
+  color: number;
 }
 
 interface EstadoDeSala {
@@ -136,6 +137,7 @@ function Navegacion() {
         listaJugadores.push({
           sessionId,
           nombre: jugador.nombre,
+          color: jugador.color,
           score: jugador.puntuacion,
           esUsuarioActual,
           esSuTurno: sessionId === state.partida.turnoActual,
