@@ -11,6 +11,12 @@ export interface SalaDisponible {
   anfitrion: string;
 }
 
+// Sala a la que se le está pidiendo el código de acceso.
+export interface SalaPorCodigo {
+  id: string;
+  nombre: string;
+}
+
 // Metadata que CatanRoom publica con setMetadata (ver onCreate en el backend).
 export interface MetadataSala {
   alias?: string;

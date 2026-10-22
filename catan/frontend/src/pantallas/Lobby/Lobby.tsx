@@ -6,24 +6,14 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
-import type { Theme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import type { InfoSala } from "../sesionGuardada";
-import { ERROR_CODIGO_INCORRECTO, LARGO_MAXIMO_CODIGO, validarCodigoAcceso } from "../validacionSala";
+import { ERROR_CODIGO_INCORRECTO, validarCodigoAcceso } from "../validacionSala";
 import { useSalasLobby } from "./hooks/useSalasLobby";
 import TarjetaSala from "./componentes/TarjetaSala";
-import type { SalaDisponible } from "./utils/salas";
-
-// Sala a la que se le está pidiendo el código de acceso.
-interface SalaPorCodigo {
-  id: string;
-  nombre: string;
-}
+import DialogoCodigo from "./componentes/DialogoCodigo";
+import type { SalaDisponible, SalaPorCodigo } from "./utils/salas";
 
 interface LobbyProps {
   onCrearSala: () => void;
@@ -216,71 +206,18 @@ function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
         </Button>
       </div>
 
-      {/* Dialog ya cierra con Escape y al hacer clic fuera (llama a onClose). */}
-      <Dialog
-        open={salaPorCodigo !== null}
-        onClose={cerrarDialogo}
-        aria-labelledby="dialogo-codigo-titulo"
-        fullWidth
-        maxWidth="xs"
-      >
-        <form onSubmit={enviarCodigo} noValidate>
-          <DialogTitle id="dialogo-codigo-titulo" className="text-center">
-            🔒 Sala privada
-          </DialogTitle>
-          <DialogContent>
-            <p className="text-center text-body-secondary">
-              {salaPorCodigo?.nombre ? (
-                <>
-                  Para entrar a <strong>{salaPorCodigo.nombre}</strong> necesitas su código de acceso.
-                </>
-              ) : (
-                "Para entrar a esta sala necesitas su código de acceso."
-              )}
-            </p>
-
-            <TextField
-              id="codigo-acceso"
-              label="Código de acceso"
-              placeholder="Ej. OVEJA7"
-              fullWidth
-              autoFocus
-              autoComplete="off"
-              margin="dense"
-              value={codigoAcceso}
-              onChange={(e) => {
-                setCodigoAcceso(e.target.value.replace(/\s/g, ""));
-                setErrorCodigo(null);
-              }}
-              error={Boolean(errorCodigo)}
-              helperText={errorCodigo ?? "Pídeselo al anfitrión. Distingue mayúsculas."}
-              slotProps={{ htmlInput: { maxLength: LARGO_MAXIMO_CODIGO, spellCheck: false } }}
-              sx={{
-                "& .MuiInputBase-input": { fontFamily: "monospace", fontSize: "1.2rem", letterSpacing: "0.25em" },
-                "& .MuiInputBase-input::placeholder": {
-                  fontFamily: (theme: Theme) => theme.typography.fontFamily,
-                  fontSize: "1rem",
-                  letterSpacing: "normal",
-                },
-              }}
-            />
-          </DialogContent>
-          <DialogActions className="px-4 pb-4">
-            <Button variant="outlined" fullWidth onClick={cerrarDialogo}>
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              color="error"
-              fullWidth
-              disabled={!codigoAcceso || uniendo !== null}
-            >
-              {uniendo ? "Entrando…" : "Entrar"}
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+      <DialogoCodigo
+        sala={salaPorCodigo}
+        codigo={codigoAcceso}
+        error={errorCodigo}
+        uniendo={uniendo}
+        onCambiarCodigo={(codigo) => {
+          setCodigoAcceso(codigo);
+          setErrorCodigo(null);
+        }}
+        onCerrar={cerrarDialogo}
+        onEnviar={enviarCodigo}
+      />
     </div>
   );
 }
