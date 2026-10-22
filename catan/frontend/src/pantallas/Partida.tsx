@@ -1,8 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Room } from '@colyseus/sdk';
-import {
-  jugadoresPrueba, ordenJugadoresPrueba, turnoActualPrueba, miSessionIdPrueba,
-} from '../datos/jugadoresPrueba';
 import InfoJugadores from '../componentes/infoJugadores';
 import InfoTurno from '../componentes/infoTurno';
 import Chat, { type LineaRegistro, type MensajeRegistro } from '../componentes/chat';
@@ -11,7 +8,7 @@ import Existencias from '../componentes/existencias';
 import { tableroPrueba } from '../datos/tableroPrueba'
 import TablaCostes from '../componentes/tablaCostes';
 import Tablero from '../componentes/tablero';
-import type { Recurso, Recursos } from '../common/jugador';
+import type { Jugadores, Recurso, Recursos } from '../common/jugador';
 import { CARTA } from '../common/jugador';
 import type { EstadoCatan } from '../common/estado';
 import type { Coordenada } from '../common/tablero';
@@ -326,16 +323,14 @@ function Partida({ sala, onSolicitarConstruccion, onSalir }: Props) {
     };
   }, [sala]);
 
-  /* Sin sala, o antes del primer estado, se usan los datos de prueba: tienen la
-     misma forma, asi que los componentes no notan la diferencia. Los seis
-     salen de la misma fuente para no mezclar un sessionId real con jugadores
-     de prueba. */
+  /* Sin sala, o antes del primer estado, los jugadores, el orden y el turno
+     quedan vacios; solo el tablero y la banca usan datos de prueba. */
   const datosTablero = estadoReal?.tablero ?? tableroPrueba;
-  const jugadores = estadoReal?.jugadores ?? jugadoresPrueba;
-  const ordenJugadores = estadoReal?.partida.ordenJugadores ?? ordenJugadoresPrueba;
-  const turnoActual = estadoReal?.partida.turnoActual ?? turnoActualPrueba;
+  const jugadores: Jugadores = estadoReal?.jugadores ?? {};
+  const ordenJugadores = estadoReal?.partida.ordenJugadores ?? [];
+  const turnoActual = estadoReal?.partida.turnoActual ?? '';
   const banca = estadoReal?.banca ?? bancaPrueba;
-  const miSessionId = estadoReal ? (sala?.sessionId ?? '') : miSessionIdPrueba;
+  const miSessionId = sala?.sessionId ?? '';
   const esMiTurno = estadoReal !== null && turnoActual === miSessionId;
   const partidaActual = estadoReal?.partida;
   const miJugadorReal = estadoReal?.jugadores[miSessionId];
@@ -707,7 +702,7 @@ function Partida({ sala, onSolicitarConstruccion, onSalir }: Props) {
           )}
           <Tablero
             datos={datosTablero}
-            ordenJugadores={ordenJugadores}
+            jugadores={jugadores}
             miSessionId={miSessionId}
             // Mientras se envia un camino gratis se ocultan las aristas: evita
             // mandar dos y gastar los dos caminos con un doble clic.
@@ -776,7 +771,6 @@ function Partida({ sala, onSolicitarConstruccion, onSalir }: Props) {
           <InfoTurno
             sessionIdTurno={turnoActual}
             jugadores={jugadores}
-            ordenJugadores={ordenJugadores}
           />
           <Button
             className="flex-fill"

@@ -1,3 +1,5 @@
+import { COLOR, hexDeColor } from './colores';
+
 export type Recurso = 'madera' | 'trigo' | 'lana' | 'ladrillo' | 'mineral';
 
 export interface Recursos {
@@ -66,13 +68,10 @@ export const NOMBRE_PIEZA: Record<string, string> = {
 
 
 
-/* =============== DATOS DEL JUGADOR =======================
-   La clave del mapa es el sessionId que Colyseus le asigna a cada cliente.
-   Los diez campos son copia literal de backend/src/schemas/Jugador.ts. Lo
-   unico que el backend NO manda es el color: se calcula abajo. */
-
+/* =============== DATOS DEL JUGADOR ======================= */
 export interface Jugador {
   nombre: string;
+  color: number;
   puntuacion: number;
   puntosParaGanar: number;
   recursos: Recursos;
@@ -90,16 +89,15 @@ export type Jugadores = Record<string, Jugador>;
 
 
 /* --------------------------------------------------------------- color
-   El backend no manda color. Se asigna en el cliente por la posicion del
-   jugador en el orden de turnos, que si publica: asi todos los jugadores ven
-   el mismo color para la misma persona sin que nadie lo mande.
-   Si algun dia el backend agrega el campo, se borra esto y se lee de ahi. */
+   El color lo decide el backend (campo color del jugador) y los tonos viven en
+   colores.ts. */
 
+// Provisional: la sala de espera todavia colorea por posicion. Se borra con la issue del selector de color.
 export const COLORES = ['#D34F3E', '#3E7FD3', '#4CA36B', '#E0A030'];
 
-export function colorDeJugador(ordenJugadores: string[], sessionId: string): string {
-  const posicion = ordenJugadores.indexOf(sessionId);
-  return COLORES[(posicion < 0 ? 0 : posicion) % COLORES.length];
+// Color que el backend le dio al jugador; sin jugador o sin color sale el gris neutro.
+export function colorDelJugador(jugadores: Jugadores, sessionId: string): string {
+  return hexDeColor(jugadores[sessionId]?.color ?? COLOR.SIN_COLOR);
 }
 
 
