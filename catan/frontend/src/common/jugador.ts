@@ -92,9 +92,6 @@ export type Jugadores = Record<string, Jugador>;
    El color lo decide el backend (campo color del jugador) y los tonos viven en
    colores.ts. */
 
-// Provisional: la sala de espera todavia colorea por posicion. Se borra con la issue del selector de color.
-export const COLORES = ['#D34F3E', '#3E7FD3', '#4CA36B', '#E0A030'];
-
 // Color que el backend le dio al jugador; sin jugador o sin color sale el gris neutro.
 export function colorDelJugador(jugadores: Jugadores, sessionId: string): string {
   return hexDeColor(jugadores[sessionId]?.color ?? COLOR.SIN_COLOR);
