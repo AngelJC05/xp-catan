@@ -1,6 +1,6 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
-import { FasePartida } from "../src/common/enums.js";
+import { ColorJugador, FasePartida } from "../src/common/enums.js";
 import { manejarIniciarPartida } from "../src/rooms/handlers/partida/iniciarPartida.js";
 import { armarCliente, armarSala } from "./ayudas/salaFalsa.js";
 
@@ -54,6 +54,15 @@ describe("handler de iniciar partida", () => {
     ]);
     assert.strictEqual(partida.fase, FasePartida.LOBBY);
   });
+
+  it("nadie debe quedar sin color al iniciar la partida", () => {
+    const { sala, partida } = armarLobby();
+    const { client } = armarCliente(ANGEL);
+
+    manejarIniciarPartida(sala, client);
+    assert.notStrictEqual(sala.jugadores.get(ANGEL).color, ColorJugador.SIN_COLOR);
+    assert.notStrictEqual(sala.jugadores.get(ALAN).color, ColorJugador.SIN_COLOR);
+  })
 
   it("pasa la partida a preconstruccion", () => {
     const { sala, partida } = armarLobby();

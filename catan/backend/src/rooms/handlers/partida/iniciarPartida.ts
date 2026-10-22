@@ -4,6 +4,7 @@ import { FasePartida } from "../../../common/enums.js";
 import { mezclar } from "../../../common/mezclar.js";
 import { enviarError } from "../../ayudantes/notificaciones.js";
 import { enFasePartida, esCreador, validar } from "../../validaciones/guardias.js";
+import { completarColores } from "../../../functions/completarColores.js";
 
 //? Atiende el mensaje msgIniciarPartida: arranca la partida desde el lobby
 export function manejarIniciarPartida(sala: CatanRoom, client: Client): void {
@@ -22,6 +23,9 @@ export function manejarIniciarPartida(sala: CatanRoom, client: Client): void {
         enviarError(client, "Se necesitan al menos 2 jugadores para iniciar la partida");
         return;
     }
+
+    //* Se completan los colores de los jugadores que no eligieron color
+    completarColores(sala.jugadores);
 
     //* Se mezcla el orden y el primero de la lista empieza
     mezclar(sala.partida.ordenJugadores);

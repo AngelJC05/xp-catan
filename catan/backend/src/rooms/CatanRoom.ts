@@ -4,6 +4,7 @@ import { revisarCaminoMasLargo } from "./ayudantes/revisarCaminoMasLargo.js";
 import {
   manejarChat,
   manejarIniciarPartida,
+  manejarElegirColor,
   manejarColocarAsentamiento,
   manejarColocarCamino,
   manejarColocarCiudad,
@@ -47,6 +48,11 @@ export class CatanRoom extends Room {
       client: Client,
       mensaje: { mensaje: string }
     ) => manejarChat(this, client, mensaje),
+
+    msgElegirColor: (
+      client: Client,
+      mensaje: { color: number }
+    ) => manejarElegirColor(this, client, mensaje),
 
     msgIniciarPartida: (client: Client) => manejarIniciarPartida(this, client),
 
