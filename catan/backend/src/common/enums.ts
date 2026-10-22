@@ -72,5 +72,5 @@ export enum ColorJugador {
     MORADO = 7,
     ROSA = 8,
     CELESTE = 9,
-    GRIS = 10
+    NEGRO = 10
 }

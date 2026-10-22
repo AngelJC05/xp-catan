@@ -14,22 +14,22 @@ export const COLOR = {
   MORADO: 7,
   ROSA: 8,
   CELESTE: 9,
-  GRIS: 10,
+  NEGRO: 10,
 } as const;
 
-// Tonos propuestos en la issue #21, hay que probarlos en pantalla por el contraste.
+// Tonos propuestos para cada color
 export const HEX_COLOR: Record<number, string> = {
   [COLOR.SIN_COLOR]: '#9E9E9E',
   [COLOR.AZUL]: '#1565C0',
   [COLOR.ROJO]: '#C62828',
   [COLOR.VERDE]: '#2E7D32',
-  [COLOR.AMARILLO]: '#F9A825',
-  [COLOR.ANARANJADO]: '#C25400',
-  [COLOR.CAFE]: '#6D4C41',
+  [COLOR.AMARILLO]: '#faba54',
+  [COLOR.ANARANJADO]: '#f76e06',
+  [COLOR.CAFE]: '#ac7664',
   [COLOR.MORADO]: '#6A1B9A',
   [COLOR.ROSA]: '#C2185B',
   [COLOR.CELESTE]: '#4FC3F7',
-  [COLOR.GRIS]: '#455A64',
+  [COLOR.NEGRO]: '#080808',
 };
 
 // Si llega un numero que no existe se muestra como sin color.
