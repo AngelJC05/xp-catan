@@ -1,5 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
-import type { RoomAvailable } from "@colyseus/sdk";
+import { useState, type FormEvent } from "react";
 import "./Lobby.css";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
@@ -7,55 +6,14 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import LinearProgress from "@mui/material/LinearProgress";
 import TextField from "@mui/material/TextField";
-import type { Theme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
-import { client } from "../colyseusClient";
 import type { InfoSala } from "../sesionGuardada";
-import { ERROR_CODIGO_INCORRECTO, LARGO_MAXIMO_CODIGO, validarCodigoAcceso } from "../validacionSala";
-
-export type SalaTipo = "publica" | "privada";
-
-export interface SalaDisponible {
-  id: string;
-  nombre: string;
-  tipo: SalaTipo;
-  jugadores: number;
-  maxJugadores: number;
-  anfitrion: string;
-}
-
-// Metadata que CatanRoom publica con setMetadata (ver onCreate en el backend).
-interface MetadataSala {
-  alias?: string;
-  estado?: string;
-  privada?: boolean;
-  anfitrion?: string;
-}
-
-type EstadoConexion = "conectando" | "conectado" | "error";
-
-// Sala a la que se le está pidiendo el código de acceso.
-interface SalaPorCodigo {
-  id: string;
-  nombre: string;
-}
-
-function salaDesdeListado(sala: RoomAvailable<MetadataSala>): SalaDisponible {
-  return {
-    id: sala.roomId,
-    nombre: sala.metadata?.alias || "Catan Room",
-    tipo: sala.metadata?.privada ? "privada" : "publica",
-    jugadores: sala.clients,
-    maxJugadores: sala.maxClients,
-    anfitrion: sala.metadata?.anfitrion || "",
-  };
-}
+import { ERROR_CODIGO_INCORRECTO, validarCodigoAcceso } from "../validacionSala";
+import { useSalasLobby } from "./hooks/useSalasLobby";
+import TarjetaSala from "./componentes/TarjetaSala";
+import DialogoCodigo from "./componentes/DialogoCodigo";
+import type { SalaDisponible, SalaPorCodigo } from "./utils/salas";
 
 interface LobbyProps {
   onCrearSala: () => void;
@@ -67,8 +25,7 @@ interface LobbyProps {
 function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
   const [idInput, setIdInput] = useState("");
   const [salaSeleccionada, setSalaSeleccionada] = useState<string | null>(null);
-  const [listado, setListado] = useState<RoomAvailable<MetadataSala>[]>([]);
-  const [conexion, setConexion] = useState<EstadoConexion>("conectando");
+  const { conexion, todasLasSalas, salas } = useSalasLobby();
   // id de la sala a la que se está entrando, para bloquear clics repetidos.
   const [uniendo, setUniendo] = useState<string | null>(null);
   const [errorGeneral, setErrorGeneral] = useState<string | null>(null);
@@ -77,62 +34,6 @@ function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
   const [salaPorCodigo, setSalaPorCodigo] = useState<SalaPorCodigo | null>(null);
   const [codigoAcceso, setCodigoAcceso] = useState("");
   const [errorCodigo, setErrorCodigo] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Nos unimos a la LobbyRoom del backend, que envía el listado completo al
-    // entrar ("rooms") y luego avisa cada vez que una sala aparece o cambia
-    // ("+") o se elimina ("-").
-    // Ojo: no filtramos por metadata en el servidor porque, al cambiar el
-    // estado a "EN JUEGO", la LobbyRoom no envía "-" (compara la sala con
-    // ella misma). Sí envía "+" con los datos nuevos, así que filtramos aquí.
-    let cancelado = false;
-    let salaLobby: Awaited<ReturnType<typeof client.joinOrCreate>> | null = null;
-
-    client
-      .joinOrCreate("lobby", { filter: { name: "catan" } })
-      .then((sala) => {
-        // En modo estricto React monta, desmonta y vuelve a montar el
-        // componente; si ya nos desmontaron, salimos de inmediato.
-        if (cancelado) {
-          sala.leave();
-          return;
-        }
-        salaLobby = sala;
-        setConexion("conectado");
-
-        sala.onMessage("rooms", (salas: RoomAvailable<MetadataSala>[]) => setListado(salas));
-
-        sala.onMessage("+", ([roomId, datos]: [string, RoomAvailable<MetadataSala>]) => {
-          setListado((prev) => {
-            const indice = prev.findIndex((s) => s.roomId === roomId);
-            if (indice === -1) return [...prev, datos];
-            const copia = [...prev];
-            copia[indice] = datos;
-            return copia;
-          });
-        });
-
-        sala.onMessage("-", (roomId: string) => {
-          setListado((prev) => prev.filter((s) => s.roomId !== roomId));
-        });
-      })
-      .catch((error) => {
-        console.error("Error conectando al lobby:", error);
-        if (!cancelado) setConexion("error");
-      });
-
-    return () => {
-      cancelado = true;
-      salaLobby?.leave();
-    };
-  }, []);
-
-  const todasLasSalas = listado.map(salaDesdeListado);
-
-  // Solo mostramos salas que todavía esperan jugadores.
-  const salas: SalaDisponible[] = listado
-    .filter((sala) => sala.metadata?.estado === "EN LOBBY" && sala.clients < sala.maxClients)
-    .map(salaDesdeListado);
 
   function seleccionarSala(sala: SalaDisponible) {
     setSalaSeleccionada(sala.id);
@@ -287,67 +188,13 @@ function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
             <ul className="row g-3 list-unstyled mb-4">
               {salas.map((sala) => (
                 <li key={sala.id} className="col-12 col-md-6">
-                  {/* Franja de color a la izquierda: verde si es pública, roja si es privada.
-                      La sala seleccionada se marca con un contorno celeste. */}
-                  <Card
-                    variant="outlined"
-                    className="h-100"
-                    onClick={() => seleccionarSala(sala)}
-                    sx={{
-                      cursor: "pointer",
-                      borderLeft: 6,
-                      borderLeftColor: sala.tipo === "publica" ? "success.main" : "error.main",
-                      outline: salaSeleccionada === sala.id ? 3 : 0,
-                      outlineStyle: "solid",
-                      outlineColor: "info.main",
-                    }}
-                  >
-                    <CardContent className="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
-                      <div className="d-flex flex-column gap-1 flex-grow-1 text-truncate">
-                        <div className="d-flex align-items-center gap-2">
-                          <Typography variant="h6" component="span" noWrap>
-                            {sala.nombre}
-                          </Typography>
-                          <Chip
-                            label={sala.tipo === "publica" ? "🌍 Pública" : "🔒 Privada"}
-                            color={sala.tipo === "publica" ? "success" : "error"}
-                            variant="outlined"
-                            size="small"
-                          />
-                        </div>
-                        <small className="text-body-secondary">
-                          {sala.anfitrion ? `Anfitrión: ${sala.anfitrion}` : "Sin anfitrión"}
-                        </small>
-                        <div
-                          className="d-flex align-items-center gap-2"
-                          aria-label={`${sala.jugadores} de ${sala.maxJugadores} jugadores`}
-                        >
-                          <LinearProgress
-                            variant="determinate"
-                            color="info"
-                            value={(sala.jugadores / sala.maxJugadores) * 100}
-                            className="flex-grow-1 rounded"
-                            aria-hidden="true"
-                          />
-                          <small className="fw-bold text-body-secondary" aria-hidden="true">
-                            {sala.jugadores}/{sala.maxJugadores}
-                          </small>
-                        </div>
-                      </div>
-
-                      <Button
-                        variant="contained"
-                        color={sala.tipo === "privada" ? "error" : "primary"}
-                        disabled={uniendo !== null}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          intentarUnirse(sala.id);
-                        }}
-                      >
-                        {uniendo === sala.id ? "Entrando…" : sala.tipo === "privada" ? "🔑 Unirse" : "Unirse"}
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <TarjetaSala
+                    sala={sala}
+                    seleccionada={salaSeleccionada === sala.id}
+                    uniendo={uniendo}
+                    onSeleccionar={() => seleccionarSala(sala)}
+                    onUnirse={() => intentarUnirse(sala.id)}
+                  />
                 </li>
               ))}
             </ul>
@@ -359,71 +206,18 @@ function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
         </Button>
       </div>
 
-      {/* Dialog ya cierra con Escape y al hacer clic fuera (llama a onClose). */}
-      <Dialog
-        open={salaPorCodigo !== null}
-        onClose={cerrarDialogo}
-        aria-labelledby="dialogo-codigo-titulo"
-        fullWidth
-        maxWidth="xs"
-      >
-        <form onSubmit={enviarCodigo} noValidate>
-          <DialogTitle id="dialogo-codigo-titulo" className="text-center">
-            🔒 Sala privada
-          </DialogTitle>
-          <DialogContent>
-            <p className="text-center text-body-secondary">
-              {salaPorCodigo?.nombre ? (
-                <>
-                  Para entrar a <strong>{salaPorCodigo.nombre}</strong> necesitas su código de acceso.
-                </>
-              ) : (
-                "Para entrar a esta sala necesitas su código de acceso."
-              )}
-            </p>
-
-            <TextField
-              id="codigo-acceso"
-              label="Código de acceso"
-              placeholder="Ej. OVEJA7"
-              fullWidth
-              autoFocus
-              autoComplete="off"
-              margin="dense"
-              value={codigoAcceso}
-              onChange={(e) => {
-                setCodigoAcceso(e.target.value.replace(/\s/g, ""));
-                setErrorCodigo(null);
-              }}
-              error={Boolean(errorCodigo)}
-              helperText={errorCodigo ?? "Pídeselo al anfitrión. Distingue mayúsculas."}
-              slotProps={{ htmlInput: { maxLength: LARGO_MAXIMO_CODIGO, spellCheck: false } }}
-              sx={{
-                "& .MuiInputBase-input": { fontFamily: "monospace", fontSize: "1.2rem", letterSpacing: "0.25em" },
-                "& .MuiInputBase-input::placeholder": {
-                  fontFamily: (theme: Theme) => theme.typography.fontFamily,
-                  fontSize: "1rem",
-                  letterSpacing: "normal",
-                },
-              }}
-            />
-          </DialogContent>
-          <DialogActions className="px-4 pb-4">
-            <Button variant="outlined" fullWidth onClick={cerrarDialogo}>
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              color="error"
-              fullWidth
-              disabled={!codigoAcceso || uniendo !== null}
-            >
-              {uniendo ? "Entrando…" : "Entrar"}
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+      <DialogoCodigo
+        sala={salaPorCodigo}
+        codigo={codigoAcceso}
+        error={errorCodigo}
+        uniendo={uniendo}
+        onCambiarCodigo={(codigo) => {
+          setCodigoAcceso(codigo);
+          setErrorCodigo(null);
+        }}
+        onCerrar={cerrarDialogo}
+        onEnviar={enviarCodigo}
+      />
     </div>
   );
 }
