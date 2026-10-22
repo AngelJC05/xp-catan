@@ -8,7 +8,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
-import { COLORES } from "../../common/jugador";
+import { hexDeColor } from "../../common/colores";
 import type { InfoSala } from "../sesionGuardada";
 
 export interface JugadorVista {
@@ -102,7 +102,7 @@ function SalaEspera({
             {asientos.map((jugador, i) => (
               <div key={i} className="progress flex-fill">
                 {jugador && (
-                  <div className="progress-bar w-100" style={{ backgroundColor: COLORES[i % COLORES.length] }} />
+                  <div className="progress-bar w-100" style={{ backgroundColor: hexDeColor(jugador.color) }} />
                 )}
               </div>
             ))}
@@ -115,7 +115,7 @@ function SalaEspera({
                   <li key={jugador.sessionId} className="col-6 col-sm-3">
                     <Card variant="outlined" className="h-100">
                       <CardContent className="d-flex flex-column align-items-center gap-2 p-3">
-                        <Avatar sx={{ bgcolor: COLORES[i % COLORES.length], width: 52, height: 52 }}>
+                        <Avatar sx={{ bgcolor: hexDeColor(jugador.color), width: 52, height: 52 }}>
                           {iniciales(jugador.nombre || jugador.sessionId)}
                         </Avatar>
                         <span className="fw-bold small text-truncate mw-100" title={jugador.nombre}>
