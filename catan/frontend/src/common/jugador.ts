@@ -66,13 +66,10 @@ export const NOMBRE_PIEZA: Record<string, string> = {
 
 
 
-/* =============== DATOS DEL JUGADOR =======================
-   La clave del mapa es el sessionId que Colyseus le asigna a cada cliente.
-   Los diez campos son copia literal de backend/src/schemas/Jugador.ts. Lo
-   unico que el backend NO manda es el color: se calcula abajo. */
-
+/* =============== DATOS DEL JUGADOR ======================= */
 export interface Jugador {
   nombre: string;
+  color: number;
   puntuacion: number;
   puntosParaGanar: number;
   recursos: Recursos;
