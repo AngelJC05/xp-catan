@@ -5,22 +5,22 @@ import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
+import { ICONO_PIEZA } from "../../common/iconos";
+import { PIEZA } from "../../common/jugador";
 
-// Las dos opciones de la pantalla. El borde de arriba usa colores del tema
-// de MUI: rojo para crear (ladrillo) y celeste para unirse (mar).
 const OPCIONES = [
   {
     id: "crear",
     titulo: "Crear partida",
     detalle: "Abre una sala nueva, pública o privada, y espera a que se unan los demás jugadores.",
-    icono: "/svg/ciudad.svg",
+    icono: ICONO_PIEZA[PIEZA.CIUDAD],
     colorBorde: "error.main",
   },
   {
     id: "unirse",
     titulo: "Unirse a partida",
     detalle: "Mira las salas disponibles o entra con el identificador que te compartieron.",
-    icono: "/svg/carretera.svg",
+    icono: ICONO_PIEZA[PIEZA.CAMINO],
     colorBorde: "info.main",
   },
 ] as const;

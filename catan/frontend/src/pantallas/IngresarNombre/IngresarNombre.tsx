@@ -6,6 +6,8 @@ import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import { ICONO_PIEZA } from "../../common/iconos";
+import { PIEZA } from "../../common/jugador";
 import { LARGO_MAXIMO_NOMBRE, validarNombreJugador } from "../nombreJugador";
 
 interface IngresarNombreProps {
@@ -40,7 +42,7 @@ function IngresarNombre({ nombreInicial = "", onConfirmar, onVolver }: IngresarN
           <CardContent component="form" onSubmit={confirmar} className="p-4">
             <div className="d-flex align-items-center justify-content-between mb-3">
               <Chip label="Catan Online" color="primary" variant="outlined" size="small" />
-              <img src="/svg/poblado.svg" alt="" aria-hidden="true" width={32} height={32} />
+              <img src={ICONO_PIEZA[PIEZA.ASENTAMIENTO]} alt="" aria-hidden="true" width={32} height={32} />
             </div>
 
             <Typography variant="h5" component="h1" gutterBottom>

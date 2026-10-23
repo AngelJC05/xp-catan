@@ -9,6 +9,8 @@ import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import type { Theme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
+import { ICONO_PIEZA } from "../../common/iconos";
+import { PIEZA } from "../../common/jugador";
 import {
   LARGO_MAXIMO_ALIAS,
   LARGO_MAXIMO_CODIGO,
@@ -77,7 +79,7 @@ function CrearSala({ nombreJugador, onCrear, onVolver }: CrearSalaProps) {
           <CardContent component="form" onSubmit={crear} noValidate className="p-4 d-flex flex-column gap-3">
             <header>
               <div className="d-flex align-items-center gap-3 mb-3">
-                <img src="/svg/ciudad.svg" alt="" aria-hidden="true" width={40} height={40} />
+                <img src={ICONO_PIEZA[PIEZA.CIUDAD]} alt="" aria-hidden="true" width={40} height={40} />
                 <div>
                   <Typography variant="h5" component="h1">
                     Funda tu sala

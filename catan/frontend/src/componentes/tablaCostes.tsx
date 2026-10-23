@@ -1,25 +1,19 @@
 import { Card, ListGroup } from 'react-bootstrap';
+import { ICONO_CARTA_DESARROLLO, ICONO_PIEZA, ICONO_RECURSO } from '../common/iconos';
+import { PIEZA, type Recurso } from '../common/jugador';
 
-type Recurso = { img: string; cantidad?: number };
-type Fila = { icono: string; nombre: string; recursos: Recurso[] };
-
-const RECURSOS = {
-  madera:   '/svg/madera.svg',
-  ladrillo: '/svg/ladrillo.svg',
-  trigo:    '/svg/trigo.svg',
-  lana:     '/svg/lana.svg',
-  piedra:   '/svg/piedra.svg',
-} as const;
+type Coste = { recurso: Recurso; cantidad?: number };
+type Fila = { icono: string; nombre: string; costes: Coste[] };
 
 const FILAS: Fila[] = [
-  { icono: '/svg/carretera.svg', nombre: 'Carretera',
-    recursos: [{ img: RECURSOS.madera }, { img: RECURSOS.ladrillo }] },
-  { icono: '/svg/poblado.svg', nombre: 'Poblado',
-    recursos: [{ img: RECURSOS.madera }, { img: RECURSOS.ladrillo }, { img: RECURSOS.trigo }, { img: RECURSOS.lana }] },
-  { icono: '/svg/ciudad.svg', nombre: 'Ciudad',
-    recursos: [{ img: RECURSOS.trigo, cantidad: 2 }, { img: RECURSOS.piedra, cantidad: 3 }] },
-  { icono: '/svg/desarrollo.svg', nombre: 'Carta de desarrollo',
-    recursos: [{ img: RECURSOS.trigo }, { img: RECURSOS.lana }, { img: RECURSOS.piedra }] },
+  { icono: ICONO_PIEZA[PIEZA.CAMINO], nombre: 'Carretera',
+    costes: [{ recurso: 'madera' }, { recurso: 'ladrillo' }] },
+  { icono: ICONO_PIEZA[PIEZA.ASENTAMIENTO], nombre: 'Poblado',
+    costes: [{ recurso: 'madera' }, { recurso: 'trigo' }, { recurso: 'lana' }, { recurso: 'ladrillo' }] },
+  { icono: ICONO_PIEZA[PIEZA.CIUDAD], nombre: 'Ciudad',
+    costes: [{ recurso: 'trigo', cantidad: 2 }, { recurso: 'mineral', cantidad: 3 }] },
+  { icono: ICONO_CARTA_DESARROLLO, nombre: 'Carta de desarrollo',
+    costes: [{ recurso: 'trigo' }, { recurso: 'lana' }, { recurso: 'mineral' }] },
 ];
 
 function TablaCostes() {
@@ -29,16 +23,16 @@ function TablaCostes() {
         Tabla de costes
       </Card.Header>
       <ListGroup variant="flush" className="flex-fill overflow-hidden d-flex flex-column">
-        {FILAS.map(({ icono, nombre, recursos }) => (
+        {FILAS.map(({ icono, nombre, costes }) => (
           <ListGroup.Item
             key={nombre}
             className="d-flex align-items-center flex-fill overflow-hidden min-w-0 py-0 px-1">
             <img src={icono} alt={nombre} width={32} height={32} />
             <span className="flex-grow-1 text-truncate ms-1">{nombre}</span>
-            {recursos.map(({ img, cantidad }) => (
-              <span key={img} className="d-flex align-items-center">
+            {costes.map(({ recurso, cantidad }) => (
+              <span key={recurso} className="d-flex align-items-center">
                 {cantidad && <span className="ms-1">{cantidad}</span>}
-                <img src={img} alt="" width={32} height={32} />
+                <img src={ICONO_RECURSO[recurso]} alt="" width={32} height={32} />
               </span>
             ))}
           </ListGroup.Item>

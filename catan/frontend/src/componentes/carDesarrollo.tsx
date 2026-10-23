@@ -1,13 +1,14 @@
 import { Badge, Button, Card, ListGroup } from 'react-bootstrap';
 import type { Cartas, Jugador } from '../common/jugador';
 import { CARTA, NOMBRE_CARTA } from '../common/jugador';
+import { ICONO_CARTA } from '../common/iconos';
 
-const CARTAS: { clave: keyof Cartas; icono: string }[] = [
-  { clave: CARTA.CABALLERO,       icono: '/svg/caballero.svg' },
-  { clave: CARTA.PUNTOS_VICTORIA, icono: '/svg/puntosVictoria.svg' },
-  { clave: CARTA.CARRETERAS,      icono: '/svg/carreteras.svg' },
-  { clave: CARTA.ABUNDANCIA,      icono: '/svg/abundancia.svg' },
-  { clave: CARTA.MONOPOLIO,       icono: '/svg/monopolio.svg' },
+const CARTAS: (keyof Cartas)[] = [
+  CARTA.CABALLERO,
+  CARTA.PUNTOS_VICTORIA,
+  CARTA.CARRETERAS,
+  CARTA.ABUNDANCIA,
+  CARTA.MONOPOLIO,
 ];
 
 interface Props {
@@ -27,7 +28,7 @@ function CarDesarrollo({ miJugador, puedeComprar, comprando, onComprar, puedeUsa
       {miJugador ? (
         <>
           <ListGroup variant="flush" className="flex-fill overflow-y-auto" style={{ minHeight: 0 }}>
-            {CARTAS.map(({ clave, icono }) => {
+            {CARTAS.map((clave) => {
               const usables = miJugador.cartas_usables[clave];
               const nuevas = miJugador.cartas_inusables[clave];
               const esPuntoVictoria = clave === CARTA.PUNTOS_VICTORIA;
@@ -39,7 +40,7 @@ function CarDesarrollo({ miJugador, puedeComprar, comprando, onComprar, puedeUsa
                     : NOMBRE_CARTA[clave]}
                   className="d-flex align-items-center gap-2 py-0"
                 >
-                  <img src={icono} alt={NOMBRE_CARTA[clave]} width={24} height={24} />
+                  <img src={ICONO_CARTA[clave]} alt={NOMBRE_CARTA[clave]} width={24} height={24} />
                   <span className="flex-grow-1 text-truncate">{NOMBRE_CARTA[clave]}</span>
                   {!esPuntoVictoria && nuevas > 0 && (
                     <Badge
