@@ -299,6 +299,7 @@ function Navegacion() {
         maxJugadores={MAX_JUGADORES}
         minJugadores={MIN_JUGADORES}
         esCreador={esCreador}
+        registro={registro}
         onIniciarPartida={() => room.send("msgIniciarPartida")}
         onSalir={salirDeSala}
       />
