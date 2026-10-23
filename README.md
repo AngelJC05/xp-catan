@@ -9,4 +9,7 @@ El proyecto busca usar metodología XP **Extreme Programming**, trabajando
 en pareja para entregar cortas liberaciones que mejorarán la experiencia de juego.
 
 ## Release
-**V1.1** - Aun por definidir
+**V1.1 - Beta**
+Esta versión implementa el título que hacía falta de camino más largo y también mejora la forma de intercambio actual,
+donde no se podía intercambiar de forma mixta como sí ocurre en el juego original. También puedes elegir el color con el 
+que quieres jugar antes de entrar a una partida. (Para más detalles revisar el release v1.1)
