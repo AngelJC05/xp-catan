@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Room } from '@colyseus/sdk';
 import InfoJugadores from '../componentes/infoJugadores';
 import InfoTurno from '../componentes/infoTurno';
-import Chat, { type LineaRegistro, type MensajeRegistro } from '../componentes/chat';
+import Chat, { type LineaRegistro } from '../componentes/chat';
 import { bancaPrueba } from '../datos/bancaPruebas';
 import Existencias from '../componentes/existencias';
 import { tableroPrueba } from '../datos/tableroPrueba'
@@ -66,6 +66,9 @@ function leerEstado(sala: Room): EstadoCatan | null {
 interface Props {
   // Si no hay sala de Colyseus, usara el tableroPrueba
   sala?: Room | null;
+  // Historial de chat y log; lo guarda Navegacion para que sobreviva al paso
+  // de la sala de espera a la partida.
+  registro: LineaRegistro[];
   // La capa de conexión inyectará aquí una función equivalente a:
   // room.send('construir', solicitud).
   // Así esta pantalla no crea una segunda conexión al backend.
@@ -75,7 +78,7 @@ interface Props {
 }
 
 // Pantalla principal de la partida. Contiene todos los componentes de la partida.
-function Partida({ sala, onSolicitarConstruccion, onSalir }: Props) {
+function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   const [tipoConstruccion, setTipoConstruccion] = useState<TipoConstruccion | null>(null);
   const [objetivoConstruccion, setObjetivoConstruccion] = useState<ObjetivoConstruccion | null>(null);
   const [estadoConstruccion, setEstadoConstruccion] = useState('');
@@ -122,7 +125,6 @@ function Partida({ sala, onSolicitarConstruccion, onSalir }: Props) {
   } | null>(null);
   // Todo lo que manda el servidor. null = todavia no llega, o no hay sala.
   const [estadoReal, setEstadoReal] = useState<EstadoCatan | null>(null);
-  const [registro, setRegistro] = useState<LineaRegistro[]>([]);
 
   useEffect(() => {
     if (!sala) return;
@@ -300,26 +302,9 @@ function Partida({ sala, onSolicitarConstruccion, onSalir }: Props) {
       setIntercambioAbierto(false);
     });
 
-    const agregar = (linea: LineaRegistro) =>
-      setRegistro((anterior) => [...anterior, linea].slice(-100));
-
-    const dejarDeEscucharChat = sala.onMessage(
-      'chat',
-      ({ jugador, mensaje }: MensajeRegistro) =>
-        agregar({ tipo: 'chat', jugador, mensaje }),
-    );
-
-    const dejarDeEscucharLog = sala.onMessage(
-      'log',
-      ({ jugador, mensaje }: MensajeRegistro) =>
-        agregar({ tipo: 'log', jugador, mensaje }),
-    );
-
     return () => {
       dejarDeEscucharDados();
       dejarDeEscucharErrores();
-      dejarDeEscucharChat();
-      dejarDeEscucharLog();
     };
   }, [sala]);
 
