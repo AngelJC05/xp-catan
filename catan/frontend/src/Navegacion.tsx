@@ -11,6 +11,7 @@ import SalaEspera from "./pantallas/SalaEspera/SalaEspera";
 import type { JugadorVista } from "./pantallas/SalaEspera/tipos";
 import PartidaTablero from "./pantallas/Partida";
 import { FASE_PARTIDA } from "./common/fases";
+import { useRegistroSala } from "./hooks/useRegistroSala";
 import {
   actualizarToken,
   borrarSesion,
@@ -80,6 +81,7 @@ function Navegacion() {
   const [jugadores, setJugadores] = useState<JugadorVista[]>([]);
   const [fase, setFase] = useState<number>(FASE_PARTIDA.LOBBY);
   const [creador, setCreador] = useState("");
+  const registro = useRegistroSala(room);
   // Desde dónde se abrió "Crear sala", para que Volver regrese ahí.
   const [origenCrear, setOrigenCrear] = useState<"elegir" | "lobby">("elegir");
   // Distingue "Salir" (voluntario) de una caída que no se pudo recuperar.
@@ -303,7 +305,7 @@ function Navegacion() {
     );
   }
 
-  return <PartidaTablero sala={room} onSalir={salirDeSala} />;
+  return <PartidaTablero sala={room} registro={registro} onSalir={salirDeSala} />;
 }
 
 export default Navegacion;
