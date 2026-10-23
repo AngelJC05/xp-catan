@@ -14,10 +14,13 @@ type Props = {
 
 function Chat({ registro, onEnviar }: Props) {
   const [texto, setTexto] = useState('');
-  const finDeLista = useRef<HTMLDivElement>(null);
+  const lista = useRef<HTMLDivElement>(null);
 
-  /* Sin esto la lista crece hacia abajo y lo ultimo queda fuera de vista. */
-  useEffect(() => { finDeLista.current?.scrollIntoView(); }, [registro]);
+  /* Se mueve solo el scroll de la lista; scrollIntoView movia tambien la pagina. */
+  useEffect(() => {
+    const elemento = lista.current;
+    if (elemento) elemento.scrollTop = elemento.scrollHeight;
+  }, [registro]);
 
   const enviar = (evento: React.FormEvent) => {
     evento.preventDefault();
@@ -30,20 +33,19 @@ function Chat({ registro, onEnviar }: Props) {
   return (
     <Card className="h-100">
       <Card.Body className="d-flex flex-column p-2 overflow-hidden">
-        <div className="flex-grow-1 overflow-auto small" role="log">
+        <div ref={lista} className="flex-grow-1 overflow-auto small" role="log">
           {registro.map((linea, i) => (linea.tipo === 'chat' ? (
             <div
               key={i}
-              className="px-2 rounded bg-primary-subtle border-primary"
+              className="px-2 mb-1 rounded bg-primary-subtle"
             >
               <span className="fw-bold">{linea.jugador}</span>: {linea.mensaje}
             </div>
           ) : (
-            <div key={i} className="mb-1 text-secondary fst-italic lh-sm" style={{ fontSize: '0.9rem' }}>
-              {linea.jugador}{linea.mensaje}
+            <div key={i} className="px-2 mb-1 rounded bg-body-secondary text-secondary fst-italic lh-sm" style={{ fontSize: '0.9rem' }}>
+              <span className="fw-bold">{linea.jugador}</span>{linea.mensaje}
             </div>
           )))}
-          <div ref={finDeLista} />
         </div>
         <Form onSubmit={enviar} className="mt-2">
           <InputGroup size="sm">
