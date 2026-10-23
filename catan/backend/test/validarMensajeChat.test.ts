@@ -10,7 +10,7 @@ describe("validarMensajeChat", () => {
     });
 
     it("texto vacio retorna null", () => {
-        const resultado = validarMensajeChat("");
+        const resultado = validarMensajeChat("  ");
         assert.strictEqual(resultado, null);
     });
 
