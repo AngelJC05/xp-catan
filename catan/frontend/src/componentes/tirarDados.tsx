@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { Button } from 'react-bootstrap';
+import CaraDado from './CaraDado';
 import './tirarDados.css';
 
-// El resultado siempre llega desde el evento "dados" de CatanRoom.
-// No se generan números en el cliente, para que todos vean la misma tirada.
 export interface ResultadoDados {
   dado1: number;
   dado2: number;
@@ -16,73 +16,56 @@ interface Props {
   onLanzar: () => void;
 }
 
-const CARAS_DADO = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'] as const;
-// Duración del GIF existente en public/gif/Dados.gif, medida en el componente anterior.
-const DURACION_GIF = 2900;
-
-function caraDado(valor: number): string {
-  // El backend solo produce valores de 1 a 6. La alternativa evita que un
-  // dato inesperado rompa el panel mientras se mantiene visible el número.
-  return CARAS_DADO[valor - 1] ?? String(valor);
-}
-
 function TirarDados({ resultado, puedeLanzar, lanzando, onLanzar }: Props) {
-  const [girando, setGirando] = useState(false);
-  // Cambiar la key del <img> reinicia el GIF desde su primer fotograma.
+  const [resultadoVisto, setResultadoVisto] = useState(resultado);
   const [tirada, setTirada] = useState(0);
 
-  useEffect(() => {
-    if (!girando) return;
-    const temporizador = setTimeout(() => setGirando(false), DURACION_GIF);
-    return () => clearTimeout(temporizador);
-  }, [girando]);
-
-  function tirar() {
-    if (!puedeLanzar || lanzando || girando) return;
+  if (resultadoVisto !== resultado) {
+    setResultadoVisto(resultado);
     setTirada((anterior) => anterior + 1);
-    setGirando(true);
-    onLanzar();
   }
 
-  const estado = girando || lanzando
+  const estado = lanzando
     ? 'Lanzando dados…'
     : puedeLanzar
       ? 'Es tu turno: lanza los dados.'
       : 'Espera tu turno y la fase de dados.';
 
+  const clase = tirada > 0 ? 'caraDado--cae' : undefined;
+
   return (
-    <section className="tirarDados" aria-labelledby="tirar-dados-titulo">
-      <h2 id="tirar-dados-titulo" className="tirarDados__titulo">Dados</h2>
-      <p className="tirarDados__estado" role="status">{estado}</p>
+    <section
+      className="d-flex flex-column align-items-center justify-content-center gap-2 h-100 p-2 text-center"
+      aria-labelledby="tirar-dados-titulo"
+    >
+      <h2 id="tirar-dados-titulo" className="h6 mb-0">Dados</h2>
+      <p className="small text-body-secondary mb-0" role="status">{estado}</p>
 
-      {girando ? (
-        <div className="tirarDados__animacion">
-          <img key={tirada} src="/gif/Dados.gif" alt="Dados girando" />
-        </div>
-      ) : resultado ? (
-        <>
-          <div className="tirarDados__caras" aria-label={`Resultado: ${resultado.dado1} y ${resultado.dado2}`}>
-            <span className="tirarDados__dado" aria-label={`Primer dado: ${resultado.dado1}`}>
-              {caraDado(resultado.dado1)}
-            </span>
-            <span className="tirarDados__dado" aria-label={`Segundo dado: ${resultado.dado2}`}>
-              {caraDado(resultado.dado2)}
-            </span>
-          </div>
-          <p className="tirarDados__total">Total: <strong>{resultado.suma}</strong></p>
-        </>
-      ) : (
-        <p className="tirarDados__sinResultado">Aún no hay una tirada.</p>
-      )}
+      <div className="d-flex justify-content-center gap-2">
+        <CaraDado
+          key={`a-${tirada}`}
+          valor={resultado?.dado1 ?? null}
+          etiqueta={resultado ? `Primer dado: ${resultado.dado1}` : 'Primer dado vacío'}
+          className={clase}
+        />
+        <CaraDado
+          key={`b-${tirada}`}
+          valor={resultado?.dado2 ?? null}
+          etiqueta={resultado ? `Segundo dado: ${resultado.dado2}` : 'Segundo dado vacío'}
+          className={clase}
+        />
+      </div>
 
-      <button
-        type="button"
-        className="tema-btn tema-btn--ladrillo tema-btn--chico tirarDados__boton"
-        onClick={tirar}
-        disabled={!puedeLanzar || lanzando || girando}
+      <p className="mb-0">Total: <strong>{resultado?.suma ?? '—'}</strong></p>
+
+      <Button
+        size="sm"
+        variant="outline-primary"
+        onClick={onLanzar}
+        disabled={!puedeLanzar || lanzando}
       >
-        {girando || lanzando ? 'Lanzando…' : 'Lanzar dados'}
-      </button>
+        {lanzando ? 'Lanzando…' : 'Lanzar dados'}
+      </Button>
     </section>
   );
 }
