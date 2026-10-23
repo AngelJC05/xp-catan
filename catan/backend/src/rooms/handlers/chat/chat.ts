@@ -2,6 +2,7 @@ import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
 import { enviarError } from "../../ayudantes/notificaciones.js";
 import { partidaEnCurso, validar } from "../../validaciones/guardias.js";
+import { validarMensajeChat } from "../../../functions/validarMensajeChat.js";
 
 //? Atiende el mensaje msgChat: reenvia lo que escribe un jugador a toda la sala
 export function manejarChat(sala: CatanRoom, client: Client, mensaje: { mensaje: string }): void {
@@ -14,8 +15,10 @@ export function manejarChat(sala: CatanRoom, client: Client, mensaje: { mensaje:
         return;
     }
 
-    //* Un mensaje vacio no se envia ni se avisa
-    if (mensaje.mensaje.trim() === "") return;
+    //* Valida y ajusta el mensaje del jugador
+    mensaje.mensaje = validarMensajeChat(mensaje.mensaje);
+
+    if(mensaje.mensaje === null) return;
 
     //* Reenvia el mensaje a todos los jugadores de la sala
     sala.broadcast("chat", {
