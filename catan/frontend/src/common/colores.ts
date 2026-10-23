@@ -51,3 +51,16 @@ export const NOMBRE_COLOR: Record<number, string> = {
   [COLOR.CELESTE]: 'Celeste',
   [COLOR.NEGRO]: 'Negro',
 }
+
+// Colores claros donde el texto blanco no se lee y seria mejor usar oscuro
+const COLORES_CON_TEXTO_OSCURO: number[] = [
+  COLOR.SIN_COLOR,
+  COLOR.AMARILLO,
+  COLOR.ANARANJADO,
+  COLOR.CAFE,
+  COLOR.CELESTE,
+];
+
+export function colorTextoSobre(color: number): string {
+  return COLORES_CON_TEXTO_OSCURO.includes(color) ? '#000' : '#fff';
+}

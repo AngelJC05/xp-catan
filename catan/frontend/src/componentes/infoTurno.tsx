@@ -1,5 +1,6 @@
 import type { Jugadores } from '../common/jugador';
 import { colorDelJugador } from '../common/jugador';
+import { COLOR, colorTextoSobre } from '../common/colores';
 
 interface Props {
   sessionIdTurno: string;
@@ -9,12 +10,13 @@ interface Props {
 function InfoTurno({ sessionIdTurno, jugadores }: Props) {
   const nombre = jugadores[sessionIdTurno]?.nombre;
   const color = colorDelJugador(jugadores, sessionIdTurno);
+  const colorTexto = colorTextoSobre(jugadores[sessionIdTurno]?.color ?? COLOR.SIN_COLOR);
 
   return (
     <div
-      className="flex-fill w-100 rounded overflow-hidden text-white
+      className="flex-fill w-100 rounded overflow-hidden
                  d-flex flex-column justify-content-center align-items-center"
-      style={{ backgroundColor: color }}
+      style={{ backgroundColor: color, color: colorTexto }}
       role="status"
       aria-live="polite"
     >

@@ -1,71 +1,10 @@
-.tirarDados {
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 8px;
-  height: 100%;
-  padding: 10px;
-  color: var(--tinta);
-  text-align: center;
+.caraDado--cae {
+  animation: cae-dado 1.0s cubic-bezier(0.3, 0.6, 0.4, 1);
 }
 
-.tirarDados__titulo,
-.tirarDados__estado,
-.tirarDados__total,
-.tirarDados__sinResultado {
-  margin: 0;
-}
-
-.tirarDados__titulo {
-  font-size: 1rem;
-}
-
-.tirarDados__estado,
-.tirarDados__sinResultado {
-  font-size: 0.78rem;
-  color: var(--tinta-suave);
-}
-
-.tirarDados__caras {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-}
-
-/* El GIF antiguo ocupa el mismo espacio que el resultado, sin mover el panel. */
-.tirarDados__animacion {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  min-height: 50px;
-  overflow: hidden;
-}
-
-.tirarDados__animacion img {
-  display: block;
-  max-width: 100%;
-  max-height: 70px;
-  object-fit: contain;
-}
-
-.tirarDados__dado {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  color: var(--tinta);
-  background: var(--pergamino-claro);
-  border: 2px solid var(--dorado);
-  border-radius: var(--radio-sm);
-  box-shadow: 0 2px 0 var(--dorado-claro);
-  font-size: 2rem;
-  line-height: 1;
-}
-
-.tirarDados__total {
-  font-size: 0.9rem;
-}
-
-.tirarDados__boton {
-  margin-top: 2px;
+@keyframes cae-dado {
+  0% { transform: translateY(-36px) rotate(-200deg); opacity: 0; }
+  60% { transform: translateY(4px) rotate(15deg); opacity: 1; }
+  80% { transform: translateY(-3px) rotate(-5deg); }
+  100% { transform: none; }
 }
