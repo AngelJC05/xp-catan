@@ -17,6 +17,7 @@ import CarDesarrollo from '../componentes/carDesarrollo';
 import IntercambioBanca from '../componentes/intercambioBanca';
 import DescartarRecursos from '../componentes/descartarRecursos';
 import TirarDados, { type ResultadoDados } from '../componentes/tirarDados';
+import { reproducirSonido } from '../common/sonidos';
 import Construir, {
   type ObjetivoConstruccion,
   type SolicitudConstruccion,
@@ -275,6 +276,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
     const dejarDeEscucharDados = sala.onMessage('dados', (resultado: ResultadoDados) => {
       setResultadoDados(resultado);
       setLanzandoDados(false);
+      reproducirSonido('dados');
     });
 
     // CatanRoom responde "error" al cliente si una validación falla. El
