@@ -1,3 +1,5 @@
+import { COLOR, hexDeColor } from './colores';
+
 export type Recurso = 'madera' | 'trigo' | 'lana' | 'ladrillo' | 'mineral';
 
 export interface Recursos {
@@ -12,7 +14,7 @@ export interface Recursos {
 export const RECURSOS: Recurso[] = ['madera', 'trigo', 'lana', 'ladrillo', 'mineral'];
 
 
-/* cartas de desarrollo
+/* ============= CARTAS DE DESARROLLO =========================
    El backend las guarda en DOS mapas, cartas_usables y cartas_inusables. Las
    claves son el enum CartasDesarrollo y van entre comillas porque las claves de
    un MapSchema siempre llegan como texto. */
@@ -42,7 +44,7 @@ export const NOMBRE_CARTA: Record<string, string> = {
 };
 
 
-/* construcciones disponibles
+/* ============== CONSTRUCCIONES DISPONIBLES =========================
    generarConstruccionesDisponibles.ts: 5 asentamientos, 4 ciudades, 15 caminos.
    Las claves son el enum Construccion, sin el 0 (VACIO). */
 
@@ -65,25 +67,20 @@ export const NOMBRE_PIEZA: Record<string, string> = {
 };
 
 
-/* el jugador
-   La clave del mapa es el sessionId que Colyseus le asigna a cada cliente.
-   Los nueve campos son copia literal de backend/src/schemas/Jugador.ts. Lo
-   unico que el backend NO manda es el color: se calcula abajo. */
 
+/* =============== DATOS DEL JUGADOR ======================= */
 export interface Jugador {
   nombre: string;
+  color: number;
   puntuacion: number;
   puntosParaGanar: number;
   recursos: Recursos;
-  /* Son dos mapas separados: las inusables se compraron este turno y pasan a
-     usables al pasar el turno. No los junten en uno solo. */
   cartas_usables: Cartas;
   cartas_inusables: Cartas;
   construccionesDisponibles: ConstruccionesDisponibles;
-  // Clave del vertice donde puso su ultimo asentamiento, para la preconstruccion.
   ultimoAsentamiento: string;
-  // Caballeros que ya jugo. Decide quien tiene el ejercito mas grande.
   caballerosJugados: number;
+  longitudCamino: number;
 }
 
 /* Aqui SI va un Record de clave suelta, porque las claves son sessionId que no
@@ -92,16 +89,12 @@ export type Jugadores = Record<string, Jugador>;
 
 
 /* --------------------------------------------------------------- color
-   El backend no manda color. Se asigna en el cliente por la posicion del
-   jugador en el orden de turnos, que si publica: asi todos los jugadores ven
-   el mismo color para la misma persona sin que nadie lo mande.
-   Si algun dia el backend agrega el campo, se borra esto y se lee de ahi. */
+   El color lo decide el backend (campo color del jugador) y los tonos viven en
+   colores.ts. */
 
-export const COLORES = ['#D34F3E', '#3E7FD3', '#4CA36B', '#E0A030'];
-
-export function colorDeJugador(ordenJugadores: string[], sessionId: string): string {
-  const posicion = ordenJugadores.indexOf(sessionId);
-  return COLORES[(posicion < 0 ? 0 : posicion) % COLORES.length];
+// Color que el backend le dio al jugador; sin jugador o sin color sale el gris neutro.
+export function colorDelJugador(jugadores: Jugadores, sessionId: string): string {
+  return hexDeColor(jugadores[sessionId]?.color ?? COLOR.SIN_COLOR);
 }
 
 

@@ -1,13 +1,21 @@
 import type { Jugadores } from '../common/jugador';
-import { totalCartas, totalRecursos, enRiesgoDeDescarte, colorDeJugador } from '../common/jugador';
+import { totalCartas, totalRecursos, enRiesgoDeDescarte, colorDelJugador } from '../common/jugador';
 
 interface Props {
   jugadores: Jugadores;
   ordenJugadores: string[];
   miSessionId: string;
+  ejercitoMasGrande: string;
+  caminoMasLargo: string;
 }
 
-function InfoJugadores({ jugadores, ordenJugadores, miSessionId }: Props) {
+function InfoJugadores({
+  jugadores,
+  ordenJugadores,
+  miSessionId,
+  ejercitoMasGrande,
+  caminoMasLargo,
+}: Props) {
   const lista = ordenJugadores.length ? ordenJugadores : Object.keys(jugadores);
 
   return (
@@ -21,7 +29,7 @@ function InfoJugadores({ jugadores, ordenJugadores, miSessionId }: Props) {
         return (
           <div
             key={id}
-            style={{ backgroundColor: colorDeJugador(lista, id) }}
+            style={{ backgroundColor: colorDelJugador(jugadores, id) }}
             className="flex-fill min-w-0 overflow-hidden p-1 px-2 rounded-3 d-flex flex-column justify-content-center text-white border-0"
           >
             <div className="d-flex align-items-center gap-1 min-w-0">
@@ -34,8 +42,17 @@ function InfoJugadores({ jugadores, ordenJugadores, miSessionId }: Props) {
               <span title="Cartas de desarrollo en la mano, usables mas inusables">
                 {totalCartas(j)} cartas
               </span>
-              <span title="Caballeros jugados. Decide el ejercito mas grande">
+              <span
+                title="Caballeros jugados. Decide el ejercito mas grande"
+                className={id === ejercitoMasGrande ? 'text-warning fw-bold' : 'text-white'}
+              >
                 {j.caballerosJugados} caballeros
+              </span>
+              <span
+                title="Largo de su camino mas largo. Con 5 o mas puede tener el titulo"
+                className={id === caminoMasLargo ? 'text-warning fw-bold' : 'text-white'}
+              >
+                Camino: {j.longitudCamino}
               </span>
               <span
                 title="Cartas de recurso en la mano"

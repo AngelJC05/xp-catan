@@ -1,7 +1,8 @@
 import type { ObjetivoConstruccion, TipoConstruccion } from './construir';
 import type { Coordenada, DatosTablero } from '../common/tablero';
 import { NOMBRE_PUERTO } from '../common/tablero';
-import { colorDeJugador } from '../common/jugador';
+import type { Jugadores } from '../common/jugador';
+import { colorDelJugador } from '../common/jugador';
 import "./tablero.css"
 
 // Lado del hexagono.
@@ -76,7 +77,7 @@ function puntoDeClave(clave: string): [number, number] {
 interface Props {
   datos: DatosTablero;
   // Para pintar cada pieza del color de su dueño.
-  ordenJugadores?: string[];
+  jugadores?: Jugadores;
   // Solo para resaltar los poblados de el jugador para costruir la Ciudad
   miSessionId?: string;
   tipoConstruccion?: TipoConstruccion | null;
@@ -98,7 +99,7 @@ function esElObjetivo(
 
 function Tablero({
   datos,
-  ordenJugadores = [],
+  jugadores = {},
   miSessionId = '',
   tipoConstruccion = null,
   objetivoSeleccionado,
@@ -170,7 +171,7 @@ function Tablero({
             ].filter(Boolean).join(' ')}
             stroke={arista.propietario === ''
               ? '#00000018'
-              : colorDeJugador(ordenJugadores, arista.propietario)}
+              : colorDelJugador(jugadores, arista.propietario)}
             x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]}
             role={puedeSeleccionar ? 'button' : undefined}
             tabIndex={puedeSeleccionar ? 0 : undefined}
@@ -251,7 +252,7 @@ function Tablero({
               <PiezaVertice
                 tipo={vertice.constuccion}
                 x={x} y={y} lado={lado}
-                color={colorDeJugador(ordenJugadores, vertice.propietario)}
+                color={colorDelJugador(jugadores, vertice.propietario)}
               />
             )}
             <circle

@@ -1,1 +1,0 @@
-Aca va la documentacion de los schemas y decisiones del backend y quizas del frontend (aun decidible)

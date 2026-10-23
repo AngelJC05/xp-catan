@@ -13,7 +13,10 @@
     "loadtest": "tsx loadtest/example.ts --room my_room --numClients 2",
     "build": "npm run clean && tsc -p tsconfig.build.json",
     "clean": "rimraf build",
-    "test": "mocha -r tsx test/**.test.ts --exit --timeout 15000"
+    "test": "mocha -r tsx test/**.test.ts --exit --timeout 15000",
+    "test:spec": "mocha -r tsx test/**.test.ts --reporter spec --slow 0 --no-diff --exit --timeout 15000",
+    "test:dot": "mocha -r tsx test/**.test.ts --reporter dot --no-diff --exit --timeout 15000",
+    "test:watch": "mocha -r tsx test/**.test.ts --reporter dot --no-diff --watch --timeout 15000"
   },
   "author": "",
   "license": "UNLICENSED",

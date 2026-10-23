@@ -1,53 +1,37 @@
-export interface DatosPartida {
-  // sessionId de quien creo la sala. Solo el puede iniciar la partida.
-  creador: string;
+import { RECURSOS } from './jugador';
 
-  // Ver common/fases.ts
+export interface DatosPartida {
+  creador: string;
   fase: number;
   fasePreconstruccion: number;
   faseJuego: number;
-
-  // En preconstruccion se recorre la lista de ida y de vuelta: 1 o -1.
   direccionPreconstruccion: number;
-
-  // sessionId del jugador al que le toca.
   turnoActual: string;
-
-  // El backend lo mezcla al iniciar. Tambien define el color de cada jugador.
   ordenJugadores: string[];
-
-  // Al salir un 7: a quienes se les puede robar.
   jugadoresParaRobar: string[];
-
-  // Al salir un 7: sessionId -> cuantas cartas le toca descartar.
   jugadoresParaDescartar: Record<string, number>;
-
-  // Si el jugador del turno todavia puede jugar una carta de desarrollo.
   cartaJugable: boolean;
-
-  // sessionId del ganador. Vacio mientras la partida siga.
   ganador: string;
-
-  // sessionId del que tiene el ejercito mas grande. Vacio si todavia nadie.
   ejercitoMasGrande: string;
-
-  // Carreteras que puede construir sin pagar (carta de carreteras).
+  caminoMasLargo: string;
   carreterasGratis: number;
-
-  // La oferta de intercambio que este sobre la mesa ahora mismo.
   ofertaIntercambio: Oferta;
 }
 
 /* schemas/OfertaIntercambio.ts — un jugador propone cambiar recursos y los
    demas votan. */
 export interface Oferta {
-  // sessionId de quien propone. Vacio si no hay ninguna oferta en curso.
   jugador: string;
-  recursoOfrecido: string;
-  cantidadOfrecida: number;
-  recursoSolicitado: string;
-  cantidadSolicitada: number;
-  /* sessionId -> voto: 0 no ha contestado, 1 acepta, -1 rechaza. El backend la
-     llena con todos los jugadores menos el que propone. */
   respuestas: Record<string, number>;
+  recursosOfrecidos: Record<string, number>;
+  recursosSolicitados: Record<string, number>;
+}
+
+// Texto de un lado de la oferta, por ejemplo "1 madera, 2 trigo y 1 lana".
+export function describirRecursos(recursos: Record<string, number> | undefined): string {
+  const partes = RECURSOS
+    .filter((r) => (recursos?.[r] ?? 0) > 0)
+    .map((r) => `${recursos?.[r]} ${r}`);
+  if (partes.length <= 1) return partes[0] ?? '';
+  return `${partes.slice(0, -1).join(', ')} y ${partes[partes.length - 1]}`;
 }

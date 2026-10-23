@@ -1,6 +1,6 @@
 import { Button, Stack, Typography } from "@mui/material";
 import type { Recurso, Recursos } from "../common/jugador";
-import type { Oferta } from "../common/partida";
+import { describirRecursos, type Oferta } from "../common/partida";
 
 // Lo que espera msgResponderIntercambio en CatanRoom: 1 acepta, -1 rechaza.
 export type Respuesta = 1 | -1;
@@ -18,8 +18,12 @@ interface Props {
 function ResponderIntercambio({ oferta, nombreOferente, misRecursos, enviando, onResponder }: Props) {
     /* Sin lo que se pide, aceptar no sirve: el backend lo cambia a "no". Por eso
        en ese caso solo se deja rechazar. */
-    const tengo = misRecursos?.[oferta.recursoSolicitado as Recurso] ?? 0;
-    const alcanza = tengo >= oferta.cantidadSolicitada;
+    const faltantes = Object.fromEntries(
+        Object.entries(oferta.recursosSolicitados ?? {})
+            .map(([r, cantidad]) => [r, cantidad - (misRecursos?.[r as Recurso] ?? 0)])
+            .filter(([, falta]) => (falta as number) > 0)
+    );
+    const alcanza = Object.keys(faltantes).length === 0;
 
     return (
         <div className="h-100 w-100 d-flex flex-column border rounded bg-white overflow-hidden">
@@ -28,12 +32,12 @@ function ResponderIntercambio({ oferta, nombreOferente, misRecursos, enviando, o
             <div className="flex-fill d-flex flex-column justify-content-center gap-2 p-2 text-center">
                 <Typography variant="body2">
                     <strong>{nombreOferente}</strong> te ofrece{' '}
-                    <strong>{oferta.cantidadOfrecida} {oferta.recursoOfrecido}</strong> a cambio de{' '}
-                    <strong>{oferta.cantidadSolicitada} {oferta.recursoSolicitado}</strong>.
+                    <strong>{describirRecursos(oferta.recursosOfrecidos)}</strong> a cambio de{' '}
+                    <strong>{describirRecursos(oferta.recursosSolicitados)}</strong>.
                 </Typography>
                 {!alcanza && (
                     <small className="text-danger">
-                        Tienes {tengo} {oferta.recursoSolicitado}: no te alcanza para aceptar.
+                        Te falta {describirRecursos(faltantes)} para aceptar.
                     </small>
                 )}
 
