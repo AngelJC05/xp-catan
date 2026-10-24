@@ -6,7 +6,8 @@ import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { ICONO_PIEZA } from "../../common/iconos";
+import { ICONO_PIEZA, ICONO_UI } from "../../common/iconos";
+import Icono from "../../componentes/Icono";
 import { PIEZA } from "../../common/jugador";
 import { LARGO_MAXIMO_NOMBRE, validarNombreJugador } from "../nombreJugador";
 
@@ -33,8 +34,8 @@ function IngresarNombre({ nombreInicial = "", onConfirmar, onVolver }: IngresarN
     <div className="bg-info-subtle min-vh-100 d-flex align-items-center justify-content-center px-3 py-4">
       <div className="w-100 d-flex flex-column align-items-start gap-3 ingresar-nombre__contenido">
         {onVolver && (
-          <Button variant="text" onClick={onVolver}>
-            ← Volver
+          <Button variant="text" onClick={onVolver} startIcon={<Icono ruta={ICONO_UI.atras} />}>
+            Volver
           </Button>
         )}
 
@@ -72,8 +73,8 @@ function IngresarNombre({ nombreInicial = "", onConfirmar, onVolver }: IngresarN
               slotProps={{ htmlInput: { maxLength: LARGO_MAXIMO_NOMBRE } }}
             />
 
-            <Button type="submit" variant="contained" fullWidth size="large" className="mt-3" disabled={!nombre.trim()}>
-              Continuar →
+            <Button type="submit" variant="contained" fullWidth size="large" className="mt-3" disabled={!nombre.trim()} endIcon={<Icono ruta={ICONO_UI.adelante} />}>
+              Continuar
             </Button>
           </CardContent>
         </Card>

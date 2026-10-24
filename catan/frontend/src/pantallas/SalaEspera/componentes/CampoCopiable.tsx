@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import { ICONO_UI } from "../../../common/iconos";
+import Icono from "../../../componentes/Icono";
 
 interface CampoCopiableProps {
   etiqueta: string;
@@ -51,10 +53,11 @@ export default function CampoCopiable({
         color={destacado ? "error" : "primary"}
         size="small"
         className="text-nowrap"
+        startIcon={<Icono ruta={copiado ? ICONO_UI.copiado : ICONO_UI.copiar} />}
         onClick={copiar}
         aria-label={descripcionBoton}
       >
-        {copiado ? "✔ ¡Copiado!" : "📋 Copiar"}
+        {copiado ? "¡Copiado!" : "Copiar"}
       </Button>
     </div>
   );

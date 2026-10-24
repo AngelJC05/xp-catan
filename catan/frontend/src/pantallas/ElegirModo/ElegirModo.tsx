@@ -5,7 +5,8 @@ import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
-import { ICONO_PIEZA } from "../../common/iconos";
+import { ICONO_PIEZA, ICONO_UI } from "../../common/iconos";
+import Icono from "../../componentes/Icono";
 import { PIEZA } from "../../common/jugador";
 
 const OPCIONES = [
@@ -37,8 +38,8 @@ function ElegirModo({ nombreJugador, onCrear, onUnirse, onVolver, onCambiarNombr
   return (
     <div className="bg-info-subtle min-vh-100 px-3 py-4">
       <div className="mx-auto elegir__contenido">
-        <Button variant="text" onClick={onVolver}>
-          ← Volver
+        <Button variant="text" onClick={onVolver} startIcon={<Icono ruta={ICONO_UI.atras} />}>
+          Volver
         </Button>
 
         <header className="mt-4 mb-4">

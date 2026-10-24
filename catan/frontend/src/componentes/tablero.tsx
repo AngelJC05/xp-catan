@@ -8,7 +8,7 @@ import "./tablero.css"
 // Lado del hexagono.
 const S = 60;
 
-/* Las dos figuras salen de public/svg/poblado.svg y public/svg/ciudad.svg.
+/* Las dos figuras salen de public/svg/piezas/poblado.svg y public/svg/piezas/ciudad.svg.
    Van copiadas aqui, y no importadas, porque Vite no permite importar nada
    de public/, y porque asi se pueden pintar del color del jugador. El viewBox
    de esos archivos es de 24x24, de ahi la escala. Si cambia el dibujo en el
