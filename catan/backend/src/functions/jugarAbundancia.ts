@@ -12,7 +12,7 @@ export function jugarAbundancia(
     mensaje: string
 }{
     //* Verificar que los recursos existan
-    if(!banca.recursos.has(recurso1) && !banca.recursos.has(recurso2)){
+    if(!banca.recursos.has(recurso1) || !banca.recursos.has(recurso2)){
         return {
             error: true,
             mensaje: "Los recursos no son validos"
@@ -31,7 +31,7 @@ export function jugarAbundancia(
         if(banca.recursos.get(recurso1) < 1 || banca.recursos.get(recurso2) < 1){
             return {
                 error: true,
-                mensaje: "La banca no tiene suficienter recursos"
+                mensaje: "La banca no tiene suficientes recursos"
             }
         }
     }
