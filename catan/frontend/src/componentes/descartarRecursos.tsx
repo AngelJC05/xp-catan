@@ -5,15 +5,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { RECURSOS, type Recurso, type Recursos } from '../common/jugador';
-
-// Se reutilizan los iconos de recursos existentes; el tablero SVG no cambia.
-const ICONOS: Record<Recurso, string> = {
-  madera: '/svg/madera.svg',
-  trigo: '/svg/trigo.svg',
-  lana: '/svg/lana.svg',
-  ladrillo: '/svg/ladrillo.svg',
-  mineral: '/svg/piedra.svg',
-};
+import { ICONO_RECURSO } from '../common/iconos';
 
 interface Props {
   pendientes: number;
@@ -53,7 +45,7 @@ function DescartarRecursos({
                 sx={{ justifyContent: 'space-between', textTransform: 'capitalize' }}
               >
                 <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <img src={ICONOS[recurso]} alt="" width={28} height={28} />
+                  <img src={ICONO_RECURSO[recurso]} alt="" width={28} height={28} />
                   {recurso}
                 </span>
                 <span>{disponibles}</span>

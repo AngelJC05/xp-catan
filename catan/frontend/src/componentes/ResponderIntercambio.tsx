@@ -1,4 +1,6 @@
 import { Button, Stack, Typography } from "@mui/material";
+import { ICONO_UI } from "../common/iconos";
+import Icono from "./Icono";
 import type { Recurso, Recursos } from "../common/jugador";
 import { describirRecursos, type Oferta } from "../common/partida";
 
@@ -46,17 +48,19 @@ function ResponderIntercambio({ oferta, nombreOferente, misRecursos, enviando, o
                         variant="outlined" color="error" size="small"
                         disabled={enviando}
                         onClick={() => onResponder(-1)}
+                        startIcon={<Icono ruta={ICONO_UI.rechazarOferta} />}
                         aria-label="Rechazar la propuesta"
                     >
-                        ❌ Rechazar
+                        Rechazar
                     </Button>
                     <Button
                         variant="contained" color="success" size="small"
                         disabled={enviando || !alcanza}
                         onClick={() => onResponder(1)}
+                        startIcon={<Icono ruta={ICONO_UI.aceptarOferta} />}
                         aria-label="Aceptar la propuesta"
                     >
-                        ✅ Aceptar
+                        Aceptar
                     </Button>
                 </Stack>
             </div>

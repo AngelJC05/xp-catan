@@ -714,7 +714,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
           />
         </div>
         <div className="negociar">
-          {/* A quien le falta responder ve la propuesta con ❌ y ✅; al responder
+          {/* A quien le falta responder ve la propuesta con los botones de rechazar y aceptar; al responder
               vuelve el recuadro normal de proponer (con el intercambio con la banca). */}
           {debeResponder && ofertaActiva ? (
             <ResponderIntercambio

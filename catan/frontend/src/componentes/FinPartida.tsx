@@ -1,4 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
+import { ICONO_UI } from "../common/iconos";
+import Icono from "./Icono";
 
 interface Props {
     abierto: boolean;
@@ -22,7 +24,7 @@ function FinPartida({ abierto, nombreGanador, soyElGanador, onSalir, onVerTabler
             aria-labelledby="fin-partida-titulo"
         >
             <DialogTitle id="fin-partida-titulo" className="text-center">
-                🏆 Partida finalizada
+                <Icono ruta={ICONO_UI.trofeo} tam={24} className="me-2" />Partida finalizada
             </DialogTitle>
             <DialogContent className="text-center">
                 <Typography variant="h5" component="p" className="fw-bold">

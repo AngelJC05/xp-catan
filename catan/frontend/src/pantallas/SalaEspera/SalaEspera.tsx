@@ -7,6 +7,8 @@ import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
 import { hexDeColor } from "../../common/colores";
 import Chat, { type LineaRegistro } from "../../componentes/chat";
+import { ICONO_UI } from "../../common/iconos";
+import Icono from "../../componentes/Icono";
 import type { InfoSala } from "../sesionGuardada";
 import type { JugadorVista } from "./tipos";
 import TarjetaJugador from "./componentes/TarjetaJugador";
@@ -49,10 +51,11 @@ function SalaEspera({
           <Card variant="outlined" className="h-100">
             <CardContent className="d-flex flex-column align-items-center text-center p-4">
               <div className="d-flex flex-wrap justify-content-center gap-2 mb-3">
-                <Chip label="⏳ Sala de espera" color="primary" variant="outlined" size="small" />
+                <Chip icon={<Icono ruta={ICONO_UI.espera} />} label="Sala de espera" color="primary" variant="outlined" size="small" />
                 {infoSala && (
                   <Chip
-                    label={infoSala.privada ? "🔒 Privada" : "🌍 Pública"}
+                    icon={<Icono ruta={infoSala.privada ? ICONO_UI.privada : ICONO_UI.publica} />}
+                    label={infoSala.privada ? "Privada" : "Pública"}
                     color={infoSala.privada ? "error" : "success"}
                     variant="outlined"
                     size="small"
@@ -123,10 +126,11 @@ function SalaEspera({
                     color="success"
                     fullWidth
                     size="large"
+                    startIcon={<Icono ruta={ICONO_UI.iniciarPartida} tam={22} />}
                     onClick={onIniciarPartida}
                     disabled={!puedeIniciar}
                   >
-                    🎲 Iniciar partida
+                    Iniciar partida
                   </Button>
                   <small className="text-body-secondary mt-2 mb-2">
                     {puedeIniciar

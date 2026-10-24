@@ -4,6 +4,8 @@ import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import LinearProgress from "@mui/material/LinearProgress";
 import Typography from "@mui/material/Typography";
+import { ICONO_UI } from "../../../common/iconos";
+import Icono from "../../../componentes/Icono";
 import type { SalaDisponible } from "../utils/salas";
 
 interface TarjetaSalaProps {
@@ -41,7 +43,8 @@ export default function TarjetaSala({ sala, seleccionada, uniendo, onSeleccionar
               {sala.nombre}
             </Typography>
             <Chip
-              label={sala.tipo === "publica" ? "🌍 Pública" : "🔒 Privada"}
+              icon={<Icono ruta={sala.tipo === "publica" ? ICONO_UI.publica : ICONO_UI.privada} />}
+              label={sala.tipo === "publica" ? "Pública" : "Privada"}
               color={sala.tipo === "publica" ? "success" : "error"}
               variant="outlined"
               size="small"
@@ -70,13 +73,14 @@ export default function TarjetaSala({ sala, seleccionada, uniendo, onSeleccionar
         <Button
           variant="contained"
           color={sala.tipo === "privada" ? "error" : "primary"}
+          startIcon={sala.tipo === "privada" ? <Icono ruta={ICONO_UI.llave} /> : undefined}
           disabled={uniendo !== null}
           onClick={(e) => {
             e.stopPropagation();
             onUnirse();
           }}
         >
-          {uniendo === sala.id ? "Entrando…" : sala.tipo === "privada" ? "🔑 Unirse" : "Unirse"}
+          {uniendo === sala.id ? "Entrando…" : "Unirse"}
         </Button>
       </CardContent>
     </Card>

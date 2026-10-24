@@ -1,7 +1,7 @@
 import Avatar from "@mui/material/Avatar";
 import ButtonBase from "@mui/material/ButtonBase";
 import Typography from "@mui/material/Typography";
-import { NOMBRE_COLOR, hexDeColor } from "../../../common/colores";
+import { NOMBRE_COLOR, colorTextoSobre, hexDeColor } from "../../../common/colores";
 
 interface OpcionColorProps {
   color: number;
@@ -26,8 +26,19 @@ export default function OpcionColor({
       className="d-flex flex-column align-items-center gap-1 p-2 rounded"
       sx={{ opacity: ocupado ? 0.35 : 1 }}
     >
-      <Avatar sx={{ bgcolor: hexDeColor(color), width: 44, height: 44 }}>
-        {seleccionado ? "✔" : ""}
+      <Avatar sx={{ bgcolor: hexDeColor(color), color: colorTextoSobre(color), width: 44, height: 44 }}>
+        {seleccionado && (
+          <svg viewBox="0 0 16 16" width={22} height={22} aria-hidden="true">
+            <path
+              d="M3 8.5 6.5 12 13 4.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
       </Avatar>
       <Typography variant="caption">{nombre}</Typography>
     </ButtonBase>
