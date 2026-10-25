@@ -19,9 +19,9 @@ export const ICONO_CARTA: Record<keyof Cartas, string> = {
 export const ICONO_CARTA_DESARROLLO = '/svg/cartas/desarrollo.svg';
 
 export const ICONO_PIEZA: Record<keyof ConstruccionesDisponibles, string> = {
-  '1': '/svg/piezas/poblado.svg',
+  '1': '/svg/piezas/asentamiento.svg',
   '2': '/svg/piezas/ciudad.svg',
-  '3': '/svg/piezas/carretera.svg',
+  '3': '/svg/piezas/camino.svg',
 };
 
 export const ICONO_UI = {
