@@ -1,7 +1,7 @@
 import { Card } from 'react-bootstrap';
 import type { Banca } from '../common/banca';
 import type { Jugador } from '../common/jugador';
-import { RECURSOS, PIEZA } from '../common/jugador';
+import { RECURSOS, PIEZA, PIEZAS } from '../common/jugador';
 import { ICONO_CARTA_DESARROLLO, ICONO_PIEZA, ICONO_RECURSO } from '../common/iconos';
 import ContadorIcono from './ContadorIcono';
 
@@ -58,7 +58,7 @@ function Existencias({ banca, miJugador }: Props) {
 
         {miJugador ? (
           <div className="d-flex flex-wrap justify-content-around gap-2 p-2">
-            {[PIEZA.ASENTAMIENTO, PIEZA.CIUDAD, PIEZA.CAMINO].map((pieza) => (
+            {PIEZAS.map((pieza) => (
               <ContadorIcono
                 key={pieza}
                 icono={ICONO_PIEZA[pieza]}

@@ -54,6 +54,9 @@ export const PIEZA = {
   CAMINO: '3',
 } as const;
 
+// Las tres piezas en orden, para recorrerlas igual que RECURSOS
+export const PIEZAS = Object.values(PIEZA);
+
 export interface ConstruccionesDisponibles {
   '1': number;   // asentamientos
   '2': number;   // ciudades

@@ -1,16 +1,16 @@
 import { Card, ListGroup } from 'react-bootstrap';
 import { ICONO_CARTA_DESARROLLO, ICONO_PIEZA, ICONO_RECURSO } from '../common/iconos';
-import { PIEZA, type Recurso } from '../common/jugador';
+import { NOMBRE_PIEZA, PIEZA, type Recurso } from '../common/jugador';
 
 type Coste = { recurso: Recurso; cantidad?: number };
 type Fila = { icono: string; nombre: string; costes: Coste[] };
 
 const FILAS: Fila[] = [
-  { icono: ICONO_PIEZA[PIEZA.CAMINO], nombre: 'Carretera',
+  { icono: ICONO_PIEZA[PIEZA.CAMINO], nombre: NOMBRE_PIEZA[PIEZA.CAMINO],
     costes: [{ recurso: 'madera' }, { recurso: 'ladrillo' }] },
-  { icono: ICONO_PIEZA[PIEZA.ASENTAMIENTO], nombre: 'Poblado',
+  { icono: ICONO_PIEZA[PIEZA.ASENTAMIENTO], nombre: NOMBRE_PIEZA[PIEZA.ASENTAMIENTO],
     costes: [{ recurso: 'madera' }, { recurso: 'trigo' }, { recurso: 'lana' }, { recurso: 'ladrillo' }] },
-  { icono: ICONO_PIEZA[PIEZA.CIUDAD], nombre: 'Ciudad',
+  { icono: ICONO_PIEZA[PIEZA.CIUDAD], nombre: NOMBRE_PIEZA[PIEZA.CIUDAD],
     costes: [{ recurso: 'trigo', cantidad: 2 }, { recurso: 'mineral', cantidad: 3 }] },
   { icono: ICONO_CARTA_DESARROLLO, nombre: 'Carta de desarrollo',
     costes: [{ recurso: 'trigo' }, { recurso: 'lana' }, { recurso: 'mineral' }] },
