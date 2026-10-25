@@ -35,17 +35,12 @@ function ResponderIntercambio({ oferta, nombreOferente, misRecursos, enviando, o
             <div className="flex-fill d-flex flex-column overflow-y-auto p-2 text-center">
                 <div className="my-auto d-flex flex-column gap-1">
                     <small>
-                        <strong>{nombreOferente}</strong> te propone
+                        <strong>{nombreOferente}</strong> propone:
                     </small>
 
-                    <div className="d-flex align-items-center justify-content-center gap-2">
-                        <small className="text-body-secondary">Ofrece</small>
-                        <ListaRecursos recursos={oferta.recursosOfrecidos} />
-                    </div>
-                    <div className="d-flex align-items-center justify-content-center gap-2">
-                        <small className="text-body-secondary">Pide</small>
-                        <ListaRecursos recursos={oferta.recursosSolicitados} />
-                    </div>
+                    <ListaRecursos recursos={oferta.recursosOfrecidos} />
+                    <span role="img" aria-label="a cambio de" title="a cambio de" className="text-body-secondary">⇄</span>
+                    <ListaRecursos recursos={oferta.recursosSolicitados} />
 
                     {!alcanza && (
                         <small className="text-danger">
