@@ -1,4 +1,4 @@
-import { RECURSOS } from './jugador';
+import { RECURSOS, type Recurso } from './jugador';
 
 export interface DatosPartida {
   creador: string;
@@ -25,6 +25,12 @@ export interface Oferta {
   respuestas: Record<string, number>;
   recursosOfrecidos: Record<string, number>;
   recursosSolicitados: Record<string, number>;
+}
+
+// Lo que espera msgIntercambiarJugador en CatanRoom: cada recurso con su cantidad.
+export interface Propuesta {
+    ofrecidos: Partial<Record<Recurso, number>>;
+    solicitados: Partial<Record<Recurso, number>>;
 }
 
 // Texto de un lado de la oferta, por ejemplo "1 madera, 2 trigo y 1 lana".
