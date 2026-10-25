@@ -1,8 +1,9 @@
-import { Button, Stack, Typography } from "@mui/material";
+import { IconButton, Stack } from "@mui/material";
 import { ICONO_UI } from "../common/iconos";
 import Icono from "./Icono";
 import type { Recurso, Recursos } from "../common/jugador";
-import { describirRecursos, type Oferta } from "../common/partida";
+import type { Oferta } from "../common/partida";
+import ListaRecursos from "./ListaRecursos";
 
 // Lo que espera msgResponderIntercambio en CatanRoom: 1 acepta, -1 rechaza.
 export type Respuesta = 1 | -1;
@@ -31,38 +32,43 @@ function ResponderIntercambio({ oferta, nombreOferente, misRecursos, enviando, o
         <div className="h-100 w-100 d-flex flex-column border rounded bg-white overflow-hidden">
             <h3 className="text-center fs-6 fw-bold border-bottom mb-0 py-1">Negociar</h3>
 
-            <div className="flex-fill d-flex flex-column justify-content-center gap-2 p-2 text-center">
-                <Typography variant="body2">
-                    <strong>{nombreOferente}</strong> te ofrece{' '}
-                    <strong>{describirRecursos(oferta.recursosOfrecidos)}</strong> a cambio de{' '}
-                    <strong>{describirRecursos(oferta.recursosSolicitados)}</strong>.
-                </Typography>
-                {!alcanza && (
-                    <small className="text-danger">
-                        Te falta {describirRecursos(faltantes)} para aceptar.
+            <div className="flex-fill d-flex flex-column overflow-y-auto p-2 text-center">
+                <div className="my-auto d-flex flex-column gap-1">
+                    <small>
+                        <strong>{nombreOferente}</strong> propone:
                     </small>
-                )}
 
-                <Stack direction="row" spacing={1} sx={{ justifyContent: 'center' }}>
-                    <Button
-                        variant="outlined" color="error" size="small"
-                        disabled={enviando}
-                        onClick={() => onResponder(-1)}
-                        startIcon={<Icono ruta={ICONO_UI.rechazarOferta} />}
-                        aria-label="Rechazar la propuesta"
-                    >
-                        Rechazar
-                    </Button>
-                    <Button
-                        variant="contained" color="success" size="small"
-                        disabled={enviando || !alcanza}
-                        onClick={() => onResponder(1)}
-                        startIcon={<Icono ruta={ICONO_UI.aceptarOferta} />}
-                        aria-label="Aceptar la propuesta"
-                    >
-                        Aceptar
-                    </Button>
-                </Stack>
+                    <ListaRecursos recursos={oferta.recursosOfrecidos} />
+                    <span role="img" aria-label="a cambio de" title="a cambio de" className="text-body-secondary">⇄</span>
+                    <ListaRecursos recursos={oferta.recursosSolicitados} />
+
+                    {!alcanza && (
+                        <small className="text-danger">
+                            Te falta <ListaRecursos recursos={faltantes} />
+                        </small>
+                    )}
+
+                    <Stack direction="row" spacing={1} sx={{ justifyContent: 'center' }}>
+                        <IconButton
+                            color="error"
+                            disabled={enviando}
+                            onClick={() => onResponder(-1)}
+                            title="Rechazar propuesta"
+                            aria-label="Rechazar propuesta"
+                        >
+                            <Icono ruta={ICONO_UI.rechazarOferta} tam={28} className={enviando ? 'opacity-50' : ''} />
+                        </IconButton>
+                        <IconButton
+                            color="success"
+                            disabled={enviando || !alcanza}
+                            onClick={() => onResponder(1)}
+                            title="Aceptar propuesta"
+                            aria-label="Aceptar propuesta"
+                        >
+                            <Icono ruta={ICONO_UI.aceptarOferta} tam={28} className={enviando || !alcanza ? 'opacity-50' : ''} />
+                        </IconButton>
+                    </Stack>
+                </div>
             </div>
         </div>
     );

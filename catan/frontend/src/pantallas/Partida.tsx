@@ -34,7 +34,8 @@ import UsarCarta, { type CartaUsable } from '../componentes/UsarCarta';
 import ElegirAbundancia from '../componentes/ElegirAbundancia';
 import ElegirMonopolio from '../componentes/ElegirMonopolio';
 import FinPartida from '../componentes/FinPartida';
-import ProponerIntercambio, { type Propuesta } from '../componentes/ProponerIntercambio';
+import ProponerIntercambio from '../componentes/ProponerIntercambio';
+import type { Propuesta } from '../common/partida';
 import ResponderIntercambio, { type Respuesta } from '../componentes/ResponderIntercambio';
 
 const recursosPrueba: Recursos = {
