@@ -1,56 +1,61 @@
-import { Card, ListGroup } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import type { Banca } from '../common/banca';
 import type { Jugador } from '../common/jugador';
-import { RECURSOS, PIEZA, NOMBRE_PIEZA } from '../common/jugador';
+import { RECURSOS, PIEZA } from '../common/jugador';
+import { ICONO_CARTA_DESARROLLO, ICONO_PIEZA, ICONO_RECURSO } from '../common/iconos';
+import ContadorIcono from './ContadorIcono';
 
 interface Props {
   banca: Banca;
   miJugador?: Jugador;
 }
 
+// Texto al pasar el mouse sobre cada pieza.
+const DESCRIPCION_PIEZA: Record<string, string> = {
+  [PIEZA.ASENTAMIENTO]: 'Asentamientos que te quedan',
+  [PIEZA.CIUDAD]: 'Ciudades que te quedan',
+  [PIEZA.CAMINO]: 'Caminos que te quedan',
+};
+
+const conMayuscula = (texto: string) => texto.charAt(0).toUpperCase() + texto.slice(1);
+
 function Existencias({ banca, miJugador }: Props) {
   return (
     <Card className="h-100 w-100 overflow-y-auto overflow-x-hidden d-flex flex-column">
       <div className="d-flex flex-column flex-grow-1">
         <h3 className="text-center fs-6 fw-bold border-bottom mb-0 py-1">Banca</h3>
-        <ListGroup variant="flush" className="flex-fill">
+        <div className="d-flex flex-wrap justify-content-around align-content-center gap-2 p-2 flex-fill">
           {RECURSOS.map((r) => (
-            <ListGroup.Item
+            <ContadorIcono
               key={r}
-              className="d-flex justify-content-between align-items-center py-0 text-capitalize"
-            >
-              <span className="text-truncate">{r}</span>
-              <span className="fw-bold">{banca.recursos[r]}</span>
-            </ListGroup.Item>
+              icono={ICONO_RECURSO[r]}
+              cantidad={banca.recursos[r]}
+              descripcion={`${conMayuscula(r)} en la banca`}
+            />
           ))}
-          <ListGroup.Item
-            className="d-flex justify-content-between align-items-center py-0"
-            title="Cartas de desarrollo que quedan en el mazo"
-          >
-            <span className="text-truncate">Desarrollo</span>
-            <span className="fw-bold">{banca.cartas.length}</span>
-          </ListGroup.Item>
-        </ListGroup>
+          <ContadorIcono
+            icono={ICONO_CARTA_DESARROLLO}
+            cantidad={banca.cartas.length}
+            descripcion="Cartas de desarrollo que quedan en el mazo"
+          />
+        </div>
       </div>
 
       <div className="d-flex flex-column">
-        <h3 className="text-center fs-6 fw-bold border-bottom mb-0 py-1">
-          Piezas disponibles
+        <h3 className="text-center fs-6 fw-bold border-bottom border-top mb-0 py-1">
+          Mis piezas
         </h3>
         {miJugador ? (
-          <ListGroup variant="flush">
+          <div className="d-flex flex-wrap justify-content-around gap-2 p-2">
             {[PIEZA.ASENTAMIENTO, PIEZA.CIUDAD, PIEZA.CAMINO].map((pieza) => (
-              <ListGroup.Item
+              <ContadorIcono
                 key={pieza}
-                className="d-flex justify-content-between align-items-center py-0"
-              >
-                <span className="text-truncate">{NOMBRE_PIEZA[pieza]}</span>
-                <span className="fw-bold">
-                  {miJugador.construccionesDisponibles[pieza]}
-                </span>
-              </ListGroup.Item>
+                icono={ICONO_PIEZA[pieza]}
+                cantidad={miJugador.construccionesDisponibles[pieza]}
+                descripcion={DESCRIPCION_PIEZA[pieza]}
+              />
             ))}
-          </ListGroup>
+          </div>
         ) : (
           <p className="text-muted text-center my-auto">sin jugador</p>
         )}
