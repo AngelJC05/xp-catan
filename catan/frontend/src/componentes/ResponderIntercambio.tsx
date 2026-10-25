@@ -1,4 +1,4 @@
-import { Button, Stack } from "@mui/material";
+import { IconButton, Stack } from "@mui/material";
 import { ICONO_UI } from "../common/iconos";
 import Icono from "./Icono";
 import type { Recurso, Recursos } from "../common/jugador";
@@ -54,24 +54,24 @@ function ResponderIntercambio({ oferta, nombreOferente, misRecursos, enviando, o
                     )}
 
                     <Stack direction="row" spacing={1} sx={{ justifyContent: 'center' }}>
-                        <Button
-                            variant="outlined" color="error" size="small"
+                        <IconButton
+                            color="error"
                             disabled={enviando}
                             onClick={() => onResponder(-1)}
-                            startIcon={<Icono ruta={ICONO_UI.rechazarOferta} />}
-                            aria-label="Rechazar la propuesta"
+                            title="Rechazar propuesta"
+                            aria-label="Rechazar propuesta"
                         >
-                            Rechazar
-                        </Button>
-                        <Button
-                            variant="contained" color="success" size="small"
+                            <Icono ruta={ICONO_UI.rechazarOferta} tam={28} className={enviando ? 'opacity-50' : ''} />
+                        </IconButton>
+                        <IconButton
+                            color="success"
                             disabled={enviando || !alcanza}
                             onClick={() => onResponder(1)}
-                            startIcon={<Icono ruta={ICONO_UI.aceptarOferta} />}
-                            aria-label="Aceptar la propuesta"
+                            title="Aceptar propuesta"
+                            aria-label="Aceptar propuesta"
                         >
-                            Aceptar
-                        </Button>
+                            <Icono ruta={ICONO_UI.aceptarOferta} tam={28} className={enviando || !alcanza ? 'opacity-50' : ''} />
+                        </IconButton>
                     </Stack>
                 </div>
             </div>
