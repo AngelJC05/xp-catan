@@ -3,7 +3,6 @@ import Icono from './Icono';
 interface Props {
   icono: string;
   cantidad: number;
-  // Qué representa la cantidad: se muestra al pasar el mouse y lo leen los lectores de pantalla.
   descripcion: string;
   tam?: number;
 }

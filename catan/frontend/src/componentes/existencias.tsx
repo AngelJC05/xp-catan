@@ -17,27 +17,37 @@ const DESCRIPCION_PIEZA: Record<string, string> = {
   [PIEZA.CAMINO]: 'Caminos que te quedan',
 };
 
+// Funcion para devolver el texto con la iniciar Mayuscula
 const conMayuscula = (texto: string) => texto.charAt(0).toUpperCase() + texto.slice(1);
 
 function Existencias({ banca, miJugador }: Props) {
   return (
     <Card className="h-100 w-100 overflow-y-auto overflow-x-hidden d-flex flex-column">
       <div className="d-flex flex-column flex-grow-1">
+
         <h3 className="text-center fs-6 fw-bold border-bottom mb-0 py-1">Banca</h3>
-        <div className="d-flex flex-wrap justify-content-around align-content-center gap-2 p-2 flex-fill">
-          {RECURSOS.map((r) => (
-            <ContadorIcono
-              key={r}
-              icono={ICONO_RECURSO[r]}
-              cantidad={banca.recursos[r]}
-              descripcion={`${conMayuscula(r)} en la banca`}
-            />
-          ))}
-          <ContadorIcono
-            icono={ICONO_CARTA_DESARROLLO}
-            cantidad={banca.cartas.length}
-            descripcion="Cartas de desarrollo que quedan en el mazo"
-          />
+
+        <div className="d-flex flex-column justify-content-center flex-fill p-2">
+          {/* Cuadricula de 3 columnas */}
+          <div className="row row-cols-3 g-2">
+            {RECURSOS.map((r) => (
+              <div key={r} className="col d-flex justify-content-center">
+                <ContadorIcono
+                  icono={ICONO_RECURSO[r]}
+                  cantidad={banca.recursos[r]}
+                  descripcion={`${conMayuscula(r)} en la banca`}
+                />
+              </div>
+            ))}
+
+            <div className="col d-flex justify-content-center">
+              <ContadorIcono
+                icono={ICONO_CARTA_DESARROLLO}
+                cantidad={banca.cartas.length}
+                descripcion="Cartas de desarrollo que quedan en el mazo"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -45,6 +55,7 @@ function Existencias({ banca, miJugador }: Props) {
         <h3 className="text-center fs-6 fw-bold border-bottom border-top mb-0 py-1">
           Mis piezas
         </h3>
+
         {miJugador ? (
           <div className="d-flex flex-wrap justify-content-around gap-2 p-2">
             {[PIEZA.ASENTAMIENTO, PIEZA.CIUDAD, PIEZA.CAMINO].map((pieza) => (
