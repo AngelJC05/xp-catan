@@ -2,7 +2,7 @@ import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
 import { FaseJuego, FasePartida } from "../../../common/enums.js";
 import { construirCamino } from "../../../functions/construirCaminos.js";
-import { enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
+import { difundirSonido, enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
 import { enFaseJuego, enFasePartida, esSuTurno, partidaEnCurso, validar } from "../../validaciones/guardias.js";
 
 //? Atiende msgColocarCamino durante el juego: cuesta recursos y debe conectar con una construccion propia
@@ -49,6 +49,7 @@ export function manejarCaminoJuego(
     }
 
     registrarLogDeJugador(sala, client.sessionId, resultado.mensaje);
+    difundirSonido(sala, "camino");
 
     //* El nuevo camino puede cambiar quien tiene el camino mas largo
     sala.revisarCaminoMasLargo();
