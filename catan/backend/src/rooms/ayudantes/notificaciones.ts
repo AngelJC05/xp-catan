@@ -26,4 +26,5 @@ export type NombreSonido = "asentamiento" | "ciudad" | "camino";
 
 //? Avisa a toda la sala de un sonido que se debe reproducir
 export function difundirSonido(sala: CatanRoom, nombre: NombreSonido): void {
+    sala.broadcast("sonido", { nombre });
 }
