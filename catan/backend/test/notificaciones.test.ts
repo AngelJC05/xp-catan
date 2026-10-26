@@ -1,6 +1,7 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
 import {
+  difundirSonido,
   enviarError,
   registrarLogDeJugador,
   registrarLogSistema
@@ -38,6 +39,16 @@ describe("notificaciones de la sala", () => {
 
     assert.deepStrictEqual(difundidos, [
       { tipo: "log", mensaje: { jugador: "Sistema: ", mensaje: "Todos los jugadores han terminado de descartar" } }
+    ]);
+  });
+
+  it("difundirSonido difunde el nombre del sonido a toda la sala", () => {
+    const { sala, difundidos } = armarSala({ [ANGEL]: "Angel" });
+
+    difundirSonido(sala, "asentamiento");
+
+    assert.deepStrictEqual(difundidos, [
+      { tipo: "sonido", mensaje: { nombre: "asentamiento" } }
     ]);
   });
 

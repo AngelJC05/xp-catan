@@ -17,7 +17,7 @@ import CarDesarrollo from '../componentes/carDesarrollo';
 import IntercambioBanca from '../componentes/intercambioBanca';
 import DescartarRecursos from '../componentes/descartarRecursos';
 import TirarDados, { type ResultadoDados } from '../componentes/tirarDados';
-import { reproducirSonido } from '../common/sonidos';
+import { reproducirSonido, type NombreSonido } from '../common/sonidos';
 import Construir, {
   type ObjetivoConstruccion,
   type SolicitudConstruccion,
@@ -280,6 +280,10 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
       reproducirSonido('dados');
     });
 
+    const dejarDeEscucharSonidos = sala.onMessage('sonido', ({ nombre }: { nombre: NombreSonido }) => {
+      reproducirSonido(nombre);
+    });
+
     // CatanRoom responde "error" al cliente si una validación falla. El
     // navegador ya muestra ese mensaje desde Navegacion; aquí solo liberamos
     // los botones para que la interfaz no quede bloqueada tras el rechazo.
@@ -308,6 +312,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
     return () => {
       dejarDeEscucharDados();
       dejarDeEscucharErrores();
+      dejarDeEscucharSonidos();
     };
   }, [sala]);
 

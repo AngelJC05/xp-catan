@@ -3,7 +3,7 @@ import type { CatanRoom } from "../../CatanRoom.js";
 import { FasePartida, FasePreconstruccion } from "../../../common/enums.js";
 import { construirAsentamiento } from "../../../functions/construirAsentamiento.js";
 import { darMaterialInicial } from "../../../functions/darMaterialInicial.js";
-import { enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
+import { difundirSonido, enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
 import { enFasePartida, enFasePreconstruccion, esSuTurno, partidaEnCurso, validar } from "../../validaciones/guardias.js";
 
 //? Atiende msgColocarAsentamiento durante la preconstruccion: el asentamiento es gratis
@@ -50,6 +50,7 @@ export function manejarAsentamientoPreconstruccion(
     }
 
     registrarLogDeJugador(sala, client.sessionId, resultado.mensaje);
+    difundirSonido(sala, "asentamiento");
 
     //* En la vuelta de regreso el segundo asentamiento da material inicial
     if (sala.partida.direccionPreconstruccion === -1) {

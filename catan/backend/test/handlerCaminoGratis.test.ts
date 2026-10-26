@@ -124,4 +124,34 @@ describe("handler de camino gratis", () => {
     assert.strictEqual(estado.revisionesCamino, 0);
   });
 
+  it("avisa a todos que suene el camino", () => {
+    const { sala, difundidos } = armarCarreteras();
+    const { client } = armarCliente(ANGEL);
+
+    manejarCaminoGratis(sala, client, { h: 0, d: 0, p: 0 });
+
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "sonido"), [
+      { tipo: "sonido", mensaje: { nombre: "camino" } }
+    ]);
+  });
+
+  it("no manda el sonido si el camino no se pudo construir", () => {
+    const { sala, difundidos } = armarCarreteras();
+    const { client } = armarCliente(ANGEL);
+
+    manejarCaminoGratis(sala, client, { h: 99, d: 99, p: 0 });
+
+    assert.strictEqual(difundidos.filter((envio) => envio.tipo === "sonido").length, 0);
+  });
+
+  it("no manda el sonido si ya no tiene caminos disponibles", () => {
+    const { sala, jugadores, difundidos } = armarCarreteras();
+    const { client } = armarCliente(ANGEL);
+    jugadores.get(ANGEL).construccionesDisponibles.set(`${Construccion.CAMINO}`, 0);
+
+    manejarCaminoGratis(sala, client, { h: 0, d: 0, p: 0 });
+
+    assert.strictEqual(difundidos.filter((envio) => envio.tipo === "sonido").length, 0);
+  });
+
 });
