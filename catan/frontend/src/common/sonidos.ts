@@ -1,5 +1,8 @@
 const RUTAS = {
   dados: '/sounds/dice_roll.ogg',
+  asentamiento: '/sounds/asentamiento.ogg',
+  ciudad: '/sounds/ciudad.ogg',
+  camino: '/sounds/camino.ogg',
 } as const;
 
 export type NombreSonido = keyof typeof RUTAS;
