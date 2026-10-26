@@ -124,9 +124,29 @@ describe("handler de mover al ladron", () => {
 
     manejarMoverLadron(sala, client, { h: destino.h, d: destino.d });
 
-    assert.deepStrictEqual(difundidos, [
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "log"), [
       { tipo: "log", mensaje: { jugador: "Angel", mensaje: " ha movido al ladron" } }
     ]);
+  });
+
+  it("avisa a todos que suene el ladron", () => {
+    const { sala, destino, difundidos } = armarJuego();
+    const { client } = armarCliente(ANGEL);
+
+    manejarMoverLadron(sala, client, { h: destino.h, d: destino.d });
+
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "sonido"), [
+      { tipo: "sonido", mensaje: { nombre: "ladron" } }
+    ]);
+  });
+
+  it("no manda el sonido si no se pudo mover al ladron", () => {
+    const { sala, difundidos } = armarJuego();
+    const { client } = armarCliente(ANGEL);
+
+    manejarMoverLadron(sala, client, { h: 99, d: 99 });
+
+    assert.strictEqual(difundidos.filter((envio) => envio.tipo === "sonido").length, 0);
   });
 
   it("pasa a las acciones si nadie puede ser robado", () => {

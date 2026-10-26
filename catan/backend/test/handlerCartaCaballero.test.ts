@@ -140,8 +140,19 @@ describe("handler de la carta de caballero", () => {
 
     manejarCartaCaballero(sala, client, { h: destino.h, d: destino.d });
 
-    assert.deepStrictEqual(difundidos, [
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "log"), [
       { tipo: "log", mensaje: { jugador: "Angel", mensaje: " ha jugado una carta de caballero" } }
+    ]);
+  });
+
+  it("avisa a todos que suene el ladron al jugar el caballero", () => {
+    const { sala, destino, difundidos } = armarJuego();
+    const { client } = armarCliente(ANGEL);
+
+    manejarCartaCaballero(sala, client, { h: destino.h, d: destino.d });
+
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "sonido"), [
+      { tipo: "sonido", mensaje: { nombre: "ladron" } }
     ]);
   });
 
