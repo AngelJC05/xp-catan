@@ -21,3 +21,9 @@ export function registrarLogSistema(sala: CatanRoom, mensaje: string): void {
         mensaje
     });
 }
+
+export type NombreSonido = "asentamiento" | "ciudad" | "camino";
+
+//? Avisa a toda la sala de un sonido que se debe reproducir
+export function difundirSonido(sala: CatanRoom, nombre: NombreSonido): void {
+}
