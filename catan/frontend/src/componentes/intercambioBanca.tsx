@@ -5,12 +5,9 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
-import { RECURSOS, type Recurso, type Recursos } from '../common/jugador';
+import type { Recurso, Recursos } from '../common/jugador';
+import SelectorRecurso from './SelectorRecurso';
 
 interface Props {
   abierto: boolean;
@@ -27,17 +24,20 @@ function IntercambioBanca({
   abierto, puedeIntercambiar, enviando, recursosJugador, recursosBanca,
   onAbrir, onCerrar, onConfirmar,
 }: Props) {
-  const [entregado, setEntregado] = useState<Recurso | ''>('');
-  const [recibido, setRecibido] = useState<Recurso | ''>('');
+  const [entregado, setEntregado] = useState<Recurso | null>(null);
+  const [recibido, setRecibido] = useState<Recurso | null>(null);
 
   function abrir() {
-    setEntregado('');
-    setRecibido('');
+    setEntregado(null);
+    setRecibido(null);
     onAbrir();
   }
 
+  // funcion que recibe un recurso actual y uno con el cual comparar, si son iguales devuelve null o si son distintos el recurso comparado
+  const alternar = (actual: Recurso | null, recurso: Recurso) => (actual === recurso ? null : recurso);
+
   const puedeConfirmar = puedeIntercambiar && !enviando
-    && entregado !== '' && recibido !== '' && entregado !== recibido;
+    && entregado !== null && recibido !== null;
 
   return (
     <>
@@ -45,45 +45,41 @@ function IntercambioBanca({
         disabled={!puedeIntercambiar} onClick={abrir}>
         Intercambiar con la banca
       </Button>
+
       <Dialog open={abierto} onClose={enviando ? undefined : onCerrar} fullWidth maxWidth="xs">
         <DialogTitle>Intercambio con la banca</DialogTitle>
+
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
             Elige qué recurso entregas y cuál recibes. La banca calcula si necesitas
             2, 3 o 4 según tus puertos.
           </DialogContentText>
+
           <Stack spacing={2} sx={{ pt: 1 }}>
-            <FormControl fullWidth disabled={enviando}>
-              <InputLabel id="recurso-entregado-label">Entregas</InputLabel>
-              <Select labelId="recurso-entregado-label" label="Entregas" value={entregado}
-                onChange={(evento) => setEntregado(evento.target.value as Recurso)}>
-                {RECURSOS.map((recurso) => (
-                  <MenuItem key={recurso} value={recurso}>
-                    {recurso} (tienes {recursosJugador[recurso]})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth disabled={enviando}>
-              <InputLabel id="recurso-recibido-label">Recibes</InputLabel>
-              <Select labelId="recurso-recibido-label" label="Recibes" value={recibido}
-                onChange={(evento) => setRecibido(evento.target.value as Recurso)}>
-                {RECURSOS.map((recurso) => (
-                  <MenuItem key={recurso} value={recurso}>
-                    {recurso} (banca: {recursosBanca[recurso]})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SelectorRecurso
+              titulo="DOY"
+              elegidos={entregado ? { [entregado]: 1 } : {}}
+              cantidad={(recurso) => recursosJugador[recurso]}
+              deshabilitado={(recurso) => enviando || recursosJugador[recurso] === 0 || recurso === recibido}
+              onPulsar={(recurso) => setEntregado(alternar(entregado, recurso))}
+            />
+            <SelectorRecurso
+              titulo="QUIERO"
+              elegidos={recibido ? { [recibido]: 1 } : {}}
+              cantidad={(recurso) => recursosBanca[recurso]}
+              deshabilitado={(recurso) => enviando || recursosBanca[recurso] === 0 || recurso === entregado}
+              onPulsar={(recurso) => setRecibido(alternar(recibido, recurso))}
+            />
           </Stack>
         </DialogContent>
+        
         <DialogActions>
           <Button type="button" onClick={onCerrar} disabled={enviando}>Cancelar</Button>
           <Button type="button" variant="contained" disabled={!puedeConfirmar}
             onClick={() => {
               if (entregado && recibido && puedeConfirmar) onConfirmar(entregado, recibido);
             }}>
-            {enviando ? 'Intercambiando…' : 'Confirmar'}
+            {enviando ? 'Intercambiando…' : 'Intercambiar'}
           </Button>
         </DialogActions>
       </Dialog>
