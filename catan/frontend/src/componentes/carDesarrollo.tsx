@@ -1,8 +1,9 @@
 import { Badge, Button, Card } from 'react-bootstrap';
 import type { Cartas, Jugador } from '../common/jugador';
 import { CARTA, NOMBRE_CARTA } from '../common/jugador';
-import { ICONO_CARTA } from '../common/iconos';
+import { ICONO_CARTA, ICONO_CARTA_DESARROLLO } from '../common/iconos';
 import ContadorIcono from './ContadorIcono';
+import Icono from './Icono';
 
 const CARTAS: (keyof Cartas)[] = [
   CARTA.CABALLERO,
@@ -25,7 +26,9 @@ interface Props {
 function CarDesarrollo({ miJugador, puedeComprar, comprando, onComprar, puedeUsarCarta, onUsarCarta }: Props) {
   return (
     <Card className="h-100 w-100 overflow-hidden d-flex flex-column">
-      <h3 className="text-center fs-6 fw-bold border-bottom mb-0 py-1">Mis cartas</h3>
+      <h3 className="text-center fs-6 fw-bold border-bottom mb-0 py-1">
+        <Icono ruta={ICONO_CARTA_DESARROLLO} className="me-1" />Mis cartas
+      </h3>
       {miJugador ? (
         <>
           <div className="d-flex flex-column justify-content-center flex-fill overflow-y-auto p-2" style={{ minHeight: 0 }}>

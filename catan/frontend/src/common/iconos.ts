@@ -8,6 +8,9 @@ export const ICONO_RECURSO: Record<Recurso, string> = {
   mineral: '/svg/recursos/piedra.svg',
 };
 
+// Los recursos en general, por ejemplo para contar cuántos tiene un jugador.
+export const ICONO_RECURSOS = '/svg/recursos/todos.svg';
+
 export const ICONO_CARTA: Record<keyof Cartas, string> = {
   '1': '/svg/cartas/caballero.svg',
   '2': '/svg/cartas/puntosVictoria.svg',

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" role="img">
+  <title>Recursos</title>
+  <!-- Abanico de 5 cartas con el color de cada recurso: madera, trigo, lana, ladrillo y mineral -->
+  <g stroke="#ffffff" stroke-width="0.8" transform="translate(0 3)">
+    <rect x="9" y="6" width="6" height="9" rx="1.2" fill="#2F6B3F" transform="rotate(-32 12 21)"/>
+    <rect x="9" y="6" width="6" height="9" rx="1.2" fill="#D69A2D" transform="rotate(-16 12 21)"/>
+    <rect x="9" y="6" width="6" height="9" rx="1.2" fill="#D9D2B8"/>
+    <rect x="9" y="6" width="6" height="9" rx="1.2" fill="#B64E36" transform="rotate(16 12 21)"/>
+    <rect x="9" y="6" width="6" height="9" rx="1.2" fill="#667382" transform="rotate(32 12 21)"/>
+  </g>
+</svg>
