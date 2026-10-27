@@ -1,8 +1,9 @@
 import { Card } from 'react-bootstrap';
 import type { Jugador } from '../common/jugador';
 import { RECURSOS } from '../common/jugador';
-import { ICONO_RECURSO } from '../common/iconos';
+import { ICONO_RECURSO, ICONO_RECURSOS } from '../common/iconos';
 import ContadorIcono from './ContadorIcono';
+import Icono from './Icono';
 
 interface Props {
   miJugador?: Jugador;
@@ -13,7 +14,9 @@ const conMayuscula = (texto: string) => texto.charAt(0).toUpperCase() + texto.sl
 function CarRecursos({ miJugador }: Props) {
   return (
     <Card className="h-100 w-100 overflow-y-auto overflow-x-hidden d-flex flex-column">
-      <h3 className="text-center fs-6 fw-bold border-bottom mb-0 py-1">Mis recursos</h3>
+      <h3 className="text-center fs-6 fw-bold border-bottom mb-0 py-1">
+        <Icono ruta={ICONO_RECURSOS} className="me-1" />Mis recursos
+      </h3>
 
       {miJugador ? (
         <div className="d-flex flex-column justify-content-center flex-fill p-2">
