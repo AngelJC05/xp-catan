@@ -1,4 +1,7 @@
 import type { Recursos } from '../common/jugador';
+import { PIEZA } from '../common/jugador';
+import { ICONO_PIEZA } from '../common/iconos';
+import Icono from './Icono';
 import './construir.css';
 
 // Estos nombres se envían al backend. No usamos las etiquetas visibles para
@@ -19,14 +22,16 @@ export interface SolicitudConstruccion {
 interface OpcionConstruccion {
   tipo: TipoConstruccion;
   etiqueta: string;
+  icono: string;
   ayuda: string;
   costo: Partial<Recursos>;
 }
 
+// Los mismos iconos de la tabla de costes.
 const OPCIONES: OpcionConstruccion[] = [
-  { tipo: 'camino', etiqueta: 'Camino', ayuda: 'Selecciona una arista del tablero', costo: { madera: 1, ladrillo: 1 } },
-  { tipo: 'poblado', etiqueta: 'Poblado', ayuda: 'Selecciona un vértice vacío del tablero', costo: { madera: 1, ladrillo: 1, lana: 1, trigo: 1 } },
-  { tipo: 'ciudad', etiqueta: 'Ciudad', ayuda: 'Selecciona uno de tus poblados', costo: { trigo: 2, mineral: 3 } },
+  { tipo: 'camino', etiqueta: 'Camino', icono: ICONO_PIEZA[PIEZA.CAMINO], ayuda: 'Selecciona una arista del tablero', costo: { madera: 1, ladrillo: 1 } },
+  { tipo: 'poblado', etiqueta: 'Poblado', icono: ICONO_PIEZA[PIEZA.ASENTAMIENTO], ayuda: 'Selecciona un vértice vacío del tablero', costo: { madera: 1, ladrillo: 1, lana: 1, trigo: 1 } },
+  { tipo: 'ciudad', etiqueta: 'Ciudad', icono: ICONO_PIEZA[PIEZA.CIUDAD], ayuda: 'Selecciona uno de tus poblados', costo: { trigo: 2, mineral: 3 } },
 ];
 
 interface Props {
@@ -61,6 +66,8 @@ function Construir({ recursos, esMiTurno, puedeConstruir, tipoPermitido = null, 
             ? opcion.tipo === tipoPermitido
             : puedePagar(recursos, opcion.costo));
           const activa = seleccion === opcion.tipo;
+          const ayuda = habilitada ? opcion.ayuda
+            : puedeConstruir && !tipoPermitido ? 'Recursos insuficientes' : 'No disponible ahora';
 
           return (
             <button
@@ -69,14 +76,11 @@ function Construir({ recursos, esMiTurno, puedeConstruir, tipoPermitido = null, 
               className={activa ? 'cnOpcion cnActiva' : 'cnOpcion'}
               disabled={!habilitada}
               aria-pressed={activa}
+              title={`${opcion.etiqueta}: ${ayuda}`}
               onClick={() => onSeleccionar(activa ? null : opcion.tipo)}
             >
-              <span className={`cnIcono cnIcono-${opcion.tipo}`} aria-hidden="true" />
+              <Icono ruta={opcion.icono} tam={28} />
               <span className="cnNombre">{opcion.etiqueta}</span>
-              <span className="cnAyuda">
-                {habilitada ? opcion.ayuda
-                  : puedeConstruir && !tipoPermitido ? 'Recursos insuficientes' : 'No disponible ahora'}
-              </span>
             </button>
           );
         })}

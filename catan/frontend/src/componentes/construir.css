@@ -1,90 +1,26 @@
-/* Panel de construir. Cuatro botones con los iconos de las piezas.
-   Punteado y gris significa que no se puede; solido y oscuro que si.
-   Las reglas de color de aqui no tinen texto: el icono usa currentColor,
-   asi que con cambiar color se repinta el dibujo entero. */
+/* Panel de construir: tres botones con el icono SVG de cada pieza.
+   La ayuda de cada boton va en su title, no como texto. */
 .cnMarco {
-    font-size: clamp(7px, 3.7cqw, 14px);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5em;
-    padding: 0.6em 0.8em;
-    box-sizing: border-box;
-    min-height: 0;
-}
-
-.cnTitulo {
-    color: #888;
-    flex: none;
-}
-
-.cnRejilla {
-    flex: 1;
-    min-height: 0;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.5em;
-}
-
-/* Estado apagado, que es el de partida */
-.cnBoton {
-    font-size: 1em;
-    color: #C3CDD1;
-    border: 0.2em dashed #DDE4E6;
-    border-radius: 0.7em;
-    background: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.3em;
-    padding: 0.4em;
-    min-width: 0;
+    gap: 10px;
+    height: 100%;
     min-height: 0;
-    cursor: not-allowed;
-    transition: color .12s, border-color .12s, background .12s;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid #ccd8da;
+    border-radius: 10px;
+    background: #fff;
+    font-size: clamp(7px, 3.7cqw, 14px);
 }
-
-.cnIcono {
-    width: 2.6em;
-    height: 2.6em;
-    flex: none;
-}
-
-.cnNombre {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-}
-
-/* Se puede construir */
-.cnPuede {
-    color: #2C4049;
-    border-style: solid;
-    border-color: #2C4049;
-    cursor: pointer;
-}
-.cnPuede:hover {
-    background: #2C4049;
-    color: #fff;
-}
-.cnMarco { display: grid; gap: 10px; height: 100%; padding: 12px; border: 1px solid #ccd8da; border-radius: 10px; background: #fff; }
 .cnCabecera { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .cnTitulo { margin: 0; color: #123c44; font-size: 1rem; }
 .cnEstado { color: #617276; font-size: .75rem; font-weight: 700; }
-.cnRejilla { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.cnOpcion { display: grid; place-items: center; gap: 4px; min-height: 104px; padding: 8px; border: 2px solid #d9d9d9; border-radius: 8px; color: #176977; background: #fbf7ef; cursor: pointer; }
+.cnRejilla { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; min-height: 0; }
+/* Columna a todo el ancho del boton para que el nombre aproveche el espacio */
+.cnOpcion { display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; gap: 4px; min-height: 104px; padding: 6px 2px; border: 2px solid #d9d9d9; border-radius: 8px; color: #176977; background: #fbf7ef; cursor: pointer; }
 .cnOpcion:hover:not(:disabled), .cnActiva { border-color: #176977; background: #e4f2f3; }
 .cnActiva { box-shadow: 0 0 0 3px rgb(79 70 229 / 22%); }
 .cnOpcion:disabled { color: #7f8a8d; background: #f3f5f5; cursor: not-allowed; opacity: .72; }
-.cnIcono { position: relative; display: block; width: 30px; height: 24px; color: currentColor; }
-.cnIcono-camino { height: 8px; border-radius: 999px; background: currentColor; transform: rotate(-28deg); }
-.cnIcono-poblado::before { content: ''; position: absolute; inset: 7px 4px 0; background: currentColor; }
-.cnIcono-poblado::after { content: ''; position: absolute; left: 3px; top: 0; border-right: 12px solid transparent; border-bottom: 10px solid currentColor; border-left: 12px solid transparent; }
-.cnIcono-ciudad::before { content: ''; position: absolute; inset: 6px 2px 0; background: currentColor; }
-.cnIcono-ciudad::after { content: ''; position: absolute; left: 3px; top: 0; width: 6px; height: 10px; background: currentColor; box-shadow: 9px 3px 0 currentColor, 18px 0 0 currentColor; }
-.cnNombre { font-size: .875rem; font-weight: 700; }
-.cnAyuda { color: #617276; font-size: .6875rem; line-height: 1.25; text-align: center; }
+.cnNombre { font-size: .75rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .cnInstruccion { margin: 0; color: #276c86; font-size: .8125rem; }
 @media (max-width: 640px) { .cnRejilla { grid-template-columns: 1fr; } }
