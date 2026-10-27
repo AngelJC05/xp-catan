@@ -3,6 +3,10 @@ const RUTAS = {
   asentamiento: '/sounds/asentamiento.ogg',
   ciudad: '/sounds/ciudad.ogg',
   camino: '/sounds/camino.ogg',
+  comprarCarta: '/sounds/comprarCarta.ogg',
+  ladron: '/sounds/ladron.ogg',
+  monopolio: '/sounds/monopolio.ogg',
+  abundancia: '/sounds/abundancia.ogg',
 } as const;
 
 export type NombreSonido = keyof typeof RUTAS;

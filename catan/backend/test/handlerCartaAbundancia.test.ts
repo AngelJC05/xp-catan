@@ -189,8 +189,19 @@ describe("handler de la carta de abundancia", () => {
 
     manejarCartaAbundancia(sala, client, { recurso1: "madera", recurso2: "trigo" });
 
-    assert.deepStrictEqual(difundidos, [
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "log"), [
       { tipo: "log", mensaje: { jugador: "Angel", mensaje: " ha usado la carta de abundancia" } }
+    ]);
+  });
+
+  it("avisa a todos que suene la abundancia", () => {
+    const { sala, difundidos } = armarJuego();
+    const { client } = armarCliente(ANGEL);
+
+    manejarCartaAbundancia(sala, client, { recurso1: "madera", recurso2: "trigo" });
+
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "sonido"), [
+      { tipo: "sonido", mensaje: { nombre: "abundancia" } }
     ]);
   });
 

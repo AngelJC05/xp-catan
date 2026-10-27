@@ -114,8 +114,19 @@ describe("handler de comprar carta", () => {
 
     manejarComprarCarta(sala, client);
 
-    assert.deepStrictEqual(difundidos, [
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "log"), [
       { tipo: "log", mensaje: { jugador: "Angel", mensaje: " ha comprado una carta de desarrollo" } }
+    ]);
+  });
+
+  it("avisa a todos que suene la compra de la carta", () => {
+    const { sala, difundidos } = armarJuego();
+    const { client } = armarCliente(ANGEL);
+
+    manejarComprarCarta(sala, client);
+
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "sonido"), [
+      { tipo: "sonido", mensaje: { nombre: "comprarCarta" } }
     ]);
   });
 

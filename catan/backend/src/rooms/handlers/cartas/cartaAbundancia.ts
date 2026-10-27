@@ -2,7 +2,7 @@ import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
 import { Desarrollo, FaseJuego } from "../../../common/enums.js";
 import { jugarAbundancia } from "../../../functions/jugarAbundancia.js";
-import { enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
+import { difundirSonido, enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
 import { enFaseJuego, esSuTurno, partidaEnCurso, puedeUsarCarta, tieneCarta, validar } from "../../validaciones/guardias.js";
 
 //? Atiende el mensaje msgCartaAbundancia: el jugador toma dos recursos de la banca con la carta
@@ -44,6 +44,7 @@ export function manejarCartaAbundancia(
     }
 
     registrarLogDeJugador(sala, client.sessionId, resultado.mensaje);
+    difundirSonido(sala, "abundancia");
 
     //* Marcar que ya se uso una carta en este turno
     sala.partida.cartaJugable = false;
