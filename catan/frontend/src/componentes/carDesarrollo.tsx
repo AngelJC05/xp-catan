@@ -29,8 +29,9 @@ function CarDesarrollo({ miJugador, puedeComprar, comprando, onComprar, puedeUsa
       {miJugador ? (
         <>
           <div className="d-flex flex-column justify-content-center flex-fill overflow-y-auto p-2" style={{ minHeight: 0 }}>
+
             {/* Cuadricula de 3 columnas, igual que la banca y mis recursos */}
-            <div className="row row-cols-3 g-2">
+            <div className="row row-cols-3 g-2 justify-content-center">
               {CARTAS.map((clave) => {
                 const usables = miJugador.cartas_usables[clave];
                 const nuevas = miJugador.cartas_inusables[clave];
@@ -57,27 +58,29 @@ function CarDesarrollo({ miJugador, puedeComprar, comprando, onComprar, puedeUsa
                 );
               })}
             </div>
+
           </div>
-          <div className="d-flex flex-shrink-0 gap-1">
+          
+          <div className="d-flex flex-shrink-0 justify-content-center gap-2 pb-2">
             <Button
-              variant="outline-primary"
+              variant={puedeComprar && !comprando ? 'primary' : 'outline-secondary'}
               size="sm"
               disabled={!puedeComprar || comprando}
               onClick={onComprar}
-              title="Costo: 1 trigo, 1 lana y 1 mineral"
-              className="flex-fill m-0"
+              title="Comprar carta. Costo: 1 trigo, 1 lana y 1 mineral"
+              className="px-3 fw-bold"
             >
-              {comprando ? 'Comprando…' : 'Comprar carta'}
+              {comprando ? 'Comprando…' : 'Comprar'}
             </Button>
             <Button
-              variant="outline-secondary"
+              variant={puedeUsarCarta ? 'success' : 'outline-secondary'}
               size="sm"
               disabled={!puedeUsarCarta}
               onClick={onUsarCarta}
-              title="Solo una carta por turno, en la fase de acciones"
-              className="flex-fill m-0"
+              title="Usar carta. Solo una por turno, en la fase de acciones"
+              className="px-3 fw-bold"
             >
-              Usar carta
+              Usar
             </Button>
           </div>
         </>

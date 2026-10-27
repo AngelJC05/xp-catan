@@ -18,7 +18,7 @@ function CarRecursos({ miJugador }: Props) {
       {miJugador ? (
         <div className="d-flex flex-column justify-content-center flex-fill p-2">
           {/* Cuadricula de 3 columnas, igual que la banca */}
-          <div className="row row-cols-3 g-2">
+          <div className="row row-cols-3 g-2 justify-content-center">
             {RECURSOS.map((recurso) => (
               <div key={recurso} className="col d-flex justify-content-center">
                 <ContadorIcono
