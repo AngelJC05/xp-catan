@@ -1,5 +1,8 @@
 import type { Jugadores } from '../common/jugador';
-import { totalCartas, totalRecursos, enRiesgoDeDescarte, colorDelJugador } from '../common/jugador';
+import { totalCartas, totalRecursos, enRiesgoDeDescarte, colorDelJugador, CARTA, PIEZA } from '../common/jugador';
+import { COLOR, colorTextoSobre } from '../common/colores';
+import { ICONO_CARTA, ICONO_CARTA_DESARROLLO, ICONO_PIEZA, ICONO_RECURSOS } from '../common/iconos';
+import ContadorIcono from './ContadorIcono';
 
 interface Props {
   jugadores: Jugadores;
@@ -25,41 +28,65 @@ function InfoJugadores({
         if (!j) return null;
 
         const yo = id === miSessionId;
+        const tieneEjercito = id === ejercitoMasGrande;
+        const tieneCamino = id === caminoMasLargo;
+        const enRiesgo = enRiesgoDeDescarte(j);
 
         return (
           <div
             key={id}
-            style={{ backgroundColor: colorDelJugador(jugadores, id) }}
-            className="flex-fill min-w-0 overflow-hidden p-1 px-2 rounded-3 d-flex flex-column justify-content-center text-white border-0"
+            className="flex-fill min-w-0 overflow-hidden rounded-3 border d-flex flex-column bg-white"
           >
-            <div className="d-flex align-items-center gap-1 min-w-0">
-              <span className="flex-grow-1 text-truncate text-white fw-semibold">
+            {/* Arriba: nombre y puntuacion sobre el color que eligio el jugador */}
+            <div
+              style={{
+                backgroundColor: colorDelJugador(jugadores, id),
+                color: colorTextoSobre(j.color ?? COLOR.SIN_COLOR),
+              }}
+              className="d-flex align-items-center gap-1 min-w-0 px-2"
+            >
+              <span className="flex-grow-1 text-truncate fw-semibold">
                 {yo && '(Yo) '}{j.nombre}
               </span>
-              <span className="fw-bold flex-shrink-0 text-white">{j.puntuacion}/10</span>
+              <span className="fw-bold flex-shrink-0">{j.puntuacion}/10</span>
             </div>
-            <div className="d-flex justify-content-between text-white">
-              <span title="Cartas de desarrollo en la mano, usables mas inusables">
-                {totalCartas(j)} cartas
-              </span>
-              <span
-                title="Caballeros jugados. Decide el ejercito mas grande"
-                className={id === ejercitoMasGrande ? 'text-warning fw-bold' : 'text-white'}
-              >
-                {j.caballerosJugados} caballeros
-              </span>
-              <span
-                title="Largo de su camino mas largo. Con 5 o mas puede tener el titulo"
-                className={id === caminoMasLargo ? 'text-warning fw-bold' : 'text-white'}
-              >
-                Camino: {j.longitudCamino}
-              </span>
-              <span
-                title="Cartas de recurso en la mano"
-                className={enRiesgoDeDescarte(j) ? 'text-warning fw-bold' : 'text-white'}
-              >
-                {totalRecursos(j)} recursos
-              </span>
+
+            {/* Abajo: fondo blanco para que ningun icono se pierda con el color del jugador */}
+            <div className="d-flex justify-content-around align-items-center flex-fill px-1">
+              <ContadorIcono
+                icono={ICONO_CARTA_DESARROLLO}
+                cantidad={totalCartas(j)}
+                descripcion="Cartas de desarrollo en la mano, usables más inusables"
+                tam={20}
+                claseCantidad="fw-normal"
+              />
+              <ContadorIcono
+                icono={ICONO_CARTA[CARTA.CABALLERO]}
+                cantidad={j.caballerosJugados}
+                descripcion={tieneEjercito
+                  ? 'Caballeros jugados. Tiene el ejército más grande'
+                  : 'Caballeros jugados. Deciden el ejército más grande'}
+                tam={20}
+                claseCantidad={tieneEjercito ? 'fw-bold' : 'fw-normal'}
+              />
+              <ContadorIcono
+                icono={ICONO_PIEZA[PIEZA.CAMINO]}
+                cantidad={j.longitudCamino}
+                descripcion={tieneCamino
+                  ? 'Largo de su camino más largo. Tiene el título de camino más largo'
+                  : 'Largo de su camino más largo. Con 5 o más puede tener el título'}
+                tam={20}
+                claseCantidad={tieneCamino ? 'fw-bold' : 'fw-normal'}
+              />
+              <ContadorIcono
+                icono={ICONO_RECURSOS}
+                cantidad={totalRecursos(j)}
+                descripcion={enRiesgo
+                  ? 'Cartas de recurso en la mano. Con más de 7, si sale un 7 descarta la mitad'
+                  : 'Cartas de recurso en la mano'}
+                tam={20}
+                claseCantidad={enRiesgo ? 'fw-bold text-danger' : 'fw-normal'}
+              />
             </div>
           </div>
         );
