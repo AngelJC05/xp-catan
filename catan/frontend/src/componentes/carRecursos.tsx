@@ -1,11 +1,14 @@
-import { Card, ListGroup } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import type { Jugador } from '../common/jugador';
 import { RECURSOS } from '../common/jugador';
 import { ICONO_RECURSO } from '../common/iconos';
+import ContadorIcono from './ContadorIcono';
 
 interface Props {
   miJugador?: Jugador;
 }
+
+const conMayuscula = (texto: string) => texto.charAt(0).toUpperCase() + texto.slice(1);
 
 function CarRecursos({ miJugador }: Props) {
   return (
@@ -13,19 +16,21 @@ function CarRecursos({ miJugador }: Props) {
       <h3 className="text-center fs-6 fw-bold border-bottom mb-0 py-1">Mis recursos</h3>
 
       {miJugador ? (
-        <ListGroup variant="flush" className="flex-fill">
-          {RECURSOS.map((recurso) => (
-            <ListGroup.Item
-              key={recurso}
-              title={recurso}
-              className="d-flex align-items-center gap-2 py-0 text-capitalize"
-            >
-              <img src={ICONO_RECURSO[recurso]} alt={recurso} width={30} height={30} />
-              <span className="flex-grow-1 text-truncate">{recurso}</span>
-              <span className="fw-bold">{miJugador.recursos[recurso]}</span>
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
+        <div className="d-flex flex-column justify-content-center flex-fill p-2">
+          {/* Cuadricula de 3 columnas, igual que la banca */}
+          <div className="row row-cols-3 g-2 justify-content-center">
+            {RECURSOS.map((recurso) => (
+              <div key={recurso} className="col d-flex justify-content-center">
+                <ContadorIcono
+                  icono={ICONO_RECURSO[recurso]}
+                  cantidad={miJugador.recursos[recurso]}
+                  descripcion={`${conMayuscula(recurso)} que tienes`}
+                  tam={28}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
       ) : (
         <p className="text-muted text-center my-auto">sin jugador</p>
       )}
