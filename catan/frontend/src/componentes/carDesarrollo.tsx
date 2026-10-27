@@ -1,7 +1,8 @@
-import { Badge, Button, Card, ListGroup } from 'react-bootstrap';
+import { Badge, Button, Card } from 'react-bootstrap';
 import type { Cartas, Jugador } from '../common/jugador';
 import { CARTA, NOMBRE_CARTA } from '../common/jugador';
 import { ICONO_CARTA } from '../common/iconos';
+import ContadorIcono from './ContadorIcono';
 
 const CARTAS: (keyof Cartas)[] = [
   CARTA.CABALLERO,
@@ -27,34 +28,36 @@ function CarDesarrollo({ miJugador, puedeComprar, comprando, onComprar, puedeUsa
       <h3 className="text-center fs-6 fw-bold border-bottom mb-0 py-1">Mis cartas</h3>
       {miJugador ? (
         <>
-          <ListGroup variant="flush" className="flex-fill overflow-y-auto" style={{ minHeight: 0 }}>
-            {CARTAS.map((clave) => {
-              const usables = miJugador.cartas_usables[clave];
-              const nuevas = miJugador.cartas_inusables[clave];
-              const esPuntoVictoria = clave === CARTA.PUNTOS_VICTORIA;
-              return (
-                <ListGroup.Item
-                  key={clave}
-                  title={esPuntoVictoria
-                    ? 'Su efecto es inmediato y no se puede jugar'
-                    : NOMBRE_CARTA[clave]}
-                  className="d-flex align-items-center gap-2 py-0"
-                >
-                  <img src={ICONO_CARTA[clave]} alt={NOMBRE_CARTA[clave]} width={24} height={24} />
-                  <span className="flex-grow-1 text-truncate">{NOMBRE_CARTA[clave]}</span>
-                  {!esPuntoVictoria && nuevas > 0 && (
-                    <Badge
-                      bg="secondary"
-                      title="Compradas este turno: se podrán usar hasta tu siguiente turno"
-                    >
-                      +{nuevas}
-                    </Badge>
-                  )}
-                  <span className="fw-bold">{esPuntoVictoria ? usables + nuevas : usables}</span>
-                </ListGroup.Item>
-              );
-            })}
-          </ListGroup>
+          <div className="d-flex flex-column justify-content-center flex-fill overflow-y-auto p-2" style={{ minHeight: 0 }}>
+            {/* Cuadricula de 3 columnas, igual que la banca y mis recursos */}
+            <div className="row row-cols-3 g-2">
+              {CARTAS.map((clave) => {
+                const usables = miJugador.cartas_usables[clave];
+                const nuevas = miJugador.cartas_inusables[clave];
+                const esPuntoVictoria = clave === CARTA.PUNTOS_VICTORIA;
+                return (
+                  <div key={clave} className="col d-flex justify-content-center">
+                    <ContadorIcono
+                      icono={ICONO_CARTA[clave]}
+                      cantidad={esPuntoVictoria ? usables + nuevas : usables}
+                      descripcion={esPuntoVictoria
+                        ? `${NOMBRE_CARTA[clave]}: su efecto es inmediato y no se puede jugar`
+                        : NOMBRE_CARTA[clave]}
+                      tam={28}
+                      insignia={!esPuntoVictoria && nuevas > 0 && (
+                        <Badge
+                          bg="secondary"
+                          title="Compradas este turno: se podrán usar hasta tu siguiente turno"
+                        >
+                          +{nuevas}
+                        </Badge>
+                      )}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
           <div className="d-flex flex-shrink-0 gap-1">
             <Button
               variant="outline-primary"
