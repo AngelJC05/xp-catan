@@ -26,7 +26,6 @@ import Construir, {
 import { FASE_JUEGO, FASE_PARTIDA, FASE_PRECONSTRUCCION } from '../common/fases';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 
 import "./Partida.css"
 import ElegirRobo from '../componentes/ElegirRobo';
@@ -83,7 +82,6 @@ interface Props {
 function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   const [tipoConstruccion, setTipoConstruccion] = useState<TipoConstruccion | null>(null);
   const [objetivoConstruccion, setObjetivoConstruccion] = useState<ObjetivoConstruccion | null>(null);
-  const [estadoConstruccion, setEstadoConstruccion] = useState('');
   const [resultadoDados, setResultadoDados] = useState<ResultadoDados | null>(null);
   const [lanzandoDados, setLanzandoDados] = useState(false);
   const [pasandoTurno, setPasandoTurno] = useState(false);
@@ -579,7 +577,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
     setTipoConstruccion(tipo);
     // Un objetivo elegido para una pieza no se puede reutilizar para otra.
     setObjetivoConstruccion(null);
-    setEstadoConstruccion('');
   }
 
   function seleccionarObjetivo(objetivo: ObjetivoConstruccion) {
@@ -593,7 +590,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
       setObjetivoConstruccion(objetivo);
       setCaminoGratisEnEspera(partidaActual?.carreterasGratis ?? 0);
       sala.send('msgCaminoGratis', objetivo);
-      setEstadoConstruccion('Enviado al servidor: camino gratis.');
       return;
     }
 
@@ -605,7 +601,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
     if (sala && mensaje) {
       sala.send(mensaje, objetivo);
       setTipoConstruccion(null);
-      setEstadoConstruccion(`Enviado al servidor: ${tipoConstruccion}.`);
       return;
     }
 
@@ -614,9 +609,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
     // La validación definitiva (turno, recursos, legalidad y propiedad) vive
     // en CatanRoom. Este callback será conectado por la issue de integración.
     onSolicitarConstruccion?.(solicitud);
-    setEstadoConstruccion(
-      `Solicitud de ${tipoConstruccion} preparada para (${objetivo.h}, ${objetivo.d}, ${objetivo.p}).`,
-    );
   }
 
   return (
@@ -642,11 +634,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
             seleccion={tipoConstruccion}
             onSeleccionar={seleccionarConstruccion}
           />
-          {estadoConstruccion && (
-            <Typography variant="caption" color="primary" component="p" role="status">
-              {estadoConstruccion}
-            </Typography>
-          )}
         </div>
         <div className="infoJugadores">
           <InfoJugadores
