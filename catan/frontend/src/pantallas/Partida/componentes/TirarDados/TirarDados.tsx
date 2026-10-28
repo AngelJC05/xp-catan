@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from 'react-bootstrap';
-import CaraDado from './CaraDado';
-import './tirarDados.css';
+import CaraDado from './componentes/CaraDado';
+import './TirarDados.css';
 
 export interface ResultadoDados {
   dado1: number;

@@ -16,7 +16,7 @@ import CarRecursos from '../../componentes/carRecursos';
 import CarDesarrollo from '../../componentes/carDesarrollo';
 import IntercambioBanca from '../../componentes/intercambioBanca';
 import DescartarRecursos from '../../componentes/descartarRecursos';
-import TirarDados, { type ResultadoDados } from '../../componentes/tirarDados';
+import TirarDados, { type ResultadoDados } from './componentes/TirarDados/TirarDados';
 import { reproducirSonido, type NombreSonido } from '../../common/sonidos';
 import Construir, {
   type ObjetivoConstruccion,
