@@ -7,7 +7,7 @@ import { bancaPrueba } from '../../datos/bancaPruebas';
 import Existencias from '../../componentes/existencias';
 import { tableroPrueba } from '../../datos/tableroPrueba'
 import TablaCostes from '../../componentes/tablaCostes';
-import Tablero from '../../componentes/tablero';
+import Tablero from './componentes/Tablero/Tablero';
 import type { Jugadores, Recurso, Recursos } from '../../common/jugador';
 import { CARTA } from '../../common/jugador';
 import type { EstadoCatan } from '../../common/estado';
@@ -22,7 +22,7 @@ import Construir, {
   type ObjetivoConstruccion,
   type SolicitudConstruccion,
   type TipoConstruccion,
-} from '../../componentes/construir';
+} from './componentes/Construir/Construir';
 import { FASE_JUEGO, FASE_PARTIDA, FASE_PRECONSTRUCCION } from '../../common/fases';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';

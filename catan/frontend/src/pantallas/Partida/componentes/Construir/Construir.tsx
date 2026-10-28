@@ -1,8 +1,8 @@
-import type { Recursos } from '../common/jugador';
-import { PIEZA } from '../common/jugador';
-import { ICONO_PIEZA } from '../common/iconos';
-import Icono from './Icono';
-import './construir.css';
+import type { Recursos } from '../../../../common/jugador';
+import { PIEZA } from '../../../../common/jugador';
+import { ICONO_PIEZA } from '../../../../common/iconos';
+import Icono from '../../../../componentes/Icono';
+import './Construir.css';
 
 // Estos nombres se envían al backend. No usamos las etiquetas visibles para
 // evitar que un cambio de texto rompa el protocolo entre cliente y servidor.

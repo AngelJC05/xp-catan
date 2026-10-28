@@ -1,9 +1,9 @@
-import type { ObjetivoConstruccion, TipoConstruccion } from './construir';
-import type { Coordenada, DatosTablero } from '../common/tablero';
-import { NOMBRE_PUERTO } from '../common/tablero';
-import type { Jugadores } from '../common/jugador';
-import { colorDelJugador } from '../common/jugador';
-import "./tablero.css"
+import type { ObjetivoConstruccion, TipoConstruccion } from '../Construir/Construir';
+import type { Coordenada, DatosTablero } from '../../../../common/tablero';
+import { NOMBRE_PUERTO } from '../../../../common/tablero';
+import type { Jugadores } from '../../../../common/jugador';
+import { colorDelJugador } from '../../../../common/jugador';
+import "./Tablero.css"
 
 // Lado del hexagono.
 const S = 60;
