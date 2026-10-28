@@ -812,6 +812,8 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
           abierto={partidaFinalizada && !verTableroFinal}
           nombreGanador={nombreGanador}
           soyElGanador={partidaActual?.ganador === miSessionId}
+          ganador={partidaActual?.ganador ?? ''}
+          jugadores={jugadores}
           onSalir={() => onSalir?.()}
           onVerTablero={() => setVerTableroFinal(true)}
         />
