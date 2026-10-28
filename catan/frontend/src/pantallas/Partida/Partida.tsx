@@ -1,41 +1,41 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Room } from '@colyseus/sdk';
-import InfoJugadores from '../componentes/infoJugadores';
-import InfoTurno from '../componentes/infoTurno';
-import Chat, { type LineaRegistro } from '../componentes/chat';
-import { bancaPrueba } from '../datos/bancaPruebas';
-import Existencias from '../componentes/existencias';
-import { tableroPrueba } from '../datos/tableroPrueba'
-import TablaCostes from '../componentes/tablaCostes';
-import Tablero from '../componentes/tablero';
-import type { Jugadores, Recurso, Recursos } from '../common/jugador';
-import { CARTA } from '../common/jugador';
-import type { EstadoCatan } from '../common/estado';
-import type { Coordenada } from '../common/tablero';
-import CarRecursos from '../componentes/carRecursos';
-import CarDesarrollo from '../componentes/carDesarrollo';
-import IntercambioBanca from '../componentes/intercambioBanca';
-import DescartarRecursos from '../componentes/descartarRecursos';
-import TirarDados, { type ResultadoDados } from '../componentes/tirarDados';
-import { reproducirSonido, type NombreSonido } from '../common/sonidos';
+import InfoJugadores from '../../componentes/infoJugadores';
+import InfoTurno from '../../componentes/infoTurno';
+import Chat, { type LineaRegistro } from '../../componentes/chat';
+import { bancaPrueba } from '../../datos/bancaPruebas';
+import Existencias from '../../componentes/existencias';
+import { tableroPrueba } from '../../datos/tableroPrueba'
+import TablaCostes from '../../componentes/tablaCostes';
+import Tablero from '../../componentes/tablero';
+import type { Jugadores, Recurso, Recursos } from '../../common/jugador';
+import { CARTA } from '../../common/jugador';
+import type { EstadoCatan } from '../../common/estado';
+import type { Coordenada } from '../../common/tablero';
+import CarRecursos from '../../componentes/carRecursos';
+import CarDesarrollo from '../../componentes/carDesarrollo';
+import IntercambioBanca from '../../componentes/intercambioBanca';
+import DescartarRecursos from '../../componentes/descartarRecursos';
+import TirarDados, { type ResultadoDados } from '../../componentes/tirarDados';
+import { reproducirSonido, type NombreSonido } from '../../common/sonidos';
 import Construir, {
   type ObjetivoConstruccion,
   type SolicitudConstruccion,
   type TipoConstruccion,
-} from '../componentes/construir';
-import { FASE_JUEGO, FASE_PARTIDA, FASE_PRECONSTRUCCION } from '../common/fases';
+} from '../../componentes/construir';
+import { FASE_JUEGO, FASE_PARTIDA, FASE_PRECONSTRUCCION } from '../../common/fases';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 
 import "./Partida.css"
-import ElegirRobo from '../componentes/ElegirRobo';
-import UsarCarta, { type CartaUsable } from '../componentes/UsarCarta';
-import ElegirAbundancia from '../componentes/ElegirAbundancia';
-import ElegirMonopolio from '../componentes/ElegirMonopolio';
-import FinPartida from '../componentes/FinPartida';
-import ProponerIntercambio from '../componentes/ProponerIntercambio';
-import type { Propuesta } from '../common/partida';
-import ResponderIntercambio, { type Respuesta } from '../componentes/ResponderIntercambio';
+import ElegirRobo from '../../componentes/ElegirRobo';
+import UsarCarta, { type CartaUsable } from '../../componentes/UsarCarta';
+import ElegirAbundancia from '../../componentes/ElegirAbundancia';
+import ElegirMonopolio from '../../componentes/ElegirMonopolio';
+import FinPartida from '../../componentes/FinPartida';
+import ProponerIntercambio from '../../componentes/ProponerIntercambio';
+import type { Propuesta } from '../../common/partida';
+import ResponderIntercambio, { type Respuesta } from '../../componentes/ResponderIntercambio';
 
 const recursosPrueba: Recursos = {
   madera: 2,

@@ -9,7 +9,7 @@ import CrearSala, { type DatosNuevaSala } from "./pantallas/CrearSala/CrearSala"
 import Reconectando from "./pantallas/Reconectando/Reconectando";
 import SalaEspera from "./pantallas/SalaEspera/SalaEspera";
 import type { JugadorVista } from "./pantallas/SalaEspera/tipos";
-import PartidaTablero from "./pantallas/Partida";
+import PartidaTablero from "./pantallas/Partida/Partida";
 import { FASE_PARTIDA } from "./common/fases";
 import { useRegistroSala } from "./hooks/useRegistroSala";
 import {
