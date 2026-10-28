@@ -1,11 +1,9 @@
-import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { RECURSOS, type Recurso, type Recursos } from '../common/jugador';
-import { ICONO_RECURSO } from '../common/iconos';
+import type { Recurso, Recursos } from '../common/jugador';
+import SelectorRecurso from './SelectorRecurso';
 
 interface Props {
   pendientes: number;
@@ -18,6 +16,8 @@ interface Props {
 function DescartarRecursos({
   pendientes, recursos, esSuTurnoDeDescartar, enviando, onDescartar,
 }: Props) {
+  const disponibles = (recurso: Recurso) => recursos?.[recurso] ?? 0;
+
   return (
     <Dialog open={pendientes > 0} fullWidth maxWidth="xs" aria-labelledby="descartar-titulo">
       <DialogTitle id="descartar-titulo">Descartar recursos</DialogTitle>
@@ -30,29 +30,16 @@ function DescartarRecursos({
             Espera a que el jugador anterior termine de descartar.
           </Typography>
         )}
-        <Stack spacing={1} sx={{ mt: 2 }}>
-          {RECURSOS.map((recurso) => {
-            const disponibles = recursos?.[recurso] ?? 0;
-            return (
-              <Button
-                key={recurso}
-                type="button"
-                variant="outlined"
-                color="inherit"
-                disabled={!esSuTurnoDeDescartar || enviando || disponibles < 1}
-                onClick={() => onDescartar(recurso)}
-                aria-label={`Descartar ${recurso}, disponibles: ${disponibles}`}
-                sx={{ justifyContent: 'space-between', textTransform: 'capitalize' }}
-              >
-                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <img src={ICONO_RECURSO[recurso]} alt="" width={28} height={28} />
-                  {recurso}
-                </span>
-                <span>{disponibles}</span>
-              </Button>
-            );
-          })}
-        </Stack>
+        {/* Cada carta pulsada descarta uno de ese recurso, sin confirmacion */}
+        <div className="mt-3">
+          <SelectorRecurso
+            elegidos={{}}
+            porFila={3}
+            cantidad={disponibles}
+            deshabilitado={(recurso) => !esSuTurnoDeDescartar || enviando || disponibles(recurso) < 1}
+            onPulsar={onDescartar}
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );
