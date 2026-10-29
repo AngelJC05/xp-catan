@@ -1,4 +1,4 @@
-import { Card, ListGroup } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import { ICONO_CARTA_DESARROLLO, ICONO_PIEZA, ICONO_RECURSO } from '../../../common/iconos';
 import { NOMBRE_PIEZA, PIEZA, type Recurso } from '../../../common/jugador';
 
@@ -18,26 +18,23 @@ const FILAS: Fila[] = [
 
 function TablaCostes() {
   return (
-    <Card className="h-100 w-100 overflow-hidden d-flex flex-column">
-      <Card.Header as="h2" className="text-center fs-5 shrink-0 py-1">
-        Tabla de costes
-      </Card.Header>
-      <ListGroup variant="flush" className="flex-fill overflow-hidden d-flex flex-column">
+    <Card className="h-100 w-100 overflow-y-auto overflow-x-hidden d-flex flex-column">
+      <h3 className="text-center fs-6 fw-bold border-bottom mb-0 py-1">Costes</h3>
+
+      <div className="d-flex flex-column justify-content-around flex-fill p-1">
         {FILAS.map(({ icono, nombre, costes }) => (
-          <ListGroup.Item
-            key={nombre}
-            className="d-flex align-items-center flex-fill overflow-hidden min-w-0 py-0 px-1">
-            <img src={icono} alt={nombre} width={32} height={32} />
-            <span className="flex-grow-1 text-truncate ms-1">{nombre}</span>
+          <div key={nombre} className="d-flex align-items-center gap-1" title={nombre}>
+            <img src={icono} alt={nombre} width={22} height={22} />
+            <span className="text-body-secondary">:</span>
             {costes.map(({ recurso, cantidad }) => (
               <span key={recurso} className="d-flex align-items-center">
-                {cantidad && <span className="ms-1">{cantidad}</span>}
-                <img src={ICONO_RECURSO[recurso]} alt="" width={32} height={32} />
+                {cantidad && <small>{cantidad}</small>}
+                <img src={ICONO_RECURSO[recurso]} alt={recurso} width={20} height={20} />
               </span>
             ))}
-          </ListGroup.Item>
+          </div>
         ))}
-      </ListGroup>
+      </div>
     </Card>
   );
 }
