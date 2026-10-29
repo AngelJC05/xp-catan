@@ -16,6 +16,9 @@ import IntercambioBanca from './componentes/Comercio/IntercambioBanca';
 import DescartarRecursos from './componentes/DescartarRecursos';
 import TirarDados, { type ResultadoDados } from './componentes/TirarDados/TirarDados';
 import { reproducirSonido, type NombreSonido } from './utils/sonidos';
+import { leerEstado } from './utils/estado';
+import { MENSAJE_CONSTRUIR } from './utils/construccion';
+import { AREA, FONDO_PARTIDA, GRILLA, PANEL } from './utils/layout';
 import Construir, {
   type ObjetivoConstruccion,
   type SolicitudConstruccion,
@@ -35,62 +38,15 @@ import ProponerIntercambio from './componentes/Comercio/ProponerIntercambio/Prop
 import type { Propuesta } from './tipos/partida';
 import ResponderIntercambio, { type Respuesta } from './componentes/Comercio/ResponderIntercambio';
 
-const FONDO_PARTIDA = '#C5CFD6';
-const GRILLA = {
-  gridTemplateColumns: 'repeat(5, minmax(0, 1fr)) repeat(2, clamp(140px, 13vw, 210px))',
-  gridTemplateRows: 'auto auto minmax(0, 1fr) clamp(160px, 24vh, 240px)',
-  gap: 5,
-  backgroundColor: FONDO_PARTIDA,
-} as const;
-
-// Lugar de cada panel: fila inicial / columna inicial / fila final / columna final
-const AREA = {
-  tablero: '1 / 1 / 4 / 6',
-  salir: '1 / 1 / 2 / 2',
-  infoJugadores: '1 / 6 / 2 / 8',
-  existencias: '2 / 6 / 3 / 7',
-  tabCostos: '2 / 7 / 3 / 8',
-  chat: '3 / 6 / 5 / 8',
-  carRecursos: '4 / 1 / 5 / 2',
-  carDesarrollo: '4 / 2 / 5 / 3',
-  construir: '4 / 3 / 5 / 4',
-  negociar: '4 / 4 / 5 / 6',
-} as const;
-
-const PANEL = 'overflow-hidden bg-white rounded-3';
-
-const MENSAJE_CONSTRUIR: Partial<Record<TipoConstruccion, string>> = {
-  poblado: 'msgColocarAsentamiento',
-  camino: 'msgColocarCamino',
-  ciudad: 'msgColocarCiudad',
-};
-
-/* room.state es un Schema de Colyseus: toJSON() lo vuelve objeto plano. Las
-   claves son las mismas que en common/ (h, d, p, terreno, constuccion, nombre,
-   recursos, cartas_usables...), asi que no hay nada que traducir.
-   Devuelve null mientras el estado no haya llegado completo. */
-function leerEstado(sala: Room): EstadoCatan | null {
-  const raiz = sala.state as { toJSON?: () => EstadoCatan } | undefined;
-  if (!raiz?.toJSON) return null;
-  const estado = raiz.toJSON();
-  if (!estado.tablero || !estado.jugadores || !estado.partida || !estado.banca) return null;
-  return estado;
-}
-
 interface Props {
   sala?: Room | null;
-  // Historial de chat y log; lo guarda Navegacion para que sobreviva al paso
-  // de la sala de espera a la partida.
+  // Lo guarda Navegacion para que sobreviva al paso de la sala de espera a la partida.
   registro: LineaRegistro[];
-  // La capa de conexión inyectará aquí una función equivalente a:
-  // room.send('construir', solicitud).
-  // Así esta pantalla no crea una segunda conexión al backend.
   onSolicitarConstruccion?: (solicitud: SolicitudConstruccion) => void;
   // Navegacion borra el token de reconexión y abandona la sala.
   onSalir?: () => void;
 }
 
-// Pantalla principal de la partida. Contiene todos los componentes de la partida.
 function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   const [tipoConstruccion, setTipoConstruccion] = useState<TipoConstruccion | null>(null);
   const [objetivoConstruccion, setObjetivoConstruccion] = useState<ObjetivoConstruccion | null>(null);
@@ -102,30 +58,18 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   const [compraEnEspera, setCompraEnEspera] = useState<number | null>(null);
   const [robando, setRobando] = useState(false);
   const [menuCartasAbierto, setMenuCartasAbierto] = useState(false);
-  // true cuando el jugador cierra el modal de fin de partida con "Ver tablero".
   const [verTableroFinal, setVerTableroFinal] = useState(false);
-  /* Carta de caballero: null = no se esta usando; 'eligiendo' = el jugador
-     elige el hexagono del ladron; un numero = mensaje enviado, guarda cuantos
-     caballeros usables tenia para saber cuando el servidor lo confirma. */
+  // Cartas con diálogo: null = sin usar; 'eligiendo' = el jugador elige; número = mensaje enviado
+  // (cuántas cartas usables tenía, para saber cuándo el servidor lo confirma).
   const [caballero, setCaballero] = useState<null | 'eligiendo' | number>(null);
-  /* Carta de abundancia, igual que el caballero: null = no se usa; 'eligiendo'
-     = dialogo abierto para elegir los 2 recursos; un numero = mensaje enviado,
-     guarda cuantas abundancias usables tenia para saber cuando se confirma. */
   const [abundancia, setAbundancia] = useState<null | 'eligiendo' | number>(null);
-  // Carta de monopolio: mismos estados que la abundancia.
   const [monopolio, setMonopolio] = useState<null | 'eligiendo' | number>(null);
-  /* Carta de carreteras: no tiene dialogo, se activa al elegirla. null = no
-     se esta activando; un numero = mensaje enviado, guarda cuantas cartas de
-     carreteras usables tenia para saber cuando el servidor lo confirma. */
+  // Carreteras no tiene diálogo: null o el número de cartas usables al enviar el mensaje.
   const [carreterasEnEspera, setCarreterasEnEspera] = useState<number | null>(null);
-  /* Caminos gratis (fase CARRETERAS): numero de caminos gratis que quedaban al
-     enviar msgCaminoGratis; se libera cuando el servidor lo descuenta. */
+  // Caminos gratis que quedaban al enviar msgCaminoGratis; se libera cuando el servidor descuenta uno.
   const [caminoGratisEnEspera, setCaminoGratisEnEspera] = useState<number | null>(null);
-  // true mientras se esta en la fase CARRETERAS en mi turno (modo camino activo).
   const modoCaminosGratis = useRef(false);
-  // true desde que se envia la propuesta hasta que el servidor la publica.
   const [propuestaEnEspera, setPropuestaEnEspera] = useState(false);
-  // true desde que se responde la propuesta hasta que el servidor lo registra.
   const [respuestaEnEspera, setRespuestaEnEspera] = useState(false);
   const [intercambioAbierto, setIntercambioAbierto] = useState(false);
   const [intercambioEnEspera, setIntercambioEnEspera] = useState(false);
@@ -135,7 +79,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
     cantidadEntregada: number;
     cantidadRecibida: number;
   } | null>(null);
-  // Todo lo que manda el servidor. null = todavia no llega, o no hay sala.
+  // null mientras no llega el estado de la sala.
   const [estadoReal, setEstadoReal] = useState<EstadoCatan | null>(null);
 
   useEffect(() => {
@@ -162,7 +106,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
           setIntercambioAbierto(false);
         }
       }
-      // Cada descarte aceptado reduce la cuenta publicada por el servidor.
+      // Cada descarte aceptado reduce la cuenta del servidor.
       setDescarteEnEspera((cantidadAnterior) => {
         if (cantidadAnterior === null) return null;
         const partida = estado?.partida;
@@ -181,7 +125,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
           ? null
           : cartasAnteriores;
       });
-      // El servidor confirma el cambio mediante el estado, no un mensaje nuevo.
       if (!estado
         || estado.partida.turnoActual !== salaActual.sessionId
         || estado.partida.fase !== FASE_PARTIDA.JUEGO
@@ -197,8 +140,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
         setRobando(false);
       }
 
-      // El caballero se confirma cuando el servidor le resta la carta al
-      // jugador. Si cambia el turno o la fase, se cancela.
+      // Se confirma cuando el servidor resta la carta; si cambia el turno o la fase, se cancela.
       setCaballero((anterior) => {
         if (anterior === null) return null;
         const usables = estado?.jugadores[salaActual.sessionId]?.cartas_usables[CARTA.CABALLERO] ?? 0;
@@ -207,7 +149,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
         return estado.partida.faseJuego === FASE_JUEGO.ACCIONES ? anterior : null;
       });
 
-      // La propuesta se confirma cuando aparece en el estado como mia.
+      // La propuesta se confirma cuando aparece en el estado como mía.
       if (!estado
         || estado.partida.ofertaIntercambio.jugador === salaActual.sessionId
         || estado.partida.turnoActual !== salaActual.sessionId
@@ -215,16 +157,12 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
         setPropuestaEnEspera(false);
       }
 
-      /* La respuesta se confirma cuando el backend deja de tenerme como
-         pendiente: respondi (1 o -1) o borro la oferta. Al borrarla vacia
-         "respuestas", asi que mi clave no existe (undefined) y tambien libera.
-         Ojo: no usar "?? 0", porque undefined pasaria a 0 y nunca se liberaria. */
+      // Se confirma cuando el backend deja de tenerme como pendiente (0): respondí o borró la oferta.
+      // Al borrarla "respuestas" queda vacío (undefined): no usar "?? 0" o nunca se liberaría.
       if (!estado || estado.partida.ofertaIntercambio.respuestas[salaActual.sessionId] !== 0) {
         setRespuestaEnEspera(false);
       }
 
-      // La abundancia se confirma cuando el servidor le resta la carta al
-      // jugador. Si cambia el turno o la fase, se cancela.
       setAbundancia((anterior) => {
         if (anterior === null) return null;
         if (!estado || estado.partida.turnoActual !== salaActual.sessionId) return null;
@@ -233,7 +171,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
         return estado.partida.faseJuego === FASE_JUEGO.ACCIONES ? anterior : null;
       });
 
-      // El monopolio se confirma igual: cuando el servidor le resta la carta.
       setMonopolio((anterior) => {
         if (anterior === null) return null;
         if (!estado || estado.partida.turnoActual !== salaActual.sessionId) return null;
@@ -242,8 +179,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
         return estado.partida.faseJuego === FASE_JUEGO.ACCIONES ? anterior : null;
       });
 
-      // La carta de carreteras se confirma cuando el servidor la resta y pasa
-      // la fase a CARRETERAS. Si cambia el turno, se olvida.
+      // Se confirma cuando el servidor resta la carta y pasa la fase a CARRETERAS.
       setCarreterasEnEspera((anterior) => {
         if (anterior === null) return null;
         if (!estado || estado.partida.turnoActual !== salaActual.sessionId) return null;
@@ -251,9 +187,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
         return estado.partida.faseJuego === FASE_JUEGO.CARRETERAS || usables < anterior ? null : anterior;
       });
 
-      /* Caminos gratis: al entrar a la fase CARRETERAS en mi turno se activa
-         solo el modo "camino" (se ven las aristas para elegir); al salir (el
-         backend vuelve a ACCIONES tras el ultimo camino) se desactiva. */
+      // Al entrar a la fase CARRETERAS en mi turno se activa solo el modo "camino"; al volver a ACCIONES se desactiva.
       const colocandoGratis = Boolean(estado
         && estado.partida.turnoActual === salaActual.sessionId
         && estado.partida.fase === FASE_PARTIDA.JUEGO
@@ -263,7 +197,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
         setTipoConstruccion(colocandoGratis ? 'camino' : null);
         setObjetivoConstruccion(null);
       }
-      // Cada camino gratis se confirma cuando el servidor descuenta uno.
       setCaminoGratisEnEspera((anterior) => {
         if (anterior === null) return null;
         if (!colocandoGratis || !estado || estado.partida.carreterasGratis < anterior) return null;
@@ -274,7 +207,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
 
     actualizarEstado();
 
-    // Se vuelve a leer con cada cambio que mande el servidor.
     salaActual.onStateChange(actualizarEstado);
     return () => { salaActual.onStateChange.remove(actualizarEstado); };
   }, [sala]);
@@ -282,8 +214,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   useEffect(() => {
     if (!sala) return;
 
-    // CatanRoom transmite este evento a todos los jugadores, incluido quien
-    // lanzó. Por eso el mismo resultado se ve en todas las pantallas.
+    // Se transmite a todos los jugadores, incluido quien lanzó.
     const dejarDeEscucharDados = sala.onMessage('dados', (resultado: ResultadoDados) => {
       setResultadoDados(resultado);
       setLanzandoDados(false);
@@ -294,9 +225,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
       reproducirSonido(nombre);
     });
 
-    // CatanRoom responde "error" al cliente si una validación falla. El
-    // navegador ya muestra ese mensaje desde Navegacion; aquí solo liberamos
-    // los botones para que la interfaz no quede bloqueada tras el rechazo.
+    // Navegacion ya muestra el error; aquí solo se liberan los botones.
     const dejarDeEscucharErrores = sala.onMessage('error', () => {
       setLanzandoDados(false);
       setPasandoTurno(false);
@@ -306,11 +235,9 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
       setRobando(false);
       setPropuestaEnEspera(false);
       setRespuestaEnEspera(false);
-      // Si el servidor rechaza el caballero, se puede elegir otro hexagono.
+      // Si el servidor rechaza una carta, se vuelve a elegir.
       setCaballero((anterior) => (typeof anterior === 'number' ? 'eligiendo' : anterior));
-      // Si el servidor rechaza la abundancia, el dialogo sigue abierto para corregir.
       setAbundancia((anterior) => (typeof anterior === 'number' ? 'eligiendo' : anterior));
-      // Igual con el monopolio: el dialogo sigue abierto para elegir otro recurso.
       setMonopolio((anterior) => (typeof anterior === 'number' ? 'eligiendo' : anterior));
       setCarreterasEnEspera(null);
       setCaminoGratisEnEspera(null);
@@ -326,7 +253,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
     };
   }, [sala]);
 
-  // Antes del primer estado de la sala, los jugadores, el orden y el turno quedan vacios.
   const jugadores: Jugadores = estadoReal?.jugadores ?? {};
   const ordenJugadores = estadoReal?.partida.ordenJugadores ?? [];
   const turnoActual = estadoReal?.partida.turnoActual ?? '';
@@ -348,7 +274,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
       && estadoReal?.partida.fase === FASE_PARTIDA.JUEGO
       && estadoReal.partida.faseJuego === FASE_JUEGO.DADOS,
   );
-  // Se llega aqui tras sacar 7 o despues de que todos terminen de descartar.
   const puedeMoverLadron = Boolean(
     sala
       && esMiTurno
@@ -398,13 +323,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
       && carreterasEnEspera === null,
   );
 
-  /* Fase CARRETERAS (carta de construccion de carreteras). Todas las acciones
-     de la vista dependen de la fase ACCIONES (o DADOS), asi que en esta fase
-     quedan bloqueadas solas; aqui solo se avisa en que fase esta la partida.
-     Colocar los caminos gratis es la siguiente issue (msgCaminoGratis). */
-  /* Fin del juego: el backend pone partida.ganador y la fase FINALIZADA.
-     Todas las acciones dependen de la fase JUEGO, asi que ya quedan
-     bloqueadas; solo sigue funcionando el boton Salir. */
+  // Con la partida finalizada solo funciona Salir: las demás acciones dependen de la fase JUEGO.
   const partidaFinalizada = Boolean(
     sala
       && partidaActual?.fase === FASE_PARTIDA.FINALIZADA
@@ -420,30 +339,24 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
       && partidaActual.faseJuego === FASE_JUEGO.CARRETERAS,
   );
 
-  /* Propuesta de intercambio activa. Solo cuenta si es del jugador en turno
-     (el backend la borra al pasar el turno; esto es solo por seguridad). */
+  // Solo cuenta si es del jugador en turno (el backend la borra al pasar el turno).
   const oferta = partidaActual?.ofertaIntercambio;
   const ofertaActiva = oferta && oferta.jugador !== '' && oferta.jugador === turnoActual ? oferta : null;
-  // Mi turno, fase de acciones, sin otra propuesta activa y con algo que ofrecer.
   const puedeProponer = Boolean(
     puedePasarTurno
       && !ofertaActiva
       && miJugadorReal
       && Object.values(miJugadorReal.recursos).some((cantidad) => cantidad > 0),
   );
-  /* Me toca responder si el backend me tiene como pendiente (0) en la oferta.
-     Al responder (1 o -1) o al cerrarse la oferta, deja de cumplirse. */
+  // Me toca responder si el backend me tiene como pendiente (0) en la oferta.
   const debeResponder = Boolean(
     sala && ofertaActiva && ofertaActiva.respuestas[miSessionId] === 0,
   );
 
-  /* Preconstruccion: el backend solo acepta la pieza de la subfase en curso y
-     no cobra recursos.*/
+  // En preconstrucción y en carreteras gratis solo se permite la pieza de la fase y no se cobran recursos.
   const enPreconstruccion = Boolean(
     sala && esMiTurno && estadoReal?.partida.fase === FASE_PARTIDA.PRECONSTRUCCION,
   );
-  /* Fase CARRETERAS en mi turno: igual que en la preconstruccion, solo se
-     permite el camino y no se cobran recursos (lo valida el backend). */
   const colocandoCaminosGratis = enFaseCarreteras && esMiTurno;
   const tipoPermitido: TipoConstruccion | null = colocandoCaminosGratis
     ? 'camino'
@@ -458,7 +371,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   function pasarTurno() {
     if (!sala || !puedePasarTurno || pasandoTurno) return;
     setPasandoTurno(true);
-    // El backend elige al siguiente jugador. No adelantamos el turno localmente.
     sala.send('msgPasarTurno');
   }
 
@@ -490,39 +402,32 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   }
 
   function lanzarDados() {
-    // El backend vuelve a validar turno y fase; esta condición solo evita un
-    // clic inválido en la interfaz y bloquea repeticiones mientras responde.
     if (!sala || !puedeLanzarDados || lanzandoDados) return;
     setLanzandoDados(true);
     sala.send('msgLanzarDados');
   }
 
   function moverLadron(hexagono: Coordenada) {
-    // El backend valida turno, fase y que no sea el mismo hexagono, y luego
-    // cambia la fase a Acciones o a Robo. Mientras responde, se ocultan los
-    // circulos para no mandar dos veces el mensaje.
+    // Mientras responde se ocultan los círculos para no mandar el mensaje dos veces.
     if (!sala || !puedeMoverLadron || moviendoLadron) return;
     setMoviendoLadron(true);
     sala.send('msgMoverLadron', { h: hexagono.h, d: hexagono.d });
   }
 
   function robarJugador(jugadorRobado: string) {
-    // El backend valida que este en jugadoresParaRobar, roba y pasa a Acciones.
     if (!sala || !puedeRobar || robando) return;
     setRobando(true);
     sala.send('msgRobarJugador', { jugadorRobado });
   }
 
   function proponerIntercambio(propuesta: Propuesta) {
-    // El backend valida turno, fase y recursos y publica la oferta en
-    // partida.ofertaIntercambio; con eso la ven todos los jugadores.
     if (!sala || !puedeProponer || propuestaEnEspera) return;
     setPropuestaEnEspera(true);
     sala.send('msgIntercambiarJugador', propuesta);
   }
 
   function responderIntercambio(respuesta: Respuesta) {
-    // El backend valida; si acepto sin tener lo que se pide, lo cambia a -1.
+    // Si acepto sin tener lo que se pide, el backend lo cambia a -1.
     if (!sala || !debeResponder || respuestaEnEspera) return;
     setRespuestaEnEspera(true);
     sala.send('msgResponderIntercambio', { respuesta });
@@ -544,9 +449,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   }
 
   function activarCarreteras() {
-    // No pide datos: el backend valida, resta la carta, da 2 caminos gratis y
-    // pasa la fase a CARRETERAS. Se quita cualquier construccion elegida para
-    // que no queden aristas o vertices activos en el tablero.
+    // Se quita cualquier construcción elegida para que no queden aristas o vértices activos.
     if (!sala || carreterasEnEspera !== null) return;
     setTipoConstruccion(null);
     setObjetivoConstruccion(null);
@@ -555,23 +458,18 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   }
 
   function jugarMonopolio(recurso: Recurso) {
-    // El backend valida turno, fase, la carta y el recurso, y le pasa al
-    // jugador todo lo que los demas tengan de ese recurso.
     if (!sala || monopolio !== 'eligiendo') return;
     setMonopolio(cartasUsables?.[CARTA.MONOPOLIO] ?? 0);
     sala.send('msgCartaMonopolio', { recurso });
   }
 
   function jugarAbundancia(recurso1: Recurso, recurso2: Recurso) {
-    // El backend valida turno, fase, la carta y que la banca tenga los recursos.
     if (!sala || abundancia !== 'eligiendo') return;
     setAbundancia(cartasUsables?.[CARTA.ABUNDANCIA] ?? 0);
     sala.send('msgCartaAbundancia', { recurso1, recurso2 });
   }
 
   function jugarCaballero(hexagono: Coordenada) {
-    // El backend valida turno, fase, la carta y el hexagono. Si hay 2 o mas
-    // jugadores para robar pasa a la fase de Robo y se abre ElegirRobo.
     if (!sala || caballero !== 'eligiendo') return;
     setCaballero(cartasUsables?.[CARTA.CABALLERO] ?? 0);
     sala.send('msgCartaCaballero', { h: hexagono.h, d: hexagono.d });
@@ -591,9 +489,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   function seleccionarObjetivo(objetivo: ObjetivoConstruccion) {
     if (!tipoConstruccion) return;
 
-    /* Camino gratis: misma eleccion de arista, pero con msgCaminoGratis y el
-       mismo JSON { h, d, p }. El modo camino sigue activo para el siguiente;
-       el backend vuelve a ACCIONES al terminar los caminos gratis. */
+    // Camino gratis: se envía con msgCaminoGratis y el modo camino sigue activo para el siguiente.
     if (sala && colocandoCaminosGratis && tipoConstruccion === 'camino') {
       if (caminoGratisEnEspera !== null) return;
       setObjetivoConstruccion(objetivo);
@@ -604,8 +500,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
 
     setObjetivoConstruccion(objetivo);
 
-    // El backend valida turno, fase, recursos y posicion, y confirma por el
-    // estado: no manda ningun mensaje de exito.
+    // El backend confirma por el estado, no manda mensaje de éxito.
     const mensaje = MENSAJE_CONSTRUIR[tipoConstruccion];
     if (sala && mensaje) {
       sala.send(mensaje, objetivo);
@@ -615,12 +510,9 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
 
     const solicitud: SolicitudConstruccion = { tipo: tipoConstruccion, objetivo };
 
-    // La validación definitiva (turno, recursos, legalidad y propiedad) vive
-    // en CatanRoom. Este callback será conectado por la issue de integración.
     onSolicitarConstruccion?.(solicitud);
   }
 
-  // Sin el estado de la sala no hay nada que dibujar todavia
   if (!estadoReal || !miJugadorReal) {
     return <p className="text-center text-body-secondary my-auto">Cargando partida…</p>;
   }
@@ -679,7 +571,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
                 : 'Usando caballero…'}
             </Alert>
           )}
-          {/* Tras "Ver tablero": aviso fijo de que la partida termino. */}
           {partidaFinalizada && verTableroFinal && (
             <Alert
               severity="success"
@@ -688,7 +579,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
               Partida finalizada: ganó <strong>{nombreGanador}</strong>. Usa "Salir" para dejar la sala.
             </Alert>
           )}
-          {/* Aviso de la fase CARRETERAS para todos los jugadores. */}
           {enFaseCarreteras && (
             <Alert
               severity="warning"
@@ -703,8 +593,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
             datos={datosTablero}
             jugadores={jugadores}
             miSessionId={miSessionId}
-            // Mientras se envia un camino gratis se ocultan las aristas: evita
-            // mandar dos y gastar los dos caminos con un doble clic.
+            // Mientras se envía un camino gratis se ocultan las aristas para no gastar los dos con un doble clic.
             tipoConstruccion={caminoGratisEnEspera !== null ? null : tipoConstruccion}
             objetivoSeleccionado={objetivoConstruccion}
             onSeleccionarObjetivo={seleccionarObjetivo}
@@ -738,8 +627,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
           />
         </div>
         <div className={PANEL} style={{ gridArea: AREA.negociar }}>
-          {/* A quien le falta responder ve la propuesta con los botones de rechazar y aceptar; al responder
-              vuelve el recuadro normal de proponer (con el intercambio con la banca). */}
+          {/* Quien debe responder ve la propuesta; al responder vuelve el recuadro de proponer. */}
           {debeResponder && ofertaActiva ? (
             <ResponderIntercambio
               oferta={ofertaActiva}
@@ -796,7 +684,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
           onElegir={elegirCarta}
           onCerrar={() => setMenuCartasAbierto(false)}
         />
-        {/* Se monta al elegir la carta, asi cada uso empieza con el dialogo vacio. */}
+        {/* Se monta al elegir la carta para que cada uso empiece con el diálogo vacío. */}
         {abundancia !== null && (
           <ElegirAbundancia
             abierto
