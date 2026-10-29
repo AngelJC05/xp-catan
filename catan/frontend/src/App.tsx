@@ -1,4 +1,3 @@
-import "./App.css";
 import Navegacion from "./Navegacion";
 
 function App() {

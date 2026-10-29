@@ -1,0 +1,117 @@
+/* Hexágonos */
+.tbHex {
+  stroke: #F3EDE0;
+  stroke-width: 3;
+}
+
+/* Color de cada terreno: 0 desierto, 1 bosque, 2 campo, 3 pradera, 4 colina, 5 montaña */
+.tbTerreno-0 { fill: #e8c97a; }
+.tbTerreno-1 { fill: #6ab04c; }
+.tbTerreno-2 { fill: #f6e58d; }
+.tbTerreno-3 { fill: #a5d6a7; }
+.tbTerreno-4 { fill: #c96b4a; }
+.tbTerreno-5 { fill: #9aa0a6; }
+
+/* Aristas (caminos) */
+.tbArista {
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.tbAristaBorde {
+  stroke: #172A2D;
+  stroke-width: 6;
+}
+
+/* Vértices (asentamientos y ciudades) */
+.tbVertice {
+  fill: #ffffff;
+  stroke: #00000030;
+  stroke-width: 1.5;
+}
+
+.tbVerticeOcupado {
+  fill: none;
+  stroke: none;
+}
+
+/* Los objetivos aparecen solo mientras el jugador eligió una pieza.
+   El área visible es más ancha para que sea fácil seleccionarla. */
+.tbObjetivoConstruccion {
+  cursor: pointer;
+  stroke: #276C86;
+  stroke-width: 11;
+}
+
+.tbObjetivoConstruccion:hover,
+.tbObjetivoConstruccion:focus {
+  stroke: #4F46E5;
+  outline: none;
+}
+
+.tbObjetivoSeleccionado {
+  stroke: #2E7D5B;
+  stroke-width: 14;
+}
+
+/* Ficha con el número del hexágono */
+.tbFichaFondo {
+  fill: #F6EFDD;
+  stroke: #00000022;
+}
+
+.tbFichaNumero {
+  font-size: 21px;
+  fill: #2A2A2A;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.tbFichaRoja .tbFichaNumero {
+  fill: #B3261E;
+}
+
+/* Puertos */
+.tbMuelle {
+  stroke: #9C7B4E;
+  stroke-width: 2.5;
+}
+
+.tbPuertoCaja {
+  fill: #F3E7CE;
+  stroke: #9C7B4E;
+  stroke-width: 2;
+}
+
+.tbPuertoTexto {
+  font-size: 17px;
+  font-weight: 700;
+  fill: #6B4E24;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+/* Ladrón */
+.tbLadron ellipse,
+.tbLadron circle {
+  fill: #333;
+  stroke: #000;
+  stroke-width: 1;
+}
+
+/* Círculo para elegir a qué hexágono mover al ladrón.
+   Es semitransparente para que se siga viendo el número de la ficha. */
+.tbObjetivoLadron {
+  cursor: pointer;
+  fill: #ffffff55;
+  stroke: #276C86;
+  stroke-width: 4;
+  stroke-dasharray: 8 5;
+}
+
+.tbObjetivoLadron:hover,
+.tbObjetivoLadron:focus {
+  fill: #4F46E533;
+  stroke: #4F46E5;
+  outline: none;
+}

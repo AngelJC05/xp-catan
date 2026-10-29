@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Room } from "@colyseus/sdk";
-import { client } from "./pantallas/colyseusClient";
+import { client } from "./servicios/colyseusClient";
 import Home from "./pantallas/Home/Home";
 import ElegirModo from "./pantallas/ElegirModo/ElegirModo";
 import Lobby from "./pantallas/Lobby/Lobby";
@@ -9,7 +9,7 @@ import CrearSala, { type DatosNuevaSala } from "./pantallas/CrearSala/CrearSala"
 import Reconectando from "./pantallas/Reconectando/Reconectando";
 import SalaEspera from "./pantallas/SalaEspera/SalaEspera";
 import type { JugadorVista } from "./pantallas/SalaEspera/tipos";
-import PartidaTablero from "./pantallas/Partida";
+import PartidaTablero from "./pantallas/Partida/Partida";
 import { FASE_PARTIDA } from "./common/fases";
 import { useRegistroSala } from "./hooks/useRegistroSala";
 import {
@@ -18,9 +18,9 @@ import {
   guardarSesion,
   leerSesion,
   type InfoSala,
-} from "./pantallas/sesionGuardada";
-import { ERROR_CODIGO_INCORRECTO } from "./pantallas/validacionSala";
-import { guardarNombreJugador, leerNombreJugador } from "./pantallas/nombreJugador";
+} from "./servicios/sesionGuardada";
+import { ERROR_CODIGO_INCORRECTO } from "./utils/validacionSala";
+import { guardarNombreJugador, leerNombreJugador } from "./utils/nombreJugador";
 
 const MAX_JUGADORES = 4;
 // El backend rechaza msgIniciarPartida con menos de 2 jugadores.

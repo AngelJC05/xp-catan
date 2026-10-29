@@ -1,4 +1,4 @@
-import type { Banca } from '../common/banca';
+import type { Banca } from '../pantallas/Partida/tipos/banca';
 
 export const bancaPrueba: Banca = {
   // Al inicio son 19 de cada uno;

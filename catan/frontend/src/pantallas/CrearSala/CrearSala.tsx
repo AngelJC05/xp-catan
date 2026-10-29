@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from "react";
-import "./CrearSala.css";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import Container from "@mui/material/Container";
 import Divider from "@mui/material/Divider";
 import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
@@ -18,7 +18,7 @@ import {
   aliasSugerido,
   validarAlias,
   validarCodigoAcceso,
-} from "../validacionSala";
+} from "../../utils/validacionSala";
 
 // Lo que CatanRoom.onCreate sabe leer (además del nombre del jugador).
 export interface DatosNuevaSala {
@@ -71,7 +71,7 @@ function CrearSala({ nombreJugador, onCrear, onVolver }: CrearSalaProps) {
 
   return (
     <div className="bg-info-subtle min-vh-100 px-3 py-4">
-      <div className="mx-auto d-flex flex-column align-items-start gap-3 crear-sala__contenido">
+      <Container maxWidth="xs" disableGutters className="d-flex flex-column align-items-start gap-3">
         <Button variant="text" onClick={onVolver} startIcon={<Icono ruta={ICONO_UI.atras} />}>
           Volver
         </Button>
@@ -178,7 +178,7 @@ function CrearSala({ nombreJugador, onCrear, onVolver }: CrearSalaProps) {
             </Button>
           </CardContent>
         </Card>
-      </div>
+      </Container>
     </div>
   );
 }

@@ -8,7 +8,7 @@ import TextField from "@mui/material/TextField";
 import type { Theme } from "@mui/material/styles";
 import { ICONO_UI } from "../../../common/iconos";
 import Icono from "../../../componentes/Icono";
-import { LARGO_MAXIMO_CODIGO } from "../../validacionSala";
+import { LARGO_MAXIMO_CODIGO } from "../../../utils/validacionSala";
 import type { SalaPorCodigo } from "../utils/salas";
 
 interface DialogoCodigoProps {

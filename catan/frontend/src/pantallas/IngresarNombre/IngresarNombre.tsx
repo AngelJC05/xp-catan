@@ -1,15 +1,15 @@
 import { useState, type FormEvent } from "react";
-import "./IngresarNombre.css";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
+import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { ICONO_PIEZA, ICONO_UI } from "../../common/iconos";
 import Icono from "../../componentes/Icono";
 import { PIEZA } from "../../common/jugador";
-import { LARGO_MAXIMO_NOMBRE, validarNombreJugador } from "../nombreJugador";
+import { LARGO_MAXIMO_NOMBRE, validarNombreJugador } from "../../utils/nombreJugador";
 
 interface IngresarNombreProps {
   nombreInicial?: string;
@@ -32,7 +32,7 @@ function IngresarNombre({ nombreInicial = "", onConfirmar, onVolver }: IngresarN
 
   return (
     <div className="bg-info-subtle min-vh-100 d-flex align-items-center justify-content-center px-3 py-4">
-      <div className="w-100 d-flex flex-column align-items-start gap-3 ingresar-nombre__contenido">
+      <Container maxWidth="xs" disableGutters className="d-flex flex-column align-items-start gap-3">
         {onVolver && (
           <Button variant="text" onClick={onVolver} startIcon={<Icono ruta={ICONO_UI.atras} />}>
             Volver
@@ -78,7 +78,7 @@ function IngresarNombre({ nombreInicial = "", onConfirmar, onVolver }: IngresarN
             </Button>
           </CardContent>
         </Card>
-      </div>
+      </Container>
     </div>
   );
 }

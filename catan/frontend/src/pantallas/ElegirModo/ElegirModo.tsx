@@ -1,8 +1,8 @@
-import "./ElegirModo.css";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
+import Container from "@mui/material/Container";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import { ICONO_PIEZA, ICONO_UI } from "../../common/iconos";
@@ -37,7 +37,7 @@ interface ElegirModoProps {
 function ElegirModo({ nombreJugador, onCrear, onUnirse, onVolver, onCambiarNombre }: ElegirModoProps) {
   return (
     <div className="bg-info-subtle min-vh-100 px-3 py-4">
-      <div className="mx-auto elegir__contenido">
+      <Container maxWidth="sm" disableGutters>
         <Button variant="text" onClick={onVolver} startIcon={<Icono ruta={ICONO_UI.atras} />}>
           Volver
         </Button>
@@ -82,7 +82,7 @@ function ElegirModo({ nombreJugador, onCrear, onUnirse, onVolver, onCambiarNombr
             </div>
           ))}
         </div>
-      </div>
+      </Container>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Room } from '@colyseus/sdk';
-import type { LineaRegistro, MensajeRegistro } from '../componentes/chat';
+import type { LineaRegistro, MensajeRegistro } from '../componentes/Chat';
 
 // Guarda el historial de "chat" y "log" que difunde el servidor
 export function useRegistroSala(sala: Room | null): LineaRegistro[] {
