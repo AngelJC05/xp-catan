@@ -37,28 +37,30 @@ import ResponderIntercambio, { type Respuesta } from './componentes/Comercio/Res
 // Fondo azul de la partida, el mismo del tablero
 const FONDO_PARTIDA = '#C5CFD6';
 
-// Grilla de 6 columnas y 4 filas en la que se acomoda cada panel
+/* Grilla de 7 columnas y 4 filas. Las columnas 1 a 5 son la zona del tablero y las
+   2 de la derecha son una columna angosta de ancho acotado. La fila de abajo tiene
+   altura casi fija y el resto del alto es del tablero y del chat. */
 const GRILLA = {
-  gridTemplateColumns: 'repeat(6, 1fr)',
-  gridTemplateRows: '0.8fr 3.5fr 4fr 3fr',
+  gridTemplateColumns: 'repeat(5, minmax(0, 1fr)) repeat(2, clamp(140px, 13vw, 210px))',
+  gridTemplateRows: 'auto auto minmax(0, 1fr) clamp(160px, 24vh, 240px)',
   gap: 5,
   backgroundColor: FONDO_PARTIDA,
 } as const;
 
 // Lugar de cada panel: fila inicial / columna inicial / fila final / columna final
 const AREA = {
+  tablero: '1 / 1 / 4 / 6',
   salir: '1 / 1 / 2 / 2',
-  tabCostos: '2 / 1 / 3 / 2',
-  chat: '2 / 6 / 4 / 7',
-  construir: '4 / 1 / 5 / 2',
-  carRecursos: '4 / 2 / 5 / 3',
-  carDesarrollo: '4 / 3 / 5 / 4',
-  negociar: '4 / 4 / 5 / 5',
-  tirDado: '4 / 5 / 5 / 6',
-  finTurno: '4 / 6 / 5 / 7',
-  existencias: '3 / 1 / 4 / 2',
-  infoJugadores: '1 / 2 / 2 / 7',
-  tablero: '2 / 2 / 4 / 6',
+  infoJugadores: '1 / 6 / 2 / 8',
+  existencias: '2 / 6 / 3 / 8',
+  chat: '3 / 6 / 4 / 8',
+  carRecursos: '4 / 1 / 5 / 2',
+  carDesarrollo: '4 / 2 / 5 / 3',
+  construir: '4 / 3 / 5 / 4',
+  tabCostos: '4 / 4 / 5 / 5',
+  negociar: '4 / 5 / 5 / 6',
+  tirDado: '4 / 6 / 5 / 7',
+  finTurno: '4 / 7 / 5 / 8',
 } as const;
 
 // Los paneles son recuadros blancos; el tablero y la info de jugadores van sin fondo
@@ -635,8 +637,9 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
 
   return (
     <div className="w-100 h-100 d-grid p-2 overflow-hidden" style={GRILLA}>
-        <div className={PANEL} style={{ gridArea: AREA.salir }}>
-          <button className="btn btn-danger w-100 h-100" onClick={onSalir}>Salir</button>
+        {/* Por ahora flota sobre la esquina del tablero; la confirmación se agrega en otro paso */}
+        <div className="m-2" style={{ gridArea: AREA.salir, alignSelf: 'start', justifySelf: 'start', zIndex: 1 }}>
+          <button className="btn btn-danger btn-sm" onClick={onSalir}>Salir</button>
         </div>
         <div className={PANEL} style={{ gridArea: AREA.tabCostos }}>
             <TablaCostes />
