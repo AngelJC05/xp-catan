@@ -5,8 +5,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import type { Recurso, Recursos } from '../common/jugador';
-import SelectorRecurso from './SelectorRecurso';
+import type { Recurso, Recursos } from '../../../../common/jugador';
+import SelectorRecurso from '../../../../componentes/SelectorRecurso';
 
 /* Mismo diseno que ElegirAbundancia.tsx (cartas de SelectorRecurso), pero con
    un solo recurso: todos los demas jugadores le dan al que juega la carta todo

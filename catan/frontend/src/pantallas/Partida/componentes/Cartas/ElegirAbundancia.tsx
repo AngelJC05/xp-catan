@@ -5,8 +5,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { RECURSOS, type Recurso, type Recursos } from '../common/jugador';
-import SelectorRecurso from './SelectorRecurso';
+import { RECURSOS, type Recurso, type Recursos } from '../../../../common/jugador';
+import SelectorRecurso from '../../../../componentes/SelectorRecurso';
 
 /* Mismo diseno que intercambioBanca.tsx (cartas de SelectorRecurso), pero se
    eligen 2 recursos que se reciben gratis de la banca. Cada toque suma 1 y se

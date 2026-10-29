@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from "@mui/material";
-import type { Cartas } from "../common/jugador";
-import { CARTA, NOMBRE_CARTA } from "../common/jugador";
-import { ICONO_CARTA } from "../common/iconos";
+import type { Cartas } from "../../../../common/jugador";
+import { CARTA, NOMBRE_CARTA } from "../../../../common/jugador";
+import { ICONO_CARTA } from "../../../../common/iconos";
 
 // Las 4 cartas que se pueden jugar. El punto de victoria no esta porque su
 // efecto es inmediato.

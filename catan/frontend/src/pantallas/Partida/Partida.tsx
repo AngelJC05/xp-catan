@@ -13,7 +13,7 @@ import { CARTA } from '../../common/jugador';
 import type { EstadoCatan } from '../../common/estado';
 import type { Coordenada } from '../../common/tablero';
 import CarRecursos from '../../componentes/carRecursos';
-import CarDesarrollo from '../../componentes/carDesarrollo';
+import CarDesarrollo from './componentes/Cartas/CarDesarrollo';
 import IntercambioBanca from './componentes/Comercio/IntercambioBanca';
 import DescartarRecursos from '../../componentes/descartarRecursos';
 import TirarDados, { type ResultadoDados } from './componentes/TirarDados/TirarDados';
@@ -29,9 +29,9 @@ import Button from '@mui/material/Button';
 
 import "./Partida.css"
 import ElegirRobo from '../../componentes/ElegirRobo';
-import UsarCarta, { type CartaUsable } from '../../componentes/UsarCarta';
-import ElegirAbundancia from '../../componentes/ElegirAbundancia';
-import ElegirMonopolio from '../../componentes/ElegirMonopolio';
+import UsarCarta, { type CartaUsable } from './componentes/Cartas/UsarCarta';
+import ElegirAbundancia from './componentes/Cartas/ElegirAbundancia';
+import ElegirMonopolio from './componentes/Cartas/ElegirMonopolio';
 import FinPartida from '../../componentes/FinPartida';
 import ProponerIntercambio from './componentes/Comercio/ProponerIntercambio/ProponerIntercambio';
 import type { Propuesta } from '../../common/partida';

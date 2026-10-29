@@ -1,9 +1,9 @@
 import { Badge, Button, Card } from 'react-bootstrap';
-import type { Cartas, Jugador } from '../common/jugador';
-import { CARTA, NOMBRE_CARTA } from '../common/jugador';
-import { ICONO_CARTA, ICONO_CARTA_DESARROLLO } from '../common/iconos';
-import ContadorIcono from './ContadorIcono';
-import Icono from './Icono';
+import type { Cartas, Jugador } from '../../../../common/jugador';
+import { CARTA, NOMBRE_CARTA } from '../../../../common/jugador';
+import { ICONO_CARTA, ICONO_CARTA_DESARROLLO } from '../../../../common/iconos';
+import ContadorIcono from '../../../../componentes/ContadorIcono';
+import Icono from '../../../../componentes/Icono';
 
 const CARTAS: (keyof Cartas)[] = [
   CARTA.CABALLERO,
