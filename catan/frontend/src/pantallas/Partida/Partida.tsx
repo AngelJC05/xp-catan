@@ -49,12 +49,11 @@ const AREA = {
   infoJugadores: '1 / 6 / 2 / 8',
   existencias: '2 / 6 / 3 / 7',
   tabCostos: '2 / 7 / 3 / 8',
-  chat: '3 / 6 / 4 / 8',
+  chat: '3 / 6 / 5 / 8',
   carRecursos: '4 / 1 / 5 / 2',
   carDesarrollo: '4 / 2 / 5 / 3',
   construir: '4 / 3 / 5 / 4',
   negociar: '4 / 4 / 5 / 6',
-  dados: '4 / 6 / 5 / 8',
 } as const;
 
 const PANEL = 'overflow-hidden bg-white rounded-3';
@@ -712,6 +711,18 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
             moviendoLadron={(puedeMoverLadron && !moviendoLadron) || caballero === 'eligiendo'}
             onSeleccionarHexagonoLadron={seleccionarHexagonoLadron}
           />
+          <div className="position-absolute bottom-0 end-0 m-2" style={{ zIndex: 1 }}>
+            <TirarDados
+              resultado={resultadoDados}
+              puedeLanzar={puedeLanzarDados}
+              lanzando={lanzandoDados}
+              onLanzar={lanzarDados}
+              puedePasarTurno={puedePasarTurno}
+              pasandoTurno={pasandoTurno}
+              onPasarTurno={pasarTurno}
+              insignia={<InfoTurno sessionIdTurno={turnoActual} jugadores={jugadores} />}
+            />
+          </div>
         </div>
         <div className={PANEL} style={{ gridArea: AREA.carRecursos }}>
           <CarRecursos miJugador={jugadores[miSessionId]} />
@@ -758,18 +769,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
               />
             </ProponerIntercambio>
           )}
-        </div>
-        <div className={PANEL} style={{ gridArea: AREA.dados }}>
-          <TirarDados
-            resultado={resultadoDados}
-            puedeLanzar={puedeLanzarDados}
-            lanzando={lanzandoDados}
-            onLanzar={lanzarDados}
-            puedePasarTurno={puedePasarTurno}
-            pasandoTurno={pasandoTurno}
-            onPasarTurno={pasarTurno}
-            insignia={<InfoTurno sessionIdTurno={turnoActual} jugadores={jugadores} />}
-          />
         </div>
         <div className={PANEL} style={{ gridArea: AREA.existencias }}>
           <Existencias

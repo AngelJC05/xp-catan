@@ -17,10 +17,11 @@ interface Props {
   puedePasarTurno: boolean;
   pasandoTurno: boolean;
   onPasarTurno: () => void;
-  // Quién tiene el turno, arriba a la derecha del panel
+  // Quién tiene el turno, arriba de los dados
   insignia?: ReactNode;
 }
 
+// Se muestra flotando sobre el tablero: los dados son el botón de lanzar.
 function TirarDados({
   resultado, puedeLanzar, lanzando, onLanzar,
   puedePasarTurno, pasandoTurno, onPasarTurno, insignia,
@@ -44,56 +45,51 @@ function TirarDados({
   const pasarActivo = puedePasarTurno && !pasandoTurno;
 
   return (
-    <section className="h-100 d-flex flex-column" aria-labelledby="tirar-dados-titulo">
-      <div className="d-flex align-items-center justify-content-between gap-2 border-bottom px-2 py-1">
-        <h2 id="tirar-dados-titulo" className="fs-6 fw-bold mb-0">Dados</h2>
-        {insignia}
-      </div>
+    <section
+      aria-label="Dados"
+      className={`d-flex flex-column align-items-center gap-1 p-2 rounded-3 border border-3 bg-white bg-opacity-75 shadow-sm ${lanzarActivo ? 'border-primary' : 'border-white'}`}
+    >
+      <span className="visually-hidden" role="status">{estado}</span>
+      {insignia}
 
-      <div className="flex-fill d-flex flex-column align-items-center justify-content-center gap-2 p-2 overflow-y-auto">
-        <span className="visually-hidden" role="status">{estado}</span>
+      <button
+        type="button"
+        className="d-flex align-items-center gap-3 border-0 bg-transparent p-1"
+        style={{ cursor: lanzarActivo ? 'pointer' : 'default' }}
+        onClick={() => { if (lanzarActivo) onLanzar(); }}
+        aria-disabled={!lanzarActivo}
+        aria-label="Lanzar dados"
+        title={estado}
+      >
+        <span className="d-flex gap-2">
+          <CaraDado
+            key={`a-${tirada}`}
+            valor={resultado?.dado1 ?? null}
+            etiqueta={resultado ? `Primer dado: ${resultado.dado1}` : 'Primer dado vacío'}
+            className={clase}
+          />
+          <CaraDado
+            key={`b-${tirada}`}
+            valor={resultado?.dado2 ?? null}
+            etiqueta={resultado ? `Segundo dado: ${resultado.dado2}` : 'Segundo dado vacío'}
+            className={clase}
+          />
+        </span>
+        <strong className="fs-3 text-body" title="Total de los dados">{resultado?.suma ?? '—'}</strong>
+      </button>
 
-        <div className="d-flex align-items-center justify-content-center gap-3">
-          <div className="d-flex gap-2">
-            <CaraDado
-              key={`a-${tirada}`}
-              valor={resultado?.dado1 ?? null}
-              etiqueta={resultado ? `Primer dado: ${resultado.dado1}` : 'Primer dado vacío'}
-              className={clase}
-            />
-            <CaraDado
-              key={`b-${tirada}`}
-              valor={resultado?.dado2 ?? null}
-              etiqueta={resultado ? `Segundo dado: ${resultado.dado2}` : 'Segundo dado vacío'}
-              className={clase}
-            />
-          </div>
-          <strong className="fs-3" title="Total de los dados">{resultado?.suma ?? '—'}</strong>
-        </div>
+      {lanzarActivo && <span className="small fw-bold text-primary">Toca los dados</span>}
 
-        <div className="d-flex justify-content-center gap-2">
-          <Button
-            size="sm"
-            variant={lanzarActivo ? 'primary' : 'outline-secondary'}
-            className="px-3 fw-bold"
-            onClick={onLanzar}
-            disabled={!lanzarActivo}
-            title={estado}
-          >
-            {lanzando ? 'Lanzando…' : 'Lanzar'}
-          </Button>
-          <Button
-            size="sm"
-            variant={pasarActivo ? 'success' : 'outline-secondary'}
-            className="px-3 fw-bold"
-            onClick={onPasarTurno}
-            disabled={!pasarActivo}
-            title="Terminar tu turno"
-          >
-            {pasandoTurno ? 'Pasando…' : 'Pasar turno'}
-          </Button>
-        </div>
-      </div>
+      <Button
+        size="sm"
+        variant={pasarActivo ? 'success' : 'outline-secondary'}
+        className="px-3 fw-bold"
+        onClick={onPasarTurno}
+        disabled={!pasarActivo}
+        title="Terminar tu turno"
+      >
+        {pasandoTurno ? 'Pasando…' : 'Pasar turno'}
+      </Button>
     </section>
   );
 }
