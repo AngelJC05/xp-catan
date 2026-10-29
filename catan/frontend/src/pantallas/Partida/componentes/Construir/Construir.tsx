@@ -83,8 +83,8 @@ function Construir({ recursos, esMiTurno, puedeConstruir, tipoPermitido = null, 
                 title={`${opcion.etiqueta}: ${ayuda}`}
                 onClick={() => onSeleccionar(activa ? null : opcion.tipo)}
               >
-                <Icono ruta={opcion.icono} tam={28} />
-                <span className="small fw-bold text-truncate w-100">{opcion.etiqueta}</span>
+                <Icono ruta={opcion.icono} tam={40} />
+                <span className="visually-hidden">{opcion.etiqueta}</span>
               </button>
             </div>
           );
