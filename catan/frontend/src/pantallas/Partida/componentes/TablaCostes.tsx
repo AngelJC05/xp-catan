@@ -2,18 +2,17 @@ import { Card } from 'react-bootstrap';
 import { ICONO_CARTA_DESARROLLO, ICONO_PIEZA, ICONO_RECURSO } from '../../../common/iconos';
 import { NOMBRE_PIEZA, PIEZA, type Recurso } from '../../../common/jugador';
 
-type Coste = { recurso: Recurso; cantidad?: number };
-type Fila = { icono: string; nombre: string; costes: Coste[] };
+type Fila = { icono: string; nombre: string; costes: Recurso[] };
 
 const FILAS: Fila[] = [
   { icono: ICONO_PIEZA[PIEZA.CAMINO], nombre: NOMBRE_PIEZA[PIEZA.CAMINO],
-    costes: [{ recurso: 'madera' }, { recurso: 'ladrillo' }] },
+    costes: ['madera', 'ladrillo'] },
   { icono: ICONO_PIEZA[PIEZA.ASENTAMIENTO], nombre: NOMBRE_PIEZA[PIEZA.ASENTAMIENTO],
-    costes: [{ recurso: 'madera' }, { recurso: 'trigo' }, { recurso: 'lana' }, { recurso: 'ladrillo' }] },
+    costes: ['madera', 'trigo', 'lana', 'ladrillo'] },
   { icono: ICONO_PIEZA[PIEZA.CIUDAD], nombre: NOMBRE_PIEZA[PIEZA.CIUDAD],
-    costes: [{ recurso: 'trigo', cantidad: 2 }, { recurso: 'mineral', cantidad: 3 }] },
+    costes: ['trigo', 'trigo', 'mineral', 'mineral', 'mineral'] },
   { icono: ICONO_CARTA_DESARROLLO, nombre: 'Carta de desarrollo',
-    costes: [{ recurso: 'trigo' }, { recurso: 'lana' }, { recurso: 'mineral' }] },
+    costes: ['trigo', 'lana', 'mineral'] },
 ];
 
 function TablaCostes() {
@@ -26,12 +25,11 @@ function TablaCostes() {
           <div key={nombre} className="d-flex align-items-center gap-1" title={nombre}>
             <img src={icono} alt={nombre} width={22} height={22} />
             <span className="text-body-secondary">:</span>
-            {costes.map(({ recurso, cantidad }) => (
-              <span key={recurso} className="d-flex align-items-center">
-                {cantidad && <small>{cantidad}</small>}
-                <img src={ICONO_RECURSO[recurso]} alt={recurso} width={20} height={20} />
-              </span>
-            ))}
+            <span className="d-flex align-items-center">
+              {costes.map((recurso, i) => (
+                <img key={i} src={ICONO_RECURSO[recurso]} alt={recurso} width={19} height={19} />
+              ))}
+            </span>
           </div>
         ))}
       </div>
