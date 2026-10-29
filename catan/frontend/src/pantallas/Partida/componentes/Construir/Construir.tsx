@@ -2,7 +2,6 @@ import type { Recursos } from '../../../../common/jugador';
 import { PIEZA } from '../../../../common/jugador';
 import { ICONO_PIEZA } from '../../../../common/iconos';
 import Icono from '../../../../componentes/Icono';
-import './Construir.css';
 
 // Estos nombres se envían al backend. No usamos las etiquetas visibles para
 // evitar que un cambio de texto rompa el protocolo entre cliente y servidor.
@@ -54,13 +53,16 @@ function puedePagar(recursos: Recursos, costo: Partial<Recursos>) {
 
 function Construir({ recursos, esMiTurno, puedeConstruir, tipoPermitido = null, seleccion, onSeleccionar }: Props) {
   return (
-    <section className="cnMarco" aria-labelledby="construir-titulo">
-      <div className="cnCabecera">
-        <h2 id="construir-titulo" className="cnTitulo">Construir</h2>
-        <span className="cnEstado">{esMiTurno ? 'Tu turno' : 'Espera tu turno'}</span>
+    <section
+      className="h-100 d-flex flex-column gap-2 p-2 overflow-y-auto bg-white border rounded-3"
+      aria-labelledby="construir-titulo"
+    >
+      <div className="d-flex align-items-center justify-content-between gap-2">
+        <h2 id="construir-titulo" className="fs-6 fw-bold mb-0">Construir</h2>
+        <span className="small fw-bold text-body-secondary">{esMiTurno ? 'Tu turno' : 'Espera tu turno'}</span>
       </div>
 
-      <div className="cnRejilla">
+      <div className="row row-cols-1 row-cols-sm-3 g-2">
         {OPCIONES.map((opcion) => {
         const habilitada = puedeConstruir && (tipoPermitido
             ? opcion.tipo === tipoPermitido
@@ -70,24 +72,27 @@ function Construir({ recursos, esMiTurno, puedeConstruir, tipoPermitido = null, 
             : puedeConstruir && !tipoPermitido ? 'Recursos insuficientes' : 'No disponible ahora';
 
           return (
-            <button
-              key={opcion.tipo}
-              type="button"
-              className={activa ? 'cnOpcion cnActiva' : 'cnOpcion'}
-              disabled={!habilitada}
-              aria-pressed={activa}
-              title={`${opcion.etiqueta}: ${ayuda}`}
-              onClick={() => onSeleccionar(activa ? null : opcion.tipo)}
-            >
-              <Icono ruta={opcion.icono} tam={28} />
-              <span className="cnNombre">{opcion.etiqueta}</span>
-            </button>
+            <div key={opcion.tipo} className="col">
+              <button
+                type="button"
+                className={`btn btn-light border border-2 w-100 py-3 d-flex flex-column align-items-center gap-1 ${
+                  activa ? 'border-primary bg-primary-subtle' : ''
+                }`}
+                disabled={!habilitada}
+                aria-pressed={activa}
+                title={`${opcion.etiqueta}: ${ayuda}`}
+                onClick={() => onSeleccionar(activa ? null : opcion.tipo)}
+              >
+                <Icono ruta={opcion.icono} tam={28} />
+                <span className="small fw-bold text-truncate w-100">{opcion.etiqueta}</span>
+              </button>
+            </div>
           );
         })}
       </div>
 
       {seleccion && (
-        <p className="cnInstruccion" role="status">
+        <p className="small text-primary-emphasis mb-0" role="status">
           Seleccionaste <b>{OPCIONES.find((opcion) => opcion.tipo === seleccion)?.etiqueta}</b>.
           Ahora elige el lugar en el tablero.
         </p>
