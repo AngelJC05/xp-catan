@@ -14,9 +14,10 @@ import CarRecursos from './componentes/CarRecursos';
 import CarDesarrollo from './componentes/Cartas/CarDesarrollo';
 import IntercambioBanca from './componentes/Comercio/IntercambioBanca';
 import DescartarRecursos from './componentes/DescartarRecursos';
-import TirarDados, { type ResultadoDados } from './componentes/TirarDados/TirarDados';
+import TirarDados from './componentes/TirarDados/TirarDados';
 import { reproducirSonido, type NombreSonido } from './utils/sonidos';
 import { leerEstado } from './utils/estado';
+import { useDadosYTurno } from './hooks/useDadosYTurno';
 import { MENSAJE_CONSTRUIR } from './utils/construccion';
 import { AREA, FONDO_PARTIDA, GRILLA, PANEL } from './utils/layout';
 import Construir, {
@@ -50,9 +51,6 @@ interface Props {
 function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   const [tipoConstruccion, setTipoConstruccion] = useState<TipoConstruccion | null>(null);
   const [objetivoConstruccion, setObjetivoConstruccion] = useState<ObjetivoConstruccion | null>(null);
-  const [resultadoDados, setResultadoDados] = useState<ResultadoDados | null>(null);
-  const [lanzandoDados, setLanzandoDados] = useState(false);
-  const [pasandoTurno, setPasandoTurno] = useState(false);
   const [descarteEnEspera, setDescarteEnEspera] = useState<number | null>(null);
   const [moviendoLadron, setMoviendoLadron] = useState(false);
   const [compraEnEspera, setCompraEnEspera] = useState<number | null>(null);
@@ -125,12 +123,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
           ? null
           : cartasAnteriores;
       });
-      if (!estado
-        || estado.partida.turnoActual !== salaActual.sessionId
-        || estado.partida.fase !== FASE_PARTIDA.JUEGO
-        || estado.partida.faseJuego !== FASE_JUEGO.ACCIONES) {
-        setPasandoTurno(false);
-      }
       // Al mover al ladron el backend cambia la fase (Acciones o Robo).
       if (!estado || estado.partida.faseJuego !== FASE_JUEGO.LADRON) {
         setMoviendoLadron(false);
@@ -214,21 +206,12 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   useEffect(() => {
     if (!sala) return;
 
-    // Se transmite a todos los jugadores, incluido quien lanzó.
-    const dejarDeEscucharDados = sala.onMessage('dados', (resultado: ResultadoDados) => {
-      setResultadoDados(resultado);
-      setLanzandoDados(false);
-      reproducirSonido('dados');
-    });
-
     const dejarDeEscucharSonidos = sala.onMessage('sonido', ({ nombre }: { nombre: NombreSonido }) => {
       reproducirSonido(nombre);
     });
 
     // Navegacion ya muestra el error; aquí solo se liberan los botones.
     const dejarDeEscucharErrores = sala.onMessage('error', () => {
-      setLanzandoDados(false);
-      setPasandoTurno(false);
       setDescarteEnEspera(null);
       setMoviendoLadron(false);
       setCompraEnEspera(null);
@@ -247,7 +230,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
     });
 
     return () => {
-      dejarDeEscucharDados();
       dejarDeEscucharErrores();
       dejarDeEscucharSonidos();
     };
@@ -294,6 +276,8 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
       && estadoReal?.partida.fase === FASE_PARTIDA.JUEGO
       && estadoReal.partida.faseJuego === FASE_JUEGO.ACCIONES,
   );
+  const { resultadoDados, lanzandoDados, pasandoTurno, lanzarDados, pasarTurno } =
+    useDadosYTurno(sala, puedeLanzarDados, puedePasarTurno);
   const puedeIntercambiarBanca = puedePasarTurno && !pasandoTurno;
   const puedeComprarCarta = Boolean(
     sala
@@ -368,12 +352,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
 
   const puedeConstruir = enPreconstruccion || puedePasarTurno || colocandoCaminosGratis;
 
-  function pasarTurno() {
-    if (!sala || !puedePasarTurno || pasandoTurno) return;
-    setPasandoTurno(true);
-    sala.send('msgPasarTurno');
-  }
-
   function comprarCarta() {
     if (!sala || !puedeComprarCarta || compraEnEspera !== null) return;
     setCompraEnEspera(estadoReal?.banca.cartas.length ?? 0);
@@ -399,12 +377,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
     if (!sala || !esSuTurnoDeDescartar || descarteEnEspera !== null || disponibles < 1) return;
     setDescarteEnEspera(descartesPendientes);
     sala.send('msgDescartarRecursos', { recurso });
-  }
-
-  function lanzarDados() {
-    if (!sala || !puedeLanzarDados || lanzandoDados) return;
-    setLanzandoDados(true);
-    sala.send('msgLanzarDados');
   }
 
   function moverLadron(hexagono: Coordenada) {
