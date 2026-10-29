@@ -18,11 +18,9 @@ import TirarDados from './componentes/TirarDados/TirarDados';
 import { reproducirSonido, type NombreSonido } from './utils/sonidos';
 import { leerEstado } from './utils/estado';
 import { useDadosYTurno } from './hooks/useDadosYTurno';
-import { MENSAJE_CONSTRUIR } from './utils/construccion';
+import { useConstruccion } from './hooks/useConstruccion';
 import { AREA, FONDO_PARTIDA, GRILLA, PANEL } from './utils/layout';
 import Construir, {
-  type ObjetivoConstruccion,
-  type SolicitudConstruccion,
   type TipoConstruccion,
 } from './componentes/Construir/Construir';
 import { FASE_JUEGO, FASE_PARTIDA, FASE_PRECONSTRUCCION } from '../../common/fases';
@@ -43,14 +41,11 @@ interface Props {
   sala?: Room | null;
   // Lo guarda Navegacion para que sobreviva al paso de la sala de espera a la partida.
   registro: LineaRegistro[];
-  onSolicitarConstruccion?: (solicitud: SolicitudConstruccion) => void;
   // Navegacion borra el token de reconexión y abandona la sala.
   onSalir?: () => void;
 }
 
-function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
-  const [tipoConstruccion, setTipoConstruccion] = useState<TipoConstruccion | null>(null);
-  const [objetivoConstruccion, setObjetivoConstruccion] = useState<ObjetivoConstruccion | null>(null);
+function Partida({ sala, registro, onSalir }: Props) {
   const [descarteEnEspera, setDescarteEnEspera] = useState<number | null>(null);
   const [moviendoLadron, setMoviendoLadron] = useState(false);
   const [compraEnEspera, setCompraEnEspera] = useState<number | null>(null);
@@ -64,9 +59,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   const [monopolio, setMonopolio] = useState<null | 'eligiendo' | number>(null);
   // Carreteras no tiene diálogo: null o el número de cartas usables al enviar el mensaje.
   const [carreterasEnEspera, setCarreterasEnEspera] = useState<number | null>(null);
-  // Caminos gratis que quedaban al enviar msgCaminoGratis; se libera cuando el servidor descuenta uno.
-  const [caminoGratisEnEspera, setCaminoGratisEnEspera] = useState<number | null>(null);
-  const modoCaminosGratis = useRef(false);
   const [propuestaEnEspera, setPropuestaEnEspera] = useState(false);
   const [respuestaEnEspera, setRespuestaEnEspera] = useState(false);
   const [intercambioAbierto, setIntercambioAbierto] = useState(false);
@@ -178,23 +170,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
         const usables = estado.jugadores[salaActual.sessionId]?.cartas_usables[CARTA.CARRETERAS] ?? 0;
         return estado.partida.faseJuego === FASE_JUEGO.CARRETERAS || usables < anterior ? null : anterior;
       });
-
-      // Al entrar a la fase CARRETERAS en mi turno se activa solo el modo "camino"; al volver a ACCIONES se desactiva.
-      const colocandoGratis = Boolean(estado
-        && estado.partida.turnoActual === salaActual.sessionId
-        && estado.partida.fase === FASE_PARTIDA.JUEGO
-        && estado.partida.faseJuego === FASE_JUEGO.CARRETERAS);
-      if (colocandoGratis !== modoCaminosGratis.current) {
-        modoCaminosGratis.current = colocandoGratis;
-        setTipoConstruccion(colocandoGratis ? 'camino' : null);
-        setObjetivoConstruccion(null);
-      }
-      setCaminoGratisEnEspera((anterior) => {
-        if (anterior === null) return null;
-        if (!colocandoGratis || !estado || estado.partida.carreterasGratis < anterior) return null;
-        return anterior;
-      });
-
     }
 
     actualizarEstado();
@@ -223,7 +198,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
       setAbundancia((anterior) => (typeof anterior === 'number' ? 'eligiendo' : anterior));
       setMonopolio((anterior) => (typeof anterior === 'number' ? 'eligiendo' : anterior));
       setCarreterasEnEspera(null);
-      setCaminoGratisEnEspera(null);
       intercambioPendiente.current = null;
       setIntercambioEnEspera(false);
       setIntercambioAbierto(false);
@@ -342,6 +316,14 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
     sala && esMiTurno && estadoReal?.partida.fase === FASE_PARTIDA.PRECONSTRUCCION,
   );
   const colocandoCaminosGratis = enFaseCarreteras && esMiTurno;
+  const {
+    tipoConstruccion,
+    objetivoConstruccion,
+    caminoGratisEnEspera,
+    limpiarConstruccion,
+    seleccionarConstruccion,
+    seleccionarObjetivo,
+  } = useConstruccion(sala, colocandoCaminosGratis, partidaActual?.carreterasGratis ?? 0);
   const tipoPermitido: TipoConstruccion | null = colocandoCaminosGratis
     ? 'camino'
     : !enPreconstruccion
@@ -409,7 +391,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
     setMenuCartasAbierto(false);
     if (carta === CARTA.CABALLERO) {
       // Se reutilizan los circulos de mover al ladron para elegir el hexagono.
-      setTipoConstruccion(null);
+      limpiarConstruccion();
       setCaballero('eligiendo');
     } else if (carta === CARTA.ABUNDANCIA) {
       setAbundancia('eligiendo');
@@ -423,8 +405,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   function activarCarreteras() {
     // Se quita cualquier construcción elegida para que no queden aristas o vértices activos.
     if (!sala || carreterasEnEspera !== null) return;
-    setTipoConstruccion(null);
-    setObjetivoConstruccion(null);
+    limpiarConstruccion();
     setCarreterasEnEspera(cartasUsables?.[CARTA.CARRETERAS] ?? 0);
     sala.send('msgCartaCarreteras');
   }
@@ -450,39 +431,6 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   function seleccionarHexagonoLadron(hexagono: Coordenada) {
     if (caballero === 'eligiendo') jugarCaballero(hexagono);
     else moverLadron(hexagono);
-  }
-
-  function seleccionarConstruccion(tipo: TipoConstruccion | null) {
-    setTipoConstruccion(tipo);
-    // Un objetivo elegido para una pieza no se puede reutilizar para otra.
-    setObjetivoConstruccion(null);
-  }
-
-  function seleccionarObjetivo(objetivo: ObjetivoConstruccion) {
-    if (!tipoConstruccion) return;
-
-    // Camino gratis: se envía con msgCaminoGratis y el modo camino sigue activo para el siguiente.
-    if (sala && colocandoCaminosGratis && tipoConstruccion === 'camino') {
-      if (caminoGratisEnEspera !== null) return;
-      setObjetivoConstruccion(objetivo);
-      setCaminoGratisEnEspera(partidaActual?.carreterasGratis ?? 0);
-      sala.send('msgCaminoGratis', objetivo);
-      return;
-    }
-
-    setObjetivoConstruccion(objetivo);
-
-    // El backend confirma por el estado, no manda mensaje de éxito.
-    const mensaje = MENSAJE_CONSTRUIR[tipoConstruccion];
-    if (sala && mensaje) {
-      sala.send(mensaje, objetivo);
-      setTipoConstruccion(null);
-      return;
-    }
-
-    const solicitud: SolicitudConstruccion = { tipo: tipoConstruccion, objetivo };
-
-    onSolicitarConstruccion?.(solicitud);
   }
 
   if (!estadoReal || !miJugadorReal) {

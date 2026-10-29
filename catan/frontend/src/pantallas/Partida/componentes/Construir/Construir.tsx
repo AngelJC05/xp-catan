@@ -13,11 +13,6 @@ export interface ObjetivoConstruccion {
   p: number;
 }
 
-export interface SolicitudConstruccion {
-  tipo: TipoConstruccion;
-  objetivo: ObjetivoConstruccion;
-}
-
 interface OpcionConstruccion {
   tipo: TipoConstruccion;
   etiqueta: string;
