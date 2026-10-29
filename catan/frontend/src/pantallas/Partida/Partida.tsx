@@ -14,7 +14,7 @@ import type { EstadoCatan } from '../../common/estado';
 import type { Coordenada } from '../../common/tablero';
 import CarRecursos from '../../componentes/carRecursos';
 import CarDesarrollo from '../../componentes/carDesarrollo';
-import IntercambioBanca from '../../componentes/intercambioBanca';
+import IntercambioBanca from './componentes/Comercio/IntercambioBanca';
 import DescartarRecursos from '../../componentes/descartarRecursos';
 import TirarDados, { type ResultadoDados } from './componentes/TirarDados/TirarDados';
 import { reproducirSonido, type NombreSonido } from '../../common/sonidos';
@@ -33,9 +33,9 @@ import UsarCarta, { type CartaUsable } from '../../componentes/UsarCarta';
 import ElegirAbundancia from '../../componentes/ElegirAbundancia';
 import ElegirMonopolio from '../../componentes/ElegirMonopolio';
 import FinPartida from '../../componentes/FinPartida';
-import ProponerIntercambio from '../../componentes/ProponerIntercambio';
+import ProponerIntercambio from './componentes/Comercio/ProponerIntercambio/ProponerIntercambio';
 import type { Propuesta } from '../../common/partida';
-import ResponderIntercambio, { type Respuesta } from '../../componentes/ResponderIntercambio';
+import ResponderIntercambio, { type Respuesta } from './componentes/Comercio/ResponderIntercambio';
 
 const recursosPrueba: Recursos = {
   madera: 2,

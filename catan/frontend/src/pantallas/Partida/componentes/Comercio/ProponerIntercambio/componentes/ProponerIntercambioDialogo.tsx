@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
-import type { Recurso, Recursos } from "../common/jugador";
-import { RECURSOS } from "../common/jugador";
-import type { Propuesta } from "../common/partida";
-import { ICONO_RECURSO } from "../common/iconos";
+import type { Recurso, Recursos } from "../../../../../../common/jugador";
+import { RECURSOS } from "../../../../../../common/jugador";
+import type { Propuesta } from "../../../../../../common/partida";
+import { ICONO_RECURSO } from "../../../../../../common/iconos";
 import Contador from "./Contador";
-import Icono from "./Icono";
+import Icono from "../../../../../../componentes/Icono";
 
 // Cantidad maxima que se puede pedir: la banca empieza con 19 de cada recurso.
 const MAXIMO_PEDIR = 19;

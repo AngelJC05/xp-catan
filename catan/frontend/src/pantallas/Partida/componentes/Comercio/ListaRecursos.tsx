@@ -1,7 +1,7 @@
-import { RECURSOS } from '../common/jugador';
-import { ICONO_RECURSO } from '../common/iconos';
-import { describirRecursos } from '../common/partida';
-import Icono from './Icono';
+import { RECURSOS } from '../../../../common/jugador';
+import { ICONO_RECURSO } from '../../../../common/iconos';
+import { describirRecursos } from '../../../../common/partida';
+import Icono from '../../../../componentes/Icono';
 
 interface Props {
   recursos: Record<string, number> | undefined;
