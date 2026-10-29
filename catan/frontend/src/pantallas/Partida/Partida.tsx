@@ -34,12 +34,7 @@ import ProponerIntercambio from './componentes/Comercio/ProponerIntercambio/Prop
 import type { Propuesta } from './tipos/partida';
 import ResponderIntercambio, { type Respuesta } from './componentes/Comercio/ResponderIntercambio';
 
-// Fondo azul de la partida, el mismo del tablero
 const FONDO_PARTIDA = '#C5CFD6';
-
-/* Grilla de 7 columnas y 4 filas. Las columnas 1 a 5 son la zona del tablero y las
-   2 de la derecha son una columna angosta de ancho acotado. La fila de abajo tiene
-   altura casi fija y el resto del alto es del tablero y del chat. */
 const GRILLA = {
   gridTemplateColumns: 'repeat(5, minmax(0, 1fr)) repeat(2, clamp(140px, 13vw, 210px))',
   gridTemplateRows: 'auto auto minmax(0, 1fr) clamp(160px, 24vh, 240px)',
@@ -59,14 +54,11 @@ const AREA = {
   carDesarrollo: '4 / 2 / 5 / 3',
   construir: '4 / 3 / 5 / 4',
   negociar: '4 / 4 / 5 / 6',
-  tirDado: '4 / 6 / 5 / 7',
-  finTurno: '4 / 7 / 5 / 8',
+  dados: '4 / 6 / 5 / 8',
 } as const;
 
-// Los paneles son recuadros blancos; el tablero y la info de jugadores van sin fondo
 const PANEL = 'overflow-hidden bg-white rounded-3';
 
-//Mensajes de construccion
 const MENSAJE_CONSTRUIR: Partial<Record<TipoConstruccion, string>> = {
   poblado: 'msgColocarAsentamiento',
   camino: 'msgColocarCamino',
@@ -767,29 +759,17 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
             </ProponerIntercambio>
           )}
         </div>
-        <div className={PANEL} style={{ gridArea: AREA.tirDado }}>
+        <div className={PANEL} style={{ gridArea: AREA.dados }}>
           <TirarDados
             resultado={resultadoDados}
             puedeLanzar={puedeLanzarDados}
             lanzando={lanzandoDados}
             onLanzar={lanzarDados}
+            puedePasarTurno={puedePasarTurno}
+            pasandoTurno={pasandoTurno}
+            onPasarTurno={pasarTurno}
+            insignia={<InfoTurno sessionIdTurno={turnoActual} jugadores={jugadores} />}
           />
-        </div>
-        <div className={`${PANEL} d-flex flex-column gap-1 p-1`} style={{ gridArea: AREA.finTurno }}>
-          <InfoTurno
-            sessionIdTurno={turnoActual}
-            jugadores={jugadores}
-          />
-          <Button
-            className="flex-fill"
-            type="button"
-            variant="contained"
-            fullWidth
-            disabled={!puedePasarTurno || pasandoTurno}
-            onClick={pasarTurno}
-          >
-            {pasandoTurno ? 'Pasando turno…' : 'Pasar turno'}
-          </Button>
         </div>
         <div className={PANEL} style={{ gridArea: AREA.existencias }}>
           <Existencias

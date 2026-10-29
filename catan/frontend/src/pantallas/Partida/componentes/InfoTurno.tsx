@@ -13,16 +13,15 @@ function InfoTurno({ sessionIdTurno, jugadores }: Props) {
   const colorTexto = colorTextoSobre(jugadores[sessionIdTurno]?.color ?? COLOR.SIN_COLOR);
 
   return (
-    <div
-      className="flex-fill w-100 rounded overflow-hidden
-                 d-flex flex-column justify-content-center align-items-center"
+    <span
+      className="badge rounded-pill text-truncate mw-100 px-3 py-2"
       style={{ backgroundColor: color, color: colorTexto }}
+      title={`Turno de ${nombre ?? '—'}`}
       role="status"
       aria-live="polite"
     >
-      <span className="small">Turno de</span>
-      <span className="fw-bold text-truncate mw-100 px-2">{nombre ?? '—'}</span>
-    </div>
+      {nombre ?? '—'}
+    </span>
   );
 }
 
