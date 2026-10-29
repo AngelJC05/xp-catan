@@ -3,7 +3,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
 import type { Recurso, Recursos } from '../common/jugador';
-import SelectorRecurso from './SelectorRecurso';
+import SelectorRecurso from '../pantallas/Partida/componentes/comunes/SelectorRecurso';
 
 interface Props {
   pendientes: number;

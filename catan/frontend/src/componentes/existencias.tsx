@@ -3,7 +3,7 @@ import type { Banca } from '../common/banca';
 import type { Jugador } from '../common/jugador';
 import { RECURSOS, PIEZA, PIEZAS } from '../common/jugador';
 import { ICONO_CARTA_DESARROLLO, ICONO_PIEZA, ICONO_RECURSO } from '../common/iconos';
-import ContadorIcono from './ContadorIcono';
+import ContadorIcono from '../pantallas/Partida/componentes/comunes/ContadorIcono';
 
 interface Props {
   banca: Banca;

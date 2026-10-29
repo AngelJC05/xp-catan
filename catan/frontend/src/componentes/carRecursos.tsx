@@ -2,7 +2,7 @@ import { Card } from 'react-bootstrap';
 import type { Jugador } from '../common/jugador';
 import { RECURSOS } from '../common/jugador';
 import { ICONO_RECURSO, ICONO_RECURSOS } from '../common/iconos';
-import ContadorIcono from './ContadorIcono';
+import ContadorIcono from '../pantallas/Partida/componentes/comunes/ContadorIcono';
 import Icono from './Icono';
 
 interface Props {

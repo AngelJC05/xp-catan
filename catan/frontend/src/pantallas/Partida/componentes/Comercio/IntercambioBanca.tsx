@@ -7,7 +7,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Stack from '@mui/material/Stack';
 import type { Recurso, Recursos } from '../../../../common/jugador';
-import SelectorRecurso from '../../../../componentes/SelectorRecurso';
+import SelectorRecurso from '../comunes/SelectorRecurso';
 
 interface Props {
   abierto: boolean;

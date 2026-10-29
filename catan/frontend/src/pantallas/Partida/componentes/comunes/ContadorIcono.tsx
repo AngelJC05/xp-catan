@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import Icono from './Icono';
+import Icono from '../../../../componentes/Icono';
 
 interface Props {
   icono: string;

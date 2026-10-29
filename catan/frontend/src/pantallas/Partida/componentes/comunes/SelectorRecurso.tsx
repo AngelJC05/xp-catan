@@ -1,7 +1,7 @@
-import type { Recurso } from '../common/jugador';
-import { RECURSOS } from '../common/jugador';
-import { ICONO_RECURSO } from '../common/iconos';
-import Icono from './Icono';
+import type { Recurso } from '../../../../common/jugador';
+import { RECURSOS } from '../../../../common/jugador';
+import { ICONO_RECURSO } from '../../../../common/iconos';
+import Icono from '../../../../componentes/Icono';
 
 interface Props {
   titulo?: string;
