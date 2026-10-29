@@ -1,6 +1,6 @@
 import { Card, ListGroup } from 'react-bootstrap';
-import { ICONO_CARTA_DESARROLLO, ICONO_PIEZA, ICONO_RECURSO } from '../common/iconos';
-import { NOMBRE_PIEZA, PIEZA, type Recurso } from '../common/jugador';
+import { ICONO_CARTA_DESARROLLO, ICONO_PIEZA, ICONO_RECURSO } from '../../../common/iconos';
+import { NOMBRE_PIEZA, PIEZA, type Recurso } from '../../../common/jugador';
 
 type Coste = { recurso: Recurso; cantidad?: number };
 type Fila = { icono: string; nombre: string; costes: Coste[] };

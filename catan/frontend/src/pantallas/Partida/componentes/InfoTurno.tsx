@@ -1,6 +1,6 @@
-import type { Jugadores } from '../common/jugador';
-import { colorDelJugador } from '../common/jugador';
-import { COLOR, colorTextoSobre } from '../common/colores';
+import type { Jugadores } from '../../../common/jugador';
+import { colorDelJugador } from '../../../common/jugador';
+import { COLOR, colorTextoSobre } from '../../../common/colores';
 
 interface Props {
   sessionIdTurno: string;

@@ -1,9 +1,9 @@
 import { Button, Dialog, DialogContent, DialogTitle, Stack, Typography } from "@mui/material";
-import type { Jugadores } from "../common/jugador";
-import { colorDelJugador, totalRecursos } from "../common/jugador";
-import { COLOR, colorTextoSobre } from "../common/colores";
-import { ICONO_RECURSOS } from "../common/iconos";
-import ContadorIcono from "../pantallas/Partida/componentes/comunes/ContadorIcono";
+import type { Jugadores } from "../../../common/jugador";
+import { colorDelJugador, totalRecursos } from "../../../common/jugador";
+import { COLOR, colorTextoSobre } from "../../../common/colores";
+import { ICONO_RECURSOS } from "../../../common/iconos";
+import ContadorIcono from "./comunes/ContadorIcono";
 
 interface Props{
     abierto: boolean;

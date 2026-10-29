@@ -1,21 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Room } from '@colyseus/sdk';
-import InfoJugadores from '../../componentes/infoJugadores';
-import InfoTurno from '../../componentes/infoTurno';
+import InfoJugadores from './componentes/InfoJugadores';
+import InfoTurno from './componentes/InfoTurno';
 import Chat, { type LineaRegistro } from '../../componentes/chat';
 import { bancaPrueba } from '../../datos/bancaPruebas';
-import Existencias from '../../componentes/existencias';
+import Existencias from './componentes/Existencias';
 import { tableroPrueba } from '../../datos/tableroPrueba'
-import TablaCostes from '../../componentes/tablaCostes';
+import TablaCostes from './componentes/TablaCostes';
 import Tablero from './componentes/Tablero/Tablero';
 import type { Jugadores, Recurso, Recursos } from '../../common/jugador';
 import { CARTA } from '../../common/jugador';
 import type { EstadoCatan } from '../../common/estado';
 import type { Coordenada } from '../../common/tablero';
-import CarRecursos from '../../componentes/carRecursos';
+import CarRecursos from './componentes/CarRecursos';
 import CarDesarrollo from './componentes/Cartas/CarDesarrollo';
 import IntercambioBanca from './componentes/Comercio/IntercambioBanca';
-import DescartarRecursos from '../../componentes/descartarRecursos';
+import DescartarRecursos from './componentes/DescartarRecursos';
 import TirarDados, { type ResultadoDados } from './componentes/TirarDados/TirarDados';
 import { reproducirSonido, type NombreSonido } from '../../common/sonidos';
 import Construir, {
@@ -28,11 +28,11 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 
 import "./Partida.css"
-import ElegirRobo from '../../componentes/ElegirRobo';
+import ElegirRobo from './componentes/ElegirRobo';
 import UsarCarta, { type CartaUsable } from './componentes/Cartas/UsarCarta';
 import ElegirAbundancia from './componentes/Cartas/ElegirAbundancia';
 import ElegirMonopolio from './componentes/Cartas/ElegirMonopolio';
-import FinPartida from '../../componentes/FinPartida';
+import FinPartida from './componentes/FinPartida';
 import ProponerIntercambio from './componentes/Comercio/ProponerIntercambio/ProponerIntercambio';
 import type { Propuesta } from '../../common/partida';
 import ResponderIntercambio, { type Respuesta } from './componentes/Comercio/ResponderIntercambio';

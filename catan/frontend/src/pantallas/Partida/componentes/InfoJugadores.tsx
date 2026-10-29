@@ -1,8 +1,8 @@
-import type { Jugadores } from '../common/jugador';
-import { totalCartas, totalRecursos, enRiesgoDeDescarte, colorDelJugador, CARTA, PIEZA } from '../common/jugador';
-import { COLOR, colorTextoSobre } from '../common/colores';
-import { ICONO_CARTA, ICONO_CARTA_DESARROLLO, ICONO_PIEZA, ICONO_RECURSOS } from '../common/iconos';
-import ContadorIcono from '../pantallas/Partida/componentes/comunes/ContadorIcono';
+import type { Jugadores } from '../../../common/jugador';
+import { totalCartas, totalRecursos, enRiesgoDeDescarte, colorDelJugador, CARTA, PIEZA } from '../../../common/jugador';
+import { COLOR, colorTextoSobre } from '../../../common/colores';
+import { ICONO_CARTA, ICONO_CARTA_DESARROLLO, ICONO_PIEZA, ICONO_RECURSOS } from '../../../common/iconos';
+import ContadorIcono from './comunes/ContadorIcono';
 
 interface Props {
   jugadores: Jugadores;
