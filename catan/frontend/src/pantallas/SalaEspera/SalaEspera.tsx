@@ -6,7 +6,7 @@ import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
 import { hexDeColor } from "../../common/colores";
-import Chat, { type LineaRegistro } from "../../componentes/chat";
+import Chat, { type LineaRegistro } from "../../componentes/Chat";
 import { ICONO_UI } from "../../common/iconos";
 import Icono from "../../componentes/Icono";
 import type { InfoSala } from "../sesionGuardada";

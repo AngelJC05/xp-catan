@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Room } from '@colyseus/sdk';
 import InfoJugadores from './componentes/InfoJugadores';
 import InfoTurno from './componentes/InfoTurno';
-import Chat, { type LineaRegistro } from '../../componentes/chat';
+import Chat, { type LineaRegistro } from '../../componentes/Chat';
 import { bancaPrueba } from '../../datos/bancaPruebas';
 import Existencias from './componentes/Existencias';
 import { tableroPrueba } from '../../datos/tableroPrueba'
