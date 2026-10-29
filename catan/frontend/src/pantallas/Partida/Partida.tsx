@@ -27,7 +27,6 @@ import { FASE_JUEGO, FASE_PARTIDA, FASE_PRECONSTRUCCION } from '../../common/fas
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 
-import "./Partida.css"
 import ElegirRobo from './componentes/ElegirRobo';
 import UsarCarta, { type CartaUsable } from './componentes/Cartas/UsarCarta';
 import ElegirAbundancia from './componentes/Cartas/ElegirAbundancia';
@@ -36,6 +35,36 @@ import FinPartida from './componentes/FinPartida';
 import ProponerIntercambio from './componentes/Comercio/ProponerIntercambio/ProponerIntercambio';
 import type { Propuesta } from './tipos/partida';
 import ResponderIntercambio, { type Respuesta } from './componentes/Comercio/ResponderIntercambio';
+
+// Fondo azul de la partida, el mismo del tablero
+const FONDO_PARTIDA = '#BFD8E8';
+
+// Grilla de 6 columnas y 4 filas en la que se acomoda cada panel
+const GRILLA = {
+  gridTemplateColumns: 'repeat(6, 1fr)',
+  gridTemplateRows: '0.8fr 3.5fr 4fr 3fr',
+  gap: 5,
+  backgroundColor: FONDO_PARTIDA,
+} as const;
+
+// Lugar de cada panel: fila inicial / columna inicial / fila final / columna final
+const AREA = {
+  salir: '1 / 1 / 2 / 2',
+  tabCostos: '2 / 1 / 3 / 2',
+  chat: '2 / 6 / 4 / 7',
+  construir: '4 / 1 / 5 / 2',
+  carRecursos: '4 / 2 / 5 / 3',
+  carDesarrollo: '4 / 3 / 5 / 4',
+  negociar: '4 / 4 / 5 / 5',
+  tirDado: '4 / 5 / 5 / 6',
+  finTurno: '4 / 6 / 5 / 7',
+  existencias: '3 / 1 / 4 / 2',
+  infoJugadores: '1 / 2 / 2 / 7',
+  tablero: '2 / 2 / 4 / 6',
+} as const;
+
+// Los paneles son recuadros blancos; el tablero y la info de jugadores van sin fondo
+const PANEL = 'overflow-hidden bg-white rounded-3';
 
 const recursosPrueba: Recursos = {
   madera: 2,
@@ -612,20 +641,20 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
   }
 
   return (
-    <div className="marcoPartida">
-        <div className="salir"> 
+    <div className="w-100 h-100 d-grid p-2 overflow-hidden" style={GRILLA}>
+        <div className={PANEL} style={{ gridArea: AREA.salir }}>
           <button className="btn btn-danger w-100 h-100" onClick={onSalir}>Salir</button>
         </div>
-        <div className="tabCostos">
+        <div className={PANEL} style={{ gridArea: AREA.tabCostos }}>
             <TablaCostes />
         </div>
-        <div className="chat">
+        <div className={PANEL} style={{ gridArea: AREA.chat }}>
           <Chat
             registro={registro}
             onEnviar={sala ? (mensaje) => sala.send('msgChat', { mensaje }) : undefined}
           />
         </div>
-        <div className="construir">
+        <div className={PANEL} style={{ gridArea: AREA.construir }}>
           <Construir
             recursos={jugadores[miSessionId]?.recursos ?? recursosPrueba}
             esMiTurno={esMiTurno}
@@ -635,7 +664,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
             onSeleccionar={seleccionarConstruccion}
           />
         </div>
-        <div className="infoJugadores">
+        <div className="overflow-hidden" style={{ gridArea: AREA.infoJugadores }}>
           <InfoJugadores
             jugadores={jugadores}
             ordenJugadores={ordenJugadores}
@@ -644,7 +673,10 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
             caminoMasLargo={partidaActual?.caminoMasLargo ?? ''}
           />
         </div>
-        <div className="tablero" style={{ position: 'relative' }}>
+        <div
+          className="overflow-hidden border border-5 border-white"
+          style={{ position: 'relative', gridArea: AREA.tablero, backgroundColor: FONDO_PARTIDA }}
+        >
           {caballero !== null && (
             <Alert
               severity="info"
@@ -693,10 +725,10 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
             onSeleccionarHexagonoLadron={seleccionarHexagonoLadron}
           />
         </div>
-        <div className="carRecursos">
+        <div className={PANEL} style={{ gridArea: AREA.carRecursos }}>
           <CarRecursos miJugador={jugadores[miSessionId]} />
         </div>
-        <div className="carDesarrollo">
+        <div className={PANEL} style={{ gridArea: AREA.carDesarrollo }}>
           <CarDesarrollo
             miJugador={jugadores[miSessionId]}
             puedeComprar={puedeComprarCarta}
@@ -706,7 +738,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
             onUsarCarta={() => setMenuCartasAbierto(true)}
           />
         </div>
-        <div className="negociar">
+        <div className={PANEL} style={{ gridArea: AREA.negociar }}>
           {/* A quien le falta responder ve la propuesta con los botones de rechazar y aceptar; al responder
               vuelve el recuadro normal de proponer (con el intercambio con la banca). */}
           {debeResponder && ofertaActiva ? (
@@ -739,7 +771,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
             </ProponerIntercambio>
           )}
         </div>
-        <div className="tirDado">
+        <div className={PANEL} style={{ gridArea: AREA.tirDado }}>
           <TirarDados
             resultado={resultadoDados}
             puedeLanzar={puedeLanzarDados}
@@ -747,7 +779,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
             onLanzar={lanzarDados}
           />
         </div>
-        <div className="finTurno d-flex flex-column gap-1 p-1">
+        <div className={`${PANEL} d-flex flex-column gap-1 p-1`} style={{ gridArea: AREA.finTurno }}>
           <InfoTurno
             sessionIdTurno={turnoActual}
             jugadores={jugadores}
@@ -763,7 +795,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
             {pasandoTurno ? 'Pasando turno…' : 'Pasar turno'}
           </Button>
         </div>
-        <div className="existencias">
+        <div className={PANEL} style={{ gridArea: AREA.existencias }}>
           <Existencias
             banca={banca}
             miJugador={jugadores[miSessionId]}
