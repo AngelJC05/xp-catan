@@ -1,6 +1,8 @@
 /* Coordenadas (h, d): h es la horizontal, positiva a la derecha; d es la
    diagonal, positiva hacia arriba a la derecha. */
 
+import type { Recurso } from '../../../common/jugador';
+
 // schemas/Coordenada.ts
 export interface Coordenada {
   h: number;
@@ -81,11 +83,12 @@ export const TIPO_PUERTO = {
   MINERAL: 5,
 } as const;
 
-export const NOMBRE_PUERTO: Record<number, string> = {
-  0: '3:1',
-  1: '2 Madera:1',
-  2: '2 Trigo:1',
-  3: '2 Lana:1',
-  4: '2 Ladrillo:1',
-  5: '2 Piedra:1',
+// Recurso que cada puerto cambia a 2:1. null es el puerto general, que cambia cualquiera a 3:1.
+export const RECURSO_PUERTO: Record<number, Recurso | null> = {
+  0: null,
+  1: 'madera',
+  2: 'trigo',
+  3: 'lana',
+  4: 'ladrillo',
+  5: 'mineral',
 };

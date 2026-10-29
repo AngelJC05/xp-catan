@@ -1,8 +1,9 @@
 import type { ObjetivoConstruccion, TipoConstruccion } from '../Construir/Construir';
 import type { Coordenada, DatosTablero } from '../../tipos/tablero';
-import { NOMBRE_PUERTO } from '../../tipos/tablero';
+import { RECURSO_PUERTO } from '../../tipos/tablero';
 import type { Jugadores } from '../../../../common/jugador';
 import { colorDelJugador } from '../../../../common/jugador';
+import { ICONO_RECURSO } from '../../../../common/iconos';
 import "./Tablero.css"
 
 // Lado del hexagono.
@@ -110,7 +111,7 @@ function Tablero({
 
   return (
     <svg
-      className="tbSvg"
+      className="w-100 h-100 d-block"
       viewBox={`${-5.7 * S} ${-5.5 * S} ${11.4 * S} ${11 * S}`}
     >
 
@@ -122,15 +123,23 @@ function Tablero({
         const mx = (a[0] + b[0]) / 2;
         const my = (a[1] + b[1]) / 2;
         const largo = Math.hypot(mx, my) || 1;
-        const px = mx + (mx / largo) * S * 0.8;
-        const py = my + (my / largo) * S * 0.62;
+        const px = mx + (mx / largo) * S * 0.85;
+        const py = my + (my / largo) * S * 0.68;
+        const recurso = RECURSO_PUERTO[puerto.tipo];
+        // El puerto general solo lleva el texto; el de un recurso lleva su icono y el 2:1.
+        const ancho = recurso ? S * 0.95 : S * 0.72;
         return (
           <g key={clave} className="tbPuerto">
             <line x1={a[0]} y1={a[1]} x2={px} y2={py} className="tbMuelle" />
             <line x1={b[0]} y1={b[1]} x2={px} y2={py} className="tbMuelle" />
-            <rect x={px - S * 0.5} y={py - S * 0.19} width={S * 1} height={S * 0.38}
-                  rx={S * 0.09} className="tbPuertoCaja" />
-            <text x={px} y={py} className="tbPuertoTexto">{NOMBRE_PUERTO[puerto.tipo]}</text>
+            <rect x={px - ancho / 2} y={py - S * 0.25} width={ancho} height={S * 0.5}
+                  rx={S * 0.1} className="tbPuertoCaja" />
+            {recurso && (
+              <image href={ICONO_RECURSO[recurso]} x={px - ancho / 2 + 5} y={py - 12} width={24} height={24} />
+            )}
+            <text x={recurso ? px + 14 : px} y={py} className="tbPuertoTexto">
+              {recurso ? '2:1' : '3:1'}
+            </text>
           </g>
         );
       })}
@@ -165,7 +174,7 @@ function Tablero({
           <line
             key={clave}
             className={[
-              arista.propietario === '' ? 'tbArista' : 'tbArista tbAristaOcupada',
+              'tbArista',
               puedeSeleccionar ? 'tbObjetivoConstruccion' : '',
               seleccionado ? 'tbObjetivoSeleccionado' : '',
             ].filter(Boolean).join(' ')}
@@ -245,7 +254,7 @@ function Tablero({
         const seleccionado = puedeSeleccionar && esElObjetivo(objetivoSeleccionado, vertice.h, vertice.d, vertice.p);
         const objetivo = { h: vertice.h, d: vertice.d, p: vertice.p };
         // El circulo sigue siendo el area de clic; la pieza se dibuja encima.
-        const lado = S * 0.4;
+        const lado = S * (vertice.constuccion === 2 ? 0.62 : 0.5);
         return (
           <g key={clave}>
             {vertice.constuccion !== 0 && (

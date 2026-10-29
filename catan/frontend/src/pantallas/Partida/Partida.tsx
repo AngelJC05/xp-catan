@@ -37,7 +37,7 @@ import type { Propuesta } from './tipos/partida';
 import ResponderIntercambio, { type Respuesta } from './componentes/Comercio/ResponderIntercambio';
 
 // Fondo azul de la partida, el mismo del tablero
-const FONDO_PARTIDA = '#BFD8E8';
+const FONDO_PARTIDA = '#C5CFD6';
 
 // Grilla de 6 columnas y 4 filas en la que se acomoda cada panel
 const GRILLA = {
