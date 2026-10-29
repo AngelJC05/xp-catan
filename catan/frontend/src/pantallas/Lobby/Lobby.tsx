@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from "react";
-import "./Lobby.css";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
+import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { ICONO_UI } from "../../common/iconos";
@@ -114,7 +114,7 @@ function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
 
   return (
     <div className="bg-info-subtle min-vh-100 px-3 py-4">
-      <div className="mx-auto d-flex flex-column align-items-start lobby__contenido">
+      <Container maxWidth="md" disableGutters className="d-flex flex-column align-items-start">
         {onVolver && (
           <Button variant="text" onClick={onVolver} startIcon={<Icono ruta={ICONO_UI.atras} />}>
             Volver
@@ -232,7 +232,7 @@ function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
         <Button variant="contained" color="error" fullWidth size="large" onClick={onCrearSala} startIcon={<Icono ruta={ICONO_UI.martillo} tam={22} />}>
           Crear nueva sala
         </Button>
-      </div>
+      </Container>
 
       <DialogoCodigo
         sala={salaPorCodigo}
