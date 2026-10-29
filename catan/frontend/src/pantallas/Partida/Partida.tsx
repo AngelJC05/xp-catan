@@ -7,7 +7,6 @@ import Existencias from './componentes/Existencias';
 import TablaCostes from './componentes/TablaCostes';
 import Tablero from './componentes/Tablero/Tablero';
 import type { Jugadores, Recurso } from '../../common/jugador';
-import { CARTA } from '../../common/jugador';
 import type { EstadoCatan } from './tipos/estado';
 import type { Coordenada } from './tipos/tablero';
 import CarRecursos from './componentes/CarRecursos';
@@ -19,6 +18,7 @@ import { reproducirSonido, type NombreSonido } from './utils/sonidos';
 import { leerEstado } from './utils/estado';
 import { useDadosYTurno } from './hooks/useDadosYTurno';
 import { useConstruccion } from './hooks/useConstruccion';
+import { useCartas } from './hooks/useCartas';
 import { AREA, FONDO_PARTIDA, GRILLA, PANEL } from './utils/layout';
 import Construir, {
   type TipoConstruccion,
@@ -28,7 +28,7 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 
 import ElegirRobo from './componentes/ElegirRobo';
-import UsarCarta, { type CartaUsable } from './componentes/Cartas/UsarCarta';
+import UsarCarta from './componentes/Cartas/UsarCarta';
 import ElegirAbundancia from './componentes/Cartas/ElegirAbundancia';
 import ElegirMonopolio from './componentes/Cartas/ElegirMonopolio';
 import FinPartida from './componentes/FinPartida';
@@ -48,17 +48,8 @@ interface Props {
 function Partida({ sala, registro, onSalir }: Props) {
   const [descarteEnEspera, setDescarteEnEspera] = useState<number | null>(null);
   const [moviendoLadron, setMoviendoLadron] = useState(false);
-  const [compraEnEspera, setCompraEnEspera] = useState<number | null>(null);
   const [robando, setRobando] = useState(false);
-  const [menuCartasAbierto, setMenuCartasAbierto] = useState(false);
   const [verTableroFinal, setVerTableroFinal] = useState(false);
-  // Cartas con diálogo: null = sin usar; 'eligiendo' = el jugador elige; número = mensaje enviado
-  // (cuántas cartas usables tenía, para saber cuándo el servidor lo confirma).
-  const [caballero, setCaballero] = useState<null | 'eligiendo' | number>(null);
-  const [abundancia, setAbundancia] = useState<null | 'eligiendo' | number>(null);
-  const [monopolio, setMonopolio] = useState<null | 'eligiendo' | number>(null);
-  // Carreteras no tiene diálogo: null o el número de cartas usables al enviar el mensaje.
-  const [carreterasEnEspera, setCarreterasEnEspera] = useState<number | null>(null);
   const [propuestaEnEspera, setPropuestaEnEspera] = useState(false);
   const [respuestaEnEspera, setRespuestaEnEspera] = useState(false);
   const [intercambioAbierto, setIntercambioAbierto] = useState(false);
@@ -105,16 +96,6 @@ function Partida({ sala, registro, onSalir }: Props) {
           ? null
           : cantidadAnterior;
       });
-      // La compra se confirma cuando el servidor reduce el mazo de la banca.
-      setCompraEnEspera((cartasAnteriores) => {
-        if (cartasAnteriores === null) return null;
-        return !estado
-          || estado.partida.turnoActual !== salaActual.sessionId
-          || estado.partida.faseJuego !== FASE_JUEGO.ACCIONES
-          || estado.banca.cartas.length < cartasAnteriores
-          ? null
-          : cartasAnteriores;
-      });
       // Al mover al ladron el backend cambia la fase (Acciones o Robo).
       if (!estado || estado.partida.faseJuego !== FASE_JUEGO.LADRON) {
         setMoviendoLadron(false);
@@ -123,15 +104,6 @@ function Partida({ sala, registro, onSalir }: Props) {
       if(!estado || estado.partida.faseJuego !== FASE_JUEGO.ROBO){
         setRobando(false);
       }
-
-      // Se confirma cuando el servidor resta la carta; si cambia el turno o la fase, se cancela.
-      setCaballero((anterior) => {
-        if (anterior === null) return null;
-        const usables = estado?.jugadores[salaActual.sessionId]?.cartas_usables[CARTA.CABALLERO] ?? 0;
-        if (!estado || estado.partida.turnoActual !== salaActual.sessionId) return null;
-        if (typeof anterior === 'number') return usables < anterior ? null : anterior;
-        return estado.partida.faseJuego === FASE_JUEGO.ACCIONES ? anterior : null;
-      });
 
       // La propuesta se confirma cuando aparece en el estado como mía.
       if (!estado
@@ -147,29 +119,6 @@ function Partida({ sala, registro, onSalir }: Props) {
         setRespuestaEnEspera(false);
       }
 
-      setAbundancia((anterior) => {
-        if (anterior === null) return null;
-        if (!estado || estado.partida.turnoActual !== salaActual.sessionId) return null;
-        const usables = estado.jugadores[salaActual.sessionId]?.cartas_usables[CARTA.ABUNDANCIA] ?? 0;
-        if (typeof anterior === 'number') return usables < anterior ? null : anterior;
-        return estado.partida.faseJuego === FASE_JUEGO.ACCIONES ? anterior : null;
-      });
-
-      setMonopolio((anterior) => {
-        if (anterior === null) return null;
-        if (!estado || estado.partida.turnoActual !== salaActual.sessionId) return null;
-        const usables = estado.jugadores[salaActual.sessionId]?.cartas_usables[CARTA.MONOPOLIO] ?? 0;
-        if (typeof anterior === 'number') return usables < anterior ? null : anterior;
-        return estado.partida.faseJuego === FASE_JUEGO.ACCIONES ? anterior : null;
-      });
-
-      // Se confirma cuando el servidor resta la carta y pasa la fase a CARRETERAS.
-      setCarreterasEnEspera((anterior) => {
-        if (anterior === null) return null;
-        if (!estado || estado.partida.turnoActual !== salaActual.sessionId) return null;
-        const usables = estado.jugadores[salaActual.sessionId]?.cartas_usables[CARTA.CARRETERAS] ?? 0;
-        return estado.partida.faseJuego === FASE_JUEGO.CARRETERAS || usables < anterior ? null : anterior;
-      });
     }
 
     actualizarEstado();
@@ -189,15 +138,9 @@ function Partida({ sala, registro, onSalir }: Props) {
     const dejarDeEscucharErrores = sala.onMessage('error', () => {
       setDescarteEnEspera(null);
       setMoviendoLadron(false);
-      setCompraEnEspera(null);
       setRobando(false);
       setPropuestaEnEspera(false);
       setRespuestaEnEspera(false);
-      // Si el servidor rechaza una carta, se vuelve a elegir.
-      setCaballero((anterior) => (typeof anterior === 'number' ? 'eligiendo' : anterior));
-      setAbundancia((anterior) => (typeof anterior === 'number' ? 'eligiendo' : anterior));
-      setMonopolio((anterior) => (typeof anterior === 'number' ? 'eligiendo' : anterior));
-      setCarreterasEnEspera(null);
       intercambioPendiente.current = null;
       setIntercambioEnEspera(false);
       setIntercambioAbierto(false);
@@ -253,34 +196,6 @@ function Partida({ sala, registro, onSalir }: Props) {
   const { resultadoDados, lanzandoDados, pasandoTurno, lanzarDados, pasarTurno } =
     useDadosYTurno(sala, puedeLanzarDados, puedePasarTurno);
   const puedeIntercambiarBanca = puedePasarTurno && !pasandoTurno;
-  const puedeComprarCarta = Boolean(
-    sala
-      && esMiTurno
-      && partidaActual?.fase === FASE_PARTIDA.JUEGO
-      && partidaActual.faseJuego === FASE_JUEGO.ACCIONES
-      && (estadoReal?.banca.cartas.length ?? 0) > 0
-      && (miJugadorReal?.recursos.trigo ?? 0) >= 1
-      && (miJugadorReal?.recursos.lana ?? 0) >= 1
-      && (miJugadorReal?.recursos.mineral ?? 0) >= 1,
-  );
-
-  // Las 4 cartas que se pueden jugar (el punto de victoria no se juega).
-  const cartasUsables = miJugadorReal?.cartas_usables;
-  const tieneCartaUsable = Boolean(cartasUsables && (
-    cartasUsables[CARTA.CABALLERO] + cartasUsables[CARTA.CARRETERAS]
-      + cartasUsables[CARTA.ABUNDANCIA] + cartasUsables[CARTA.MONOPOLIO] > 0
-  ));
-  // El backend permite una carta por turno y solo en la fase de acciones.
-  const puedeUsarCarta = Boolean(
-    puedePasarTurno
-      && partidaActual?.cartaJugable
-      && tieneCartaUsable
-      && caballero === null
-      && abundancia === null
-      && monopolio === null
-      && carreterasEnEspera === null,
-  );
-
   // Con la partida finalizada solo funciona Salir: las demás acciones dependen de la fase JUEGO.
   const partidaFinalizada = Boolean(
     sala
@@ -324,6 +239,26 @@ function Partida({ sala, registro, onSalir }: Props) {
     seleccionarConstruccion,
     seleccionarObjetivo,
   } = useConstruccion(sala, colocandoCaminosGratis, partidaActual?.carreterasGratis ?? 0);
+  const {
+    compraEnEspera,
+    caballero,
+    abundancia,
+    monopolio,
+    cartasUsables,
+    menuCartasAbierto,
+    puedeComprarCarta,
+    puedeUsarCarta,
+    abrirMenuCartas,
+    cerrarMenuCartas,
+    cancelarCaballero,
+    cancelarAbundancia,
+    cancelarMonopolio,
+    comprarCarta,
+    elegirCarta,
+    jugarCaballero,
+    jugarAbundancia,
+    jugarMonopolio,
+  } = useCartas({ sala, estado: estadoReal, esMiTurno, puedePasarTurno, limpiarConstruccion });
   const tipoPermitido: TipoConstruccion | null = colocandoCaminosGratis
     ? 'camino'
     : !enPreconstruccion
@@ -333,12 +268,6 @@ function Partida({ sala, registro, onSalir }: Props) {
         : 'poblado';
 
   const puedeConstruir = enPreconstruccion || puedePasarTurno || colocandoCaminosGratis;
-
-  function comprarCarta() {
-    if (!sala || !puedeComprarCarta || compraEnEspera !== null) return;
-    setCompraEnEspera(estadoReal?.banca.cartas.length ?? 0);
-    sala.send('msgComprarCarta');
-  }
 
   function intercambiarBanca(entregado: Recurso, recibido: Recurso) {
     const recursos = miJugadorReal?.recursos;
@@ -385,47 +314,6 @@ function Partida({ sala, registro, onSalir }: Props) {
     if (!sala || !debeResponder || respuestaEnEspera) return;
     setRespuestaEnEspera(true);
     sala.send('msgResponderIntercambio', { respuesta });
-  }
-
-  function elegirCarta(carta: CartaUsable) {
-    setMenuCartasAbierto(false);
-    if (carta === CARTA.CABALLERO) {
-      // Se reutilizan los circulos de mover al ladron para elegir el hexagono.
-      limpiarConstruccion();
-      setCaballero('eligiendo');
-    } else if (carta === CARTA.ABUNDANCIA) {
-      setAbundancia('eligiendo');
-    } else if (carta === CARTA.MONOPOLIO) {
-      setMonopolio('eligiendo');
-    } else if (carta === CARTA.CARRETERAS) {
-      activarCarreteras();
-    }
-  }
-
-  function activarCarreteras() {
-    // Se quita cualquier construcción elegida para que no queden aristas o vértices activos.
-    if (!sala || carreterasEnEspera !== null) return;
-    limpiarConstruccion();
-    setCarreterasEnEspera(cartasUsables?.[CARTA.CARRETERAS] ?? 0);
-    sala.send('msgCartaCarreteras');
-  }
-
-  function jugarMonopolio(recurso: Recurso) {
-    if (!sala || monopolio !== 'eligiendo') return;
-    setMonopolio(cartasUsables?.[CARTA.MONOPOLIO] ?? 0);
-    sala.send('msgCartaMonopolio', { recurso });
-  }
-
-  function jugarAbundancia(recurso1: Recurso, recurso2: Recurso) {
-    if (!sala || abundancia !== 'eligiendo') return;
-    setAbundancia(cartasUsables?.[CARTA.ABUNDANCIA] ?? 0);
-    sala.send('msgCartaAbundancia', { recurso1, recurso2 });
-  }
-
-  function jugarCaballero(hexagono: Coordenada) {
-    if (!sala || caballero !== 'eligiendo') return;
-    setCaballero(cartasUsables?.[CARTA.CABALLERO] ?? 0);
-    sala.send('msgCartaCaballero', { h: hexagono.h, d: hexagono.d });
   }
 
   function seleccionarHexagonoLadron(hexagono: Coordenada) {
@@ -481,7 +369,7 @@ function Partida({ sala, registro, onSalir }: Props) {
               severity="info"
               sx={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}
               action={caballero === 'eligiendo' && (
-                <Button color="inherit" size="small" onClick={() => setCaballero(null)}>
+                <Button color="inherit" size="small" onClick={cancelarCaballero}>
                   Cancelar
                 </Button>
               )}
@@ -543,7 +431,7 @@ function Partida({ sala, registro, onSalir }: Props) {
             comprando={compraEnEspera !== null}
             onComprar={comprarCarta}
             puedeUsarCarta={puedeUsarCarta}
-            onUsarCarta={() => setMenuCartasAbierto(true)}
+            onUsarCarta={abrirMenuCartas}
           />
         </div>
         <div className={PANEL} style={{ gridArea: AREA.negociar }}>
@@ -602,7 +490,7 @@ function Partida({ sala, registro, onSalir }: Props) {
           abierto={menuCartasAbierto && puedeUsarCarta}
           cartasUsables={cartasUsables}
           onElegir={elegirCarta}
-          onCerrar={() => setMenuCartasAbierto(false)}
+          onCerrar={cerrarMenuCartas}
         />
         {/* Se monta al elegir la carta para que cada uso empiece con el diálogo vacío. */}
         {abundancia !== null && (
@@ -610,7 +498,7 @@ function Partida({ sala, registro, onSalir }: Props) {
             abierto
             enviando={typeof abundancia === 'number'}
             recursosBanca={banca.recursos}
-            onCerrar={() => setAbundancia(null)}
+            onCerrar={cancelarAbundancia}
             onConfirmar={jugarAbundancia}
           />
         )}
@@ -619,7 +507,7 @@ function Partida({ sala, registro, onSalir }: Props) {
             abierto
             enviando={typeof monopolio === 'number'}
             misRecursos={miJugadorReal.recursos}
-            onCerrar={() => setMonopolio(null)}
+            onCerrar={cancelarMonopolio}
             onConfirmar={jugarMonopolio}
           />
         )}
