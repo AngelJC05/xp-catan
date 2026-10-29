@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Room } from '@colyseus/sdk';
 import InfoJugadores from './componentes/InfoJugadores';
 import InfoTurno from './componentes/InfoTurno';
@@ -19,6 +19,7 @@ import { leerEstado } from './utils/estado';
 import { useDadosYTurno } from './hooks/useDadosYTurno';
 import { useConstruccion } from './hooks/useConstruccion';
 import { useCartas } from './hooks/useCartas';
+import { useComercio } from './hooks/useComercio';
 import { AREA, FONDO_PARTIDA, GRILLA, PANEL } from './utils/layout';
 import Construir, {
   type TipoConstruccion,
@@ -34,8 +35,7 @@ import ElegirMonopolio from './componentes/Cartas/ElegirMonopolio';
 import FinPartida from './componentes/FinPartida';
 import SalirPartida from './componentes/SalirPartida';
 import ProponerIntercambio from './componentes/Comercio/ProponerIntercambio/ProponerIntercambio';
-import type { Propuesta } from './tipos/partida';
-import ResponderIntercambio, { type Respuesta } from './componentes/Comercio/ResponderIntercambio';
+import ResponderIntercambio from './componentes/Comercio/ResponderIntercambio';
 
 interface Props {
   sala?: Room | null;
@@ -50,16 +50,6 @@ function Partida({ sala, registro, onSalir }: Props) {
   const [moviendoLadron, setMoviendoLadron] = useState(false);
   const [robando, setRobando] = useState(false);
   const [verTableroFinal, setVerTableroFinal] = useState(false);
-  const [propuestaEnEspera, setPropuestaEnEspera] = useState(false);
-  const [respuestaEnEspera, setRespuestaEnEspera] = useState(false);
-  const [intercambioAbierto, setIntercambioAbierto] = useState(false);
-  const [intercambioEnEspera, setIntercambioEnEspera] = useState(false);
-  const intercambioPendiente = useRef<{
-    entregado: Recurso;
-    recibido: Recurso;
-    cantidadEntregada: number;
-    cantidadRecibida: number;
-  } | null>(null);
   // null mientras no llega el estado de la sala.
   const [estadoReal, setEstadoReal] = useState<EstadoCatan | null>(null);
 
@@ -70,23 +60,6 @@ function Partida({ sala, registro, onSalir }: Props) {
     function actualizarEstado() {
       const estado = leerEstado(salaActual);
       setEstadoReal(estado);
-      // El intercambio no tiene confirmacion propia: se refleja en los recursos.
-      const pendiente = intercambioPendiente.current;
-      if (pendiente) {
-        const recursos = estado?.jugadores[salaActual.sessionId]?.recursos;
-        const intercambioConfirmado = recursos
-          && recursos[pendiente.entregado] < pendiente.cantidadEntregada
-          && recursos[pendiente.recibido] > pendiente.cantidadRecibida;
-        const fueraDeAcciones = !estado
-          || estado.partida.turnoActual !== salaActual.sessionId
-          || estado.partida.fase !== FASE_PARTIDA.JUEGO
-          || estado.partida.faseJuego !== FASE_JUEGO.ACCIONES;
-        if (intercambioConfirmado || fueraDeAcciones) {
-          intercambioPendiente.current = null;
-          setIntercambioEnEspera(false);
-          setIntercambioAbierto(false);
-        }
-      }
       // Cada descarte aceptado reduce la cuenta del servidor.
       setDescarteEnEspera((cantidadAnterior) => {
         if (cantidadAnterior === null) return null;
@@ -103,20 +76,6 @@ function Partida({ sala, registro, onSalir }: Props) {
 
       if(!estado || estado.partida.faseJuego !== FASE_JUEGO.ROBO){
         setRobando(false);
-      }
-
-      // La propuesta se confirma cuando aparece en el estado como mía.
-      if (!estado
-        || estado.partida.ofertaIntercambio.jugador === salaActual.sessionId
-        || estado.partida.turnoActual !== salaActual.sessionId
-        || estado.partida.faseJuego !== FASE_JUEGO.ACCIONES) {
-        setPropuestaEnEspera(false);
-      }
-
-      // Se confirma cuando el backend deja de tenerme como pendiente (0): respondí o borró la oferta.
-      // Al borrarla "respuestas" queda vacío (undefined): no usar "?? 0" o nunca se liberaría.
-      if (!estado || estado.partida.ofertaIntercambio.respuestas[salaActual.sessionId] !== 0) {
-        setRespuestaEnEspera(false);
       }
 
     }
@@ -139,11 +98,6 @@ function Partida({ sala, registro, onSalir }: Props) {
       setDescarteEnEspera(null);
       setMoviendoLadron(false);
       setRobando(false);
-      setPropuestaEnEspera(false);
-      setRespuestaEnEspera(false);
-      intercambioPendiente.current = null;
-      setIntercambioEnEspera(false);
-      setIntercambioAbierto(false);
     });
 
     return () => {
@@ -195,7 +149,6 @@ function Partida({ sala, registro, onSalir }: Props) {
   );
   const { resultadoDados, lanzandoDados, pasandoTurno, lanzarDados, pasarTurno } =
     useDadosYTurno(sala, puedeLanzarDados, puedePasarTurno);
-  const puedeIntercambiarBanca = puedePasarTurno && !pasandoTurno;
   // Con la partida finalizada solo funciona Salir: las demás acciones dependen de la fase JUEGO.
   const partidaFinalizada = Boolean(
     sala
@@ -210,20 +163,6 @@ function Partida({ sala, registro, onSalir }: Props) {
     sala
       && partidaActual?.fase === FASE_PARTIDA.JUEGO
       && partidaActual.faseJuego === FASE_JUEGO.CARRETERAS,
-  );
-
-  // Solo cuenta si es del jugador en turno (el backend la borra al pasar el turno).
-  const oferta = partidaActual?.ofertaIntercambio;
-  const ofertaActiva = oferta && oferta.jugador !== '' && oferta.jugador === turnoActual ? oferta : null;
-  const puedeProponer = Boolean(
-    puedePasarTurno
-      && !ofertaActiva
-      && miJugadorReal
-      && Object.values(miJugadorReal.recursos).some((cantidad) => cantidad > 0),
-  );
-  // Me toca responder si el backend me tiene como pendiente (0) en la oferta.
-  const debeResponder = Boolean(
-    sala && ofertaActiva && ofertaActiva.respuestas[miSessionId] === 0,
   );
 
   // En preconstrucción y en carreteras gratis solo se permite la pieza de la fase y no se cobran recursos.
@@ -259,6 +198,21 @@ function Partida({ sala, registro, onSalir }: Props) {
     jugarAbundancia,
     jugarMonopolio,
   } = useCartas({ sala, estado: estadoReal, esMiTurno, puedePasarTurno, limpiarConstruccion });
+  const {
+    ofertaActiva,
+    debeResponder,
+    puedeProponer,
+    puedeIntercambiarBanca,
+    propuestaEnEspera,
+    respuestaEnEspera,
+    intercambioAbierto,
+    intercambioEnEspera,
+    abrirIntercambio,
+    cerrarIntercambio,
+    intercambiarBanca,
+    proponerIntercambio,
+    responderIntercambio,
+  } = useComercio({ sala, estado: estadoReal, puedePasarTurno, pasandoTurno });
   const tipoPermitido: TipoConstruccion | null = colocandoCaminosGratis
     ? 'camino'
     : !enPreconstruccion
@@ -268,20 +222,6 @@ function Partida({ sala, registro, onSalir }: Props) {
         : 'poblado';
 
   const puedeConstruir = enPreconstruccion || puedePasarTurno || colocandoCaminosGratis;
-
-  function intercambiarBanca(entregado: Recurso, recibido: Recurso) {
-    const recursos = miJugadorReal?.recursos;
-    if (!sala || !puedeIntercambiarBanca || intercambioPendiente.current
-      || !recursos || entregado === recibido) return;
-    intercambioPendiente.current = {
-      entregado,
-      recibido,
-      cantidadEntregada: recursos[entregado],
-      cantidadRecibida: recursos[recibido],
-    };
-    setIntercambioEnEspera(true);
-    sala.send('msgIntercambiarBanca', { recursoEntregado: entregado, recursoRecibido: recibido });
-  }
 
   function descartarRecurso(recurso: Recurso) {
     const disponibles = estadoReal?.jugadores[miSessionId]?.recursos[recurso] ?? 0;
@@ -301,19 +241,6 @@ function Partida({ sala, registro, onSalir }: Props) {
     if (!sala || !puedeRobar || robando) return;
     setRobando(true);
     sala.send('msgRobarJugador', { jugadorRobado });
-  }
-
-  function proponerIntercambio(propuesta: Propuesta) {
-    if (!sala || !puedeProponer || propuestaEnEspera) return;
-    setPropuestaEnEspera(true);
-    sala.send('msgIntercambiarJugador', propuesta);
-  }
-
-  function responderIntercambio(respuesta: Respuesta) {
-    // Si acepto sin tener lo que se pide, el backend lo cambia a -1.
-    if (!sala || !debeResponder || respuestaEnEspera) return;
-    setRespuestaEnEspera(true);
-    sala.send('msgResponderIntercambio', { respuesta });
   }
 
   function seleccionarHexagonoLadron(hexagono: Coordenada) {
@@ -459,8 +386,8 @@ function Partida({ sala, registro, onSalir }: Props) {
                 enviando={intercambioEnEspera}
                 recursosJugador={miJugadorReal.recursos}
                 recursosBanca={banca.recursos}
-                onAbrir={() => setIntercambioAbierto(true)}
-                onCerrar={() => setIntercambioAbierto(false)}
+                onAbrir={abrirIntercambio}
+                onCerrar={cerrarIntercambio}
                 onConfirmar={intercambiarBanca}
               />
             </ProponerIntercambio>
