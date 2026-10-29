@@ -30,6 +30,7 @@ import UsarCarta, { type CartaUsable } from './componentes/Cartas/UsarCarta';
 import ElegirAbundancia from './componentes/Cartas/ElegirAbundancia';
 import ElegirMonopolio from './componentes/Cartas/ElegirMonopolio';
 import FinPartida from './componentes/FinPartida';
+import SalirPartida from './componentes/SalirPartida';
 import ProponerIntercambio from './componentes/Comercio/ProponerIntercambio/ProponerIntercambio';
 import type { Propuesta } from './tipos/partida';
 import ResponderIntercambio, { type Respuesta } from './componentes/Comercio/ResponderIntercambio';
@@ -628,9 +629,8 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
 
   return (
     <div className="w-100 h-100 d-grid p-2 overflow-hidden" style={GRILLA}>
-        {/* Por ahora flota sobre la esquina del tablero; la confirmación se agrega en otro paso */}
         <div className="m-2" style={{ gridArea: AREA.salir, alignSelf: 'start', justifySelf: 'start', zIndex: 1 }}>
-          <button className="btn btn-danger btn-sm" onClick={onSalir}>Salir</button>
+          <SalirPartida onSalir={() => onSalir?.()} />
         </div>
         <div className={PANEL} style={{ gridArea: AREA.tabCostos }}>
             <TablaCostes />
