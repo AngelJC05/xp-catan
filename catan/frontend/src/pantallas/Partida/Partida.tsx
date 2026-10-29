@@ -3,12 +3,10 @@ import type { Room } from '@colyseus/sdk';
 import InfoJugadores from './componentes/InfoJugadores';
 import InfoTurno from './componentes/InfoTurno';
 import Chat, { type LineaRegistro } from '../../componentes/Chat';
-import { bancaPrueba } from '../../datos/bancaPruebas';
 import Existencias from './componentes/Existencias';
-import { tableroPrueba } from '../../datos/tableroPrueba'
 import TablaCostes from './componentes/TablaCostes';
 import Tablero from './componentes/Tablero/Tablero';
-import type { Jugadores, Recurso, Recursos } from '../../common/jugador';
+import type { Jugadores, Recurso } from '../../common/jugador';
 import { CARTA } from '../../common/jugador';
 import type { EstadoCatan } from './tipos/estado';
 import type { Coordenada } from './tipos/tablero';
@@ -66,14 +64,6 @@ const AREA = {
 // Los paneles son recuadros blancos; el tablero y la info de jugadores van sin fondo
 const PANEL = 'overflow-hidden bg-white rounded-3';
 
-const recursosPrueba: Recursos = {
-  madera: 2,
-  ladrillo: 2,
-  lana: 1,
-  trigo: 2,
-  mineral: 3,
-};
-
 //Mensajes de construccion
 const MENSAJE_CONSTRUIR: Partial<Record<TipoConstruccion, string>> = {
   poblado: 'msgColocarAsentamiento',
@@ -94,7 +84,6 @@ function leerEstado(sala: Room): EstadoCatan | null {
 }
 
 interface Props {
-  // Si no hay sala de Colyseus, usara el tableroPrueba
   sala?: Room | null;
   // Historial de chat y log; lo guarda Navegacion para que sobreviva al paso
   // de la sala de espera a la partida.
@@ -343,13 +332,10 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
     };
   }, [sala]);
 
-  /* Sin sala, o antes del primer estado, los jugadores, el orden y el turno
-     quedan vacios; solo el tablero y la banca usan datos de prueba. */
-  const datosTablero = estadoReal?.tablero ?? tableroPrueba;
+  // Antes del primer estado de la sala, los jugadores, el orden y el turno quedan vacios.
   const jugadores: Jugadores = estadoReal?.jugadores ?? {};
   const ordenJugadores = estadoReal?.partida.ordenJugadores ?? [];
   const turnoActual = estadoReal?.partida.turnoActual ?? '';
-  const banca = estadoReal?.banca ?? bancaPrueba;
   const miSessionId = sala?.sessionId ?? '';
   const esMiTurno = estadoReal !== null && turnoActual === miSessionId;
   const partidaActual = estadoReal?.partida;
@@ -640,6 +626,13 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
     onSolicitarConstruccion?.(solicitud);
   }
 
+  // Sin el estado de la sala no hay nada que dibujar todavia
+  if (!estadoReal || !miJugadorReal) {
+    return <p className="text-center text-body-secondary my-auto">Cargando partida…</p>;
+  }
+
+  const { tablero: datosTablero, banca } = estadoReal;
+
   return (
     <div className="w-100 h-100 d-grid p-2 overflow-hidden" style={GRILLA}>
         <div className={PANEL} style={{ gridArea: AREA.salir }}>
@@ -656,7 +649,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
         </div>
         <div className={PANEL} style={{ gridArea: AREA.construir }}>
           <Construir
-            recursos={jugadores[miSessionId]?.recursos ?? recursosPrueba}
+            recursos={miJugadorReal.recursos}
             esMiTurno={esMiTurno}
             puedeConstruir={puedeConstruir}
             tipoPermitido={tipoPermitido}
@@ -762,7 +755,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
                 abierto={intercambioAbierto}
                 puedeIntercambiar={puedeIntercambiarBanca}
                 enviando={intercambioEnEspera}
-                recursosJugador={jugadores[miSessionId]?.recursos ?? recursosPrueba}
+                recursosJugador={miJugadorReal.recursos}
                 recursosBanca={banca.recursos}
                 onAbrir={() => setIntercambioAbierto(true)}
                 onCerrar={() => setIntercambioAbierto(false)}
@@ -835,7 +828,7 @@ function Partida({ sala, registro, onSolicitarConstruccion, onSalir }: Props) {
           <ElegirMonopolio
             abierto
             enviando={typeof monopolio === 'number'}
-            misRecursos={jugadores[miSessionId]?.recursos ?? recursosPrueba}
+            misRecursos={miJugadorReal.recursos}
             onCerrar={() => setMonopolio(null)}
             onConfirmar={jugarMonopolio}
           />
