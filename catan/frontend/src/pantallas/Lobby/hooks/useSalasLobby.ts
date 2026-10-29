@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { RoomAvailable } from "@colyseus/sdk";
-import { client } from "../../colyseusClient";
+import { client } from "../../../servicios/colyseusClient";
 import { salaDesdeListado, type MetadataSala, type SalaDisponible } from "../utils/salas";
 
 export type EstadoConexion = "conectando" | "conectado" | "error";

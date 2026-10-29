@@ -9,7 +9,7 @@ import { hexDeColor } from "../../common/colores";
 import Chat, { type LineaRegistro } from "../../componentes/Chat";
 import { ICONO_UI } from "../../common/iconos";
 import Icono from "../../componentes/Icono";
-import type { InfoSala } from "../sesionGuardada";
+import type { InfoSala } from "../../servicios/sesionGuardada";
 import type { JugadorVista } from "./tipos";
 import TarjetaJugador from "./componentes/TarjetaJugador";
 import AsientoVacio from "./componentes/AsientoVacio";

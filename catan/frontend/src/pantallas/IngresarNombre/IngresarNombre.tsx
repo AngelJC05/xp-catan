@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography";
 import { ICONO_PIEZA, ICONO_UI } from "../../common/iconos";
 import Icono from "../../componentes/Icono";
 import { PIEZA } from "../../common/jugador";
-import { LARGO_MAXIMO_NOMBRE, validarNombreJugador } from "../nombreJugador";
+import { LARGO_MAXIMO_NOMBRE, validarNombreJugador } from "../../utils/nombreJugador";
 
 interface IngresarNombreProps {
   nombreInicial?: string;

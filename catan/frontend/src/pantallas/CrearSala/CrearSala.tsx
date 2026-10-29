@@ -18,7 +18,7 @@ import {
   aliasSugerido,
   validarAlias,
   validarCodigoAcceso,
-} from "../validacionSala";
+} from "../../utils/validacionSala";
 
 // Lo que CatanRoom.onCreate sabe leer (además del nombre del jugador).
 export interface DatosNuevaSala {
