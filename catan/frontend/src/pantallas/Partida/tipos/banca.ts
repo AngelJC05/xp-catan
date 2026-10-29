@@ -1,4 +1,4 @@
-import type { Recursos } from './jugador';
+import type { Recursos } from '../../../common/jugador';
 
 export interface Banca {
   // Lo que le queda a la banca de cada recurso. Empieza en 19 de cada uno.

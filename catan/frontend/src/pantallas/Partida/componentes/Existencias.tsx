@@ -1,5 +1,5 @@
 import { Card } from 'react-bootstrap';
-import type { Banca } from '../../../common/banca';
+import type { Banca } from '../tipos/banca';
 import type { Jugador } from '../../../common/jugador';
 import { RECURSOS, PIEZA, PIEZAS } from '../../../common/jugador';
 import { ICONO_CARTA_DESARROLLO, ICONO_PIEZA, ICONO_RECURSO } from '../../../common/iconos';

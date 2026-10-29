@@ -1,6 +1,6 @@
 import { RECURSOS } from '../../../../common/jugador';
 import { ICONO_RECURSO } from '../../../../common/iconos';
-import { describirRecursos } from '../../../../common/partida';
+import { describirRecursos } from '../../tipos/partida';
 import Icono from '../../../../componentes/Icono';
 
 interface Props {

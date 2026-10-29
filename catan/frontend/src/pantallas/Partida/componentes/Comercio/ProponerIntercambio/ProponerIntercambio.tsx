@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Button, Typography } from "@mui/material";
 import type { Jugadores, Recursos } from "../../../../../common/jugador";
-import type { Oferta, Propuesta } from "../../../../../common/partida";
+import type { Oferta, Propuesta } from "../../../tipos/partida";
 import ListaRecursos from "../ListaRecursos";
 import ProponerIntercambioDialogo from "./componentes/ProponerIntercambioDialogo";
 

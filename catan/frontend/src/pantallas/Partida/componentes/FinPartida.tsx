@@ -3,7 +3,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography }
 import { ICONO_UI } from "../../../common/iconos";
 import { COLOR, colorTextoSobre } from "../../../common/colores";
 import { colorDelJugador, type Jugadores } from "../../../common/jugador";
-import { detenerSonido, reproducirSonido } from "../../../common/sonidos";
+import { detenerSonido, reproducirSonido } from "../utils/sonidos";
 import Icono from "../../../componentes/Icono";
 
 interface Props {

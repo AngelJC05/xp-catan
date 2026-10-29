@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import type { Recurso, Recursos } from "../../../../../../common/jugador";
 import { RECURSOS } from "../../../../../../common/jugador";
-import type { Propuesta } from "../../../../../../common/partida";
+import type { Propuesta } from "../../../../tipos/partida";
 import { ICONO_RECURSO } from "../../../../../../common/iconos";
 import Contador from "./Contador";
 import Icono from "../../../../../../componentes/Icono";

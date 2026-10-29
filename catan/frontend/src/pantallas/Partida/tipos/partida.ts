@@ -1,4 +1,4 @@
-import { RECURSOS, type Recurso } from './jugador';
+import { RECURSOS, type Recurso } from '../../../common/jugador';
 
 export interface DatosPartida {
   creador: string;

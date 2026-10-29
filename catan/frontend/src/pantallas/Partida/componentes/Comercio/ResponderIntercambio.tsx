@@ -2,7 +2,7 @@ import { IconButton, Stack } from "@mui/material";
 import { ICONO_UI } from "../../../../common/iconos";
 import Icono from "../../../../componentes/Icono";
 import type { Recurso, Recursos } from "../../../../common/jugador";
-import type { Oferta } from "../../../../common/partida";
+import type { Oferta } from "../../tipos/partida";
 import ListaRecursos from "./ListaRecursos";
 
 // Lo que espera msgResponderIntercambio en CatanRoom: 1 acepta, -1 rechaza.

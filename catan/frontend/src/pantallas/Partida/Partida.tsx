@@ -10,14 +10,14 @@ import TablaCostes from './componentes/TablaCostes';
 import Tablero from './componentes/Tablero/Tablero';
 import type { Jugadores, Recurso, Recursos } from '../../common/jugador';
 import { CARTA } from '../../common/jugador';
-import type { EstadoCatan } from '../../common/estado';
-import type { Coordenada } from '../../common/tablero';
+import type { EstadoCatan } from './tipos/estado';
+import type { Coordenada } from './tipos/tablero';
 import CarRecursos from './componentes/CarRecursos';
 import CarDesarrollo from './componentes/Cartas/CarDesarrollo';
 import IntercambioBanca from './componentes/Comercio/IntercambioBanca';
 import DescartarRecursos from './componentes/DescartarRecursos';
 import TirarDados, { type ResultadoDados } from './componentes/TirarDados/TirarDados';
-import { reproducirSonido, type NombreSonido } from '../../common/sonidos';
+import { reproducirSonido, type NombreSonido } from './utils/sonidos';
 import Construir, {
   type ObjetivoConstruccion,
   type SolicitudConstruccion,
@@ -34,7 +34,7 @@ import ElegirAbundancia from './componentes/Cartas/ElegirAbundancia';
 import ElegirMonopolio from './componentes/Cartas/ElegirMonopolio';
 import FinPartida from './componentes/FinPartida';
 import ProponerIntercambio from './componentes/Comercio/ProponerIntercambio/ProponerIntercambio';
-import type { Propuesta } from '../../common/partida';
+import type { Propuesta } from './tipos/partida';
 import ResponderIntercambio, { type Respuesta } from './componentes/Comercio/ResponderIntercambio';
 
 const recursosPrueba: Recursos = {

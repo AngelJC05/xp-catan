@@ -1,6 +1,6 @@
 import type { ObjetivoConstruccion, TipoConstruccion } from '../Construir/Construir';
-import type { Coordenada, DatosTablero } from '../../../../common/tablero';
-import { NOMBRE_PUERTO } from '../../../../common/tablero';
+import type { Coordenada, DatosTablero } from '../../tipos/tablero';
+import { NOMBRE_PUERTO } from '../../tipos/tablero';
 import type { Jugadores } from '../../../../common/jugador';
 import { colorDelJugador } from '../../../../common/jugador';
 import "./Tablero.css"
