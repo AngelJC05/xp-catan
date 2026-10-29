@@ -25,27 +25,32 @@ function ProponerIntercambio({ children, ofertaActiva, jugadores, misRecursos, p
         <div className="h-100 w-100 d-flex flex-column border rounded bg-white overflow-hidden">
             <h3 className="text-center fs-6 fw-bold border-bottom mb-0 py-1">Negociar</h3>
 
-            <div className="flex-fill d-flex flex-column justify-content-center gap-2 p-2 text-center">
-                {ofertaActiva ? (
-                    <Typography variant="body2" component="div">
-                        <strong>{jugadores[ofertaActiva.jugador]?.nombre ?? 'Un jugador'}</strong> ofrece
-                        <div>
-                            <ListaRecursos recursos={ofertaActiva.recursosOfrecidos} />
-                        </div>
-                        y quiere
-                        <div>
-                            <ListaRecursos recursos={ofertaActiva.recursosSolicitados} />
-                        </div>
-                        <small className="text-body-secondary">Propuesta activa</small>
-                    </Typography>
-                ) : (
-                    <small className="text-body-secondary">No hay propuestas activas.</small>
-                )}
+            <div className="flex-fill d-flex align-items-center gap-2 p-2 overflow-y-auto">
+                {/* Izquierda: la propuesta activa, si hay */}
+                <div className="flex-fill min-w-0 text-center">
+                    {ofertaActiva ? (
+                        <Typography variant="body2" component="div">
+                            <small className="text-body-secondary">
+                                Propuesta de <strong>{jugadores[ofertaActiva.jugador]?.nombre ?? 'un jugador'}</strong>
+                            </small>
+                            <div className="d-flex flex-wrap justify-content-center align-items-center gap-2">
+                                <ListaRecursos recursos={ofertaActiva.recursosOfrecidos} />
+                                <span role="img" aria-label="a cambio de" title="a cambio de" className="text-body-secondary">⇄</span>
+                                <ListaRecursos recursos={ofertaActiva.recursosSolicitados} />
+                            </div>
+                        </Typography>
+                    ) : (
+                        <small className="text-body-secondary">No hay propuestas activas.</small>
+                    )}
+                </div>
 
-                <Button variant="outlined" size="small" disabled={!puedeProponer || enviando} onClick={abrir}>
-                    {enviando ? 'Enviando propuesta…' : 'Proponer intercambio'}
-                </Button>
-                {children}
+                {/* Derecha: con quién negociar */}
+                <div className="d-flex flex-column gap-2 flex-shrink-0">
+                    <Button variant="outlined" size="small" disabled={!puedeProponer || enviando} onClick={abrir}>
+                        {enviando ? 'Enviando…' : 'Jugadores'}
+                    </Button>
+                    {children}
+                </div>
             </div>
 
             <ProponerIntercambioDialogo
