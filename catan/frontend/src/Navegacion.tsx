@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Room } from "@colyseus/sdk";
 import { client } from "./servicios/colyseusClient";
+import { reconectarUnaVez } from "./servicios/reconexion";
 import Home from "./pantallas/Home/Home";
 import ElegirModo from "./pantallas/ElegirModo/ElegirModo";
 import Lobby from "./pantallas/Lobby/Lobby";
@@ -19,7 +20,7 @@ import {
   leerSesion,
   type InfoSala,
 } from "./servicios/sesionGuardada";
-import { ERROR_CODIGO_INCORRECTO } from "./utils/validacionSala";
+import { mensajeDeError } from "./utils/mensajeErrorSala";
 import { guardarNombreJugador, leerNombreJugador } from "./utils/nombreJugador";
 
 const MAX_JUGADORES = 4;
@@ -44,31 +45,6 @@ interface EstadoDeSala {
 }
 
 type Vista = "reconectando" | "inicio" | "nombre" | "elegir" | "lobby" | "crear";
-
-// En modo estricto React ejecuta los efectos dos veces al montar. Guardamos la
-// promesa para que las dos ejecuciones esperen el mismo intento de reconexión
-// en lugar de gastar el token dos veces.
-let reconexionEnCurso: Promise<Room> | null = null;
-
-function reconectarUnaVez(token: string): Promise<Room> {
-  reconexionEnCurso ??= client.reconnect(token);
-  return reconexionEnCurso;
-}
-
-// Traduce los errores del matchmaking de Colyseus a mensajes para el jugador.
-function mensajeDeError(error: unknown, accion: "crear" | "unirse"): string {
-  const texto = error instanceof Error ? error.message : String(error ?? "");
-
-  // CatanRoom.onJoin lanza "Codigo de acceso incorrecto".
-  if (/c[oó]digo de acceso/i.test(texto)) return ERROR_CODIGO_INCORRECTO;
-  if (/locked|full|not found|no rooms found/i.test(texto)) {
-    return "La sala ya no está disponible: puede que esté llena o que haya cerrado.";
-  }
-  if (/fetch|network|ECONNREFUSED|Failed/i.test(texto)) {
-    return "No se pudo conectar con el servidor. Revisa que el backend esté encendido.";
-  }
-  return accion === "crear" ? "No se pudo crear la sala. Intenta de nuevo." : "No se pudo entrar a la sala.";
-}
 
 function Navegacion() {
   // Si hay un token guardado, lo primero es intentar volver a esa sala.
