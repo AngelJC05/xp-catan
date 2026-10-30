@@ -6,7 +6,7 @@ import Chat, { type LineaRegistro } from '../../componentes/Chat';
 import Existencias from './componentes/Existencias';
 import TablaCostes from './componentes/TablaCostes';
 import Tablero from './componentes/Tablero/Tablero';
-import type { Jugadores, Recurso } from '../../common/jugador';
+import type { Jugadores } from '../../common/jugador';
 import type { EstadoCatan } from './tipos/estado';
 import type { Coordenada } from './tipos/tablero';
 import CarRecursos from './componentes/CarRecursos';
@@ -20,6 +20,7 @@ import { useDadosYTurno } from './hooks/useDadosYTurno';
 import { useConstruccion } from './hooks/useConstruccion';
 import { useCartas } from './hooks/useCartas';
 import { useComercio } from './hooks/useComercio';
+import { useLadron } from './hooks/useLadron';
 import { AREA, FONDO_PARTIDA, GRILLA, PANEL } from './utils/layout';
 import Construir, {
   type TipoConstruccion,
@@ -46,9 +47,6 @@ interface Props {
 }
 
 function Partida({ sala, registro, onSalir }: Props) {
-  const [descarteEnEspera, setDescarteEnEspera] = useState<number | null>(null);
-  const [moviendoLadron, setMoviendoLadron] = useState(false);
-  const [robando, setRobando] = useState(false);
   const [verTableroFinal, setVerTableroFinal] = useState(false);
   // null mientras no llega el estado de la sala.
   const [estadoReal, setEstadoReal] = useState<EstadoCatan | null>(null);
@@ -58,52 +56,19 @@ function Partida({ sala, registro, onSalir }: Props) {
     const salaActual = sala;
 
     function actualizarEstado() {
-      const estado = leerEstado(salaActual);
-      setEstadoReal(estado);
-      // Cada descarte aceptado reduce la cuenta del servidor.
-      setDescarteEnEspera((cantidadAnterior) => {
-        if (cantidadAnterior === null) return null;
-        const partida = estado?.partida;
-        const restantes = partida?.jugadoresParaDescartar[salaActual.sessionId] ?? 0;
-        return !partida || partida.faseJuego !== FASE_JUEGO.DESCARTE || restantes < cantidadAnterior
-          ? null
-          : cantidadAnterior;
-      });
-      // Al mover al ladron el backend cambia la fase (Acciones o Robo).
-      if (!estado || estado.partida.faseJuego !== FASE_JUEGO.LADRON) {
-        setMoviendoLadron(false);
-      }
-
-      if(!estado || estado.partida.faseJuego !== FASE_JUEGO.ROBO){
-        setRobando(false);
-      }
-
+      setEstadoReal(leerEstado(salaActual));
     }
 
     actualizarEstado();
-
     salaActual.onStateChange(actualizarEstado);
     return () => { salaActual.onStateChange.remove(actualizarEstado); };
   }, [sala]);
 
   useEffect(() => {
     if (!sala) return;
-
-    const dejarDeEscucharSonidos = sala.onMessage('sonido', ({ nombre }: { nombre: NombreSonido }) => {
+    return sala.onMessage('sonido', ({ nombre }: { nombre: NombreSonido }) => {
       reproducirSonido(nombre);
     });
-
-    // Navegacion ya muestra el error; aquí solo se liberan los botones.
-    const dejarDeEscucharErrores = sala.onMessage('error', () => {
-      setDescarteEnEspera(null);
-      setMoviendoLadron(false);
-      setRobando(false);
-    });
-
-    return () => {
-      dejarDeEscucharErrores();
-      dejarDeEscucharSonidos();
-    };
   }, [sala]);
 
   const jugadores: Jugadores = estadoReal?.jugadores ?? {};
@@ -113,34 +78,12 @@ function Partida({ sala, registro, onSalir }: Props) {
   const esMiTurno = estadoReal !== null && turnoActual === miSessionId;
   const partidaActual = estadoReal?.partida;
   const miJugadorReal = estadoReal?.jugadores[miSessionId];
-  const descartesPendientes = partidaActual?.jugadoresParaDescartar[miSessionId] ?? 0;
-  
-  const esSuTurnoDeDescartar = Boolean(
-    sala
-      && partidaActual?.fase === FASE_PARTIDA.JUEGO
-      && partidaActual.faseJuego === FASE_JUEGO.DESCARTE
-      && descartesPendientes > 0,
-  );
   const puedeLanzarDados = Boolean(
     sala
       && esMiTurno
       && estadoReal?.partida.fase === FASE_PARTIDA.JUEGO
       && estadoReal.partida.faseJuego === FASE_JUEGO.DADOS,
   );
-  const puedeMoverLadron = Boolean(
-    sala
-      && esMiTurno
-      && estadoReal?.partida.fase === FASE_PARTIDA.JUEGO
-      && estadoReal.partida.faseJuego === FASE_JUEGO.LADRON,
-  );
-
-  const puedeRobar = Boolean(
-    sala
-    && esMiTurno
-    && estadoReal?.partida.fase === FASE_PARTIDA.JUEGO
-    && estadoReal.partida.faseJuego === FASE_JUEGO.ROBO
-  );
-
   const puedePasarTurno = Boolean(
     sala
       && esMiTurno
@@ -199,6 +142,18 @@ function Partida({ sala, registro, onSalir }: Props) {
     jugarMonopolio,
   } = useCartas({ sala, estado: estadoReal, esMiTurno, puedePasarTurno, limpiarConstruccion });
   const {
+    descartesPendientes,
+    descarteEnEspera,
+    moviendoLadron,
+    robando,
+    esSuTurnoDeDescartar,
+    puedeMoverLadron,
+    puedeRobar,
+    descartarRecurso,
+    moverLadron,
+    robarJugador,
+  } = useLadron({ sala, estado: estadoReal, esMiTurno });
+  const {
     ofertaActiva,
     debeResponder,
     puedeProponer,
@@ -222,26 +177,6 @@ function Partida({ sala, registro, onSalir }: Props) {
         : 'poblado';
 
   const puedeConstruir = enPreconstruccion || puedePasarTurno || colocandoCaminosGratis;
-
-  function descartarRecurso(recurso: Recurso) {
-    const disponibles = estadoReal?.jugadores[miSessionId]?.recursos[recurso] ?? 0;
-    if (!sala || !esSuTurnoDeDescartar || descarteEnEspera !== null || disponibles < 1) return;
-    setDescarteEnEspera(descartesPendientes);
-    sala.send('msgDescartarRecursos', { recurso });
-  }
-
-  function moverLadron(hexagono: Coordenada) {
-    // Mientras responde se ocultan los círculos para no mandar el mensaje dos veces.
-    if (!sala || !puedeMoverLadron || moviendoLadron) return;
-    setMoviendoLadron(true);
-    sala.send('msgMoverLadron', { h: hexagono.h, d: hexagono.d });
-  }
-
-  function robarJugador(jugadorRobado: string) {
-    if (!sala || !puedeRobar || robando) return;
-    setRobando(true);
-    sala.send('msgRobarJugador', { jugadorRobado });
-  }
 
   function seleccionarHexagonoLadron(hexagono: Coordenada) {
     if (caballero === 'eligiendo') jugarCaballero(hexagono);
