@@ -18,4 +18,5 @@ donde no se podía intercambiar de forma mixta como sí ocurre en el juego origi
 que quieres jugar antes de entrar a una partida. (Para más detalles revisar el release v1.1)
 
 **V1.2 - Beta**
-Aun por definir
+Esta versión cambia el diseño general de la partida, por uno más minimalista y llamativo a la vez, nuevo chat en la sala de espera,
+mejor manejo de errores y una experiencia de juego mucho más agradable. (Para más detalles revisar el release v1.2)
