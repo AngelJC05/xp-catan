@@ -26,9 +26,7 @@ import Construir, {
   type TipoConstruccion,
 } from './componentes/Construir/Construir';
 import { FASE_JUEGO, FASE_PARTIDA, FASE_PRECONSTRUCCION } from '../../common/fases';
-import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
-
+import AvisosTablero from './componentes/AvisosTablero';
 import ElegirRobo from './componentes/ElegirRobo';
 import UsarCarta from './componentes/Cartas/UsarCarta';
 import ElegirAbundancia from './componentes/Cartas/ElegirAbundancia';
@@ -191,198 +189,173 @@ function Partida({ sala, registro, onSalir }: Props) {
 
   return (
     <div className="w-100 h-100 d-grid p-2 overflow-hidden" style={GRILLA}>
-        <div className="m-2" style={{ gridArea: AREA.salir, alignSelf: 'start', justifySelf: 'start', zIndex: 1 }}>
-          <SalirPartida onSalir={() => onSalir?.()} />
-        </div>
-        <div className={PANEL} style={{ gridArea: AREA.tabCostos }}>
-            <TablaCostes />
-        </div>
-        <div className={PANEL} style={{ gridArea: AREA.chat }}>
-          <Chat
-            registro={registro}
-            onEnviar={sala ? (mensaje) => sala.send('msgChat', { mensaje }) : undefined}
-          />
-        </div>
-        <div className={PANEL} style={{ gridArea: AREA.construir }}>
-          <Construir
-            recursos={miJugadorReal.recursos}
-            esMiTurno={esMiTurno}
-            puedeConstruir={puedeConstruir}
-            tipoPermitido={tipoPermitido}
-            seleccion={tipoConstruccion}
-            onSeleccionar={seleccionarConstruccion}
-          />
-        </div>
-        <div className="overflow-hidden" style={{ gridArea: AREA.infoJugadores }}>
-          <InfoJugadores
-            jugadores={jugadores}
-            ordenJugadores={ordenJugadores}
-            miSessionId={miSessionId}
-            ejercitoMasGrande={partidaActual?.ejercitoMasGrande ?? ''}
-            caminoMasLargo={partidaActual?.caminoMasLargo ?? ''}
-          />
-        </div>
-        <div
-          className="overflow-hidden border border-5 border-white"
-          style={{ position: 'relative', gridArea: AREA.tablero, backgroundColor: FONDO_PARTIDA }}
-        >
-          {caballero !== null && (
-            <Alert
-              severity="info"
-              sx={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}
-              action={caballero === 'eligiendo' && (
-                <Button color="inherit" size="small" onClick={cancelarCaballero}>
-                  Cancelar
-                </Button>
-              )}
-            >
-              {caballero === 'eligiendo'
-                ? 'Caballero: elige a qué hexágono mover al ladrón.'
-                : 'Usando caballero…'}
-            </Alert>
-          )}
-          {partidaFinalizada && verTableroFinal && (
-            <Alert
-              severity="success"
-              sx={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}
-            >
-              Partida finalizada: ganó <strong>{nombreGanador}</strong>. Usa "Salir" para dejar la sala.
-            </Alert>
-          )}
-          {enFaseCarreteras && (
-            <Alert
-              severity="warning"
-              sx={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}
-            >
-              {esMiTurno
-                ? `Construcción de carreteras: elige una arista para colocar un camino gratis (te quedan ${partidaActual?.carreterasGratis ?? 0}). El resto de acciones está bloqueado.`
-                : `${jugadores[turnoActual]?.nombre ?? 'El jugador en turno'} está usando Construcción de carreteras.`}
-            </Alert>
-          )}
-          <Tablero
-            datos={datosTablero}
-            jugadores={jugadores}
-            miSessionId={miSessionId}
-            // Mientras se envía un camino gratis se ocultan las aristas para no gastar los dos con un doble clic.
-            tipoConstruccion={caminoGratisEnEspera !== null ? null : tipoConstruccion}
-            objetivoSeleccionado={objetivoConstruccion}
-            onSeleccionarObjetivo={seleccionarObjetivo}
-            moviendoLadron={(puedeMoverLadron && !moviendoLadron) || caballero === 'eligiendo'}
-            onSeleccionarHexagonoLadron={seleccionarHexagonoLadron}
-          />
-          <div className="position-absolute bottom-0 end-0 m-2" style={{ zIndex: 1 }}>
-            <TirarDados
-              resultado={resultadoDados}
-              puedeLanzar={puedeLanzarDados}
-              lanzando={lanzandoDados}
-              onLanzar={lanzarDados}
-              puedePasarTurno={puedePasarTurno}
-              pasandoTurno={pasandoTurno}
-              onPasarTurno={pasarTurno}
-              insignia={<InfoTurno sessionIdTurno={turnoActual} jugadores={jugadores} />}
-            />
-          </div>
-        </div>
-        <div className={PANEL} style={{ gridArea: AREA.carRecursos }}>
-          <CarRecursos miJugador={jugadores[miSessionId]} />
-        </div>
-        <div className={PANEL} style={{ gridArea: AREA.carDesarrollo }}>
-          <CarDesarrollo
-            miJugador={jugadores[miSessionId]}
-            puedeComprar={puedeComprarCarta}
-            comprando={compraEnEspera !== null}
-            onComprar={comprarCarta}
-            puedeUsarCarta={puedeUsarCarta}
-            onUsarCarta={abrirMenuCartas}
-          />
-        </div>
-        <div className={PANEL} style={{ gridArea: AREA.negociar }}>
-          {/* Quien debe responder ve la propuesta; al responder vuelve el recuadro de proponer. */}
-          {debeResponder && ofertaActiva ? (
-            <ResponderIntercambio
-              oferta={ofertaActiva}
-              nombreOferente={jugadores[ofertaActiva.jugador]?.nombre ?? 'Un jugador'}
-              misRecursos={miJugadorReal?.recursos}
-              enviando={respuestaEnEspera}
-              onResponder={responderIntercambio}
-            />
-          ) : (
-            <ProponerIntercambio
-              ofertaActiva={ofertaActiva}
-              jugadores={jugadores}
-              misRecursos={miJugadorReal?.recursos}
-              puedeProponer={puedeProponer}
-              enviando={propuestaEnEspera}
-              onProponer={proponerIntercambio}
-            >
-              <IntercambioBanca
-                abierto={intercambioAbierto}
-                puedeIntercambiar={puedeIntercambiarBanca}
-                enviando={intercambioEnEspera}
-                recursosJugador={miJugadorReal.recursos}
-                recursosBanca={banca.recursos}
-                onAbrir={abrirIntercambio}
-                onCerrar={cerrarIntercambio}
-                onConfirmar={intercambiarBanca}
-              />
-            </ProponerIntercambio>
-          )}
-        </div>
-        <div className={PANEL} style={{ gridArea: AREA.existencias }}>
-          <Existencias
-            banca={banca}
-            miJugador={jugadores[miSessionId]}
-          />
-        </div>
-        <DescartarRecursos
-          pendientes={descartesPendientes}
-          recursos={estadoReal?.jugadores[miSessionId]?.recursos}
-          esSuTurnoDeDescartar={esSuTurnoDeDescartar}
-          enviando={descarteEnEspera !== null}
-          onDescartar={descartarRecurso}
+      <div className="m-2" style={{ gridArea: AREA.salir, alignSelf: 'start', justifySelf: 'start', zIndex: 1 }}>
+        <SalirPartida onSalir={() => onSalir?.()} />
+      </div>
+      <div className={PANEL} style={{ gridArea: AREA.tabCostos }}>
+        <TablaCostes />
+      </div>
+      <div className={PANEL} style={{ gridArea: AREA.chat }}>
+        <Chat
+          registro={registro}
+          onEnviar={sala ? (mensaje) => sala.send('msgChat', { mensaje }) : undefined}
         />
-          <ElegirRobo
-          abierto={puedeRobar}
-          jugadoresParaRobar={partidaActual?.jugadoresParaRobar ?? []}
+      </div>
+      <div className={PANEL} style={{ gridArea: AREA.construir }}>
+        <Construir
+          recursos={miJugadorReal.recursos}
+          esMiTurno={esMiTurno}
+          puedeConstruir={puedeConstruir}
+          tipoPermitido={tipoPermitido}
+          seleccion={tipoConstruccion}
+          onSeleccionar={seleccionarConstruccion}
+        />
+      </div>
+      <div className="overflow-hidden" style={{ gridArea: AREA.infoJugadores }}>
+        <InfoJugadores
           jugadores={jugadores}
-          enviando={robando}
-          onRobar={robarJugador}
+          ordenJugadores={ordenJugadores}
+          miSessionId={miSessionId}
+          ejercitoMasGrande={partidaActual?.ejercitoMasGrande ?? ''}
+          caminoMasLargo={partidaActual?.caminoMasLargo ?? ''}
         />
-        <UsarCarta
-          abierto={menuCartasAbierto && puedeUsarCarta}
-          cartasUsables={cartasUsables}
-          onElegir={elegirCarta}
-          onCerrar={cerrarMenuCartas}
+      </div>
+      <div
+        className="overflow-hidden border border-5 border-white"
+        style={{ position: 'relative', gridArea: AREA.tablero, backgroundColor: FONDO_PARTIDA }}
+      >
+        <AvisosTablero
+          caballero={caballero}
+          onCancelarCaballero={cancelarCaballero}
+          nombreGanador={partidaFinalizada && verTableroFinal ? nombreGanador : null}
+          enFaseCarreteras={enFaseCarreteras}
+          esMiTurno={esMiTurno}
+          carreterasGratis={partidaActual?.carreterasGratis ?? 0}
+          nombreJugadorEnTurno={jugadores[turnoActual]?.nombre ?? 'El jugador en turno'}
         />
-        {/* Se monta al elegir la carta para que cada uso empiece con el diálogo vacío. */}
-        {abundancia !== null && (
-          <ElegirAbundancia
-            abierto
-            enviando={typeof abundancia === 'number'}
-            recursosBanca={banca.recursos}
-            onCerrar={cancelarAbundancia}
-            onConfirmar={jugarAbundancia}
-          />
-        )}
-        {monopolio !== null && (
-          <ElegirMonopolio
-            abierto
-            enviando={typeof monopolio === 'number'}
-            misRecursos={miJugadorReal.recursos}
-            onCerrar={cancelarMonopolio}
-            onConfirmar={jugarMonopolio}
-          />
-        )}
-        <FinPartida
-          abierto={partidaFinalizada && !verTableroFinal}
-          nombreGanador={nombreGanador}
-          soyElGanador={partidaActual?.ganador === miSessionId}
-          ganador={partidaActual?.ganador ?? ''}
+        <Tablero
+          datos={datosTablero}
           jugadores={jugadores}
-          onSalir={() => onSalir?.()}
-          onVerTablero={() => setVerTableroFinal(true)}
+          miSessionId={miSessionId}
+          // Mientras se envía un camino gratis se ocultan las aristas para no gastar los dos con un doble clic.
+          tipoConstruccion={caminoGratisEnEspera !== null ? null : tipoConstruccion}
+          objetivoSeleccionado={objetivoConstruccion}
+          onSeleccionarObjetivo={seleccionarObjetivo}
+          moviendoLadron={(puedeMoverLadron && !moviendoLadron) || caballero === 'eligiendo'}
+          onSeleccionarHexagonoLadron={seleccionarHexagonoLadron}
         />
-
+        <div className="position-absolute bottom-0 end-0 m-2" style={{ zIndex: 1 }}>
+          <TirarDados
+            resultado={resultadoDados}
+            puedeLanzar={puedeLanzarDados}
+            lanzando={lanzandoDados}
+            onLanzar={lanzarDados}
+            puedePasarTurno={puedePasarTurno}
+            pasandoTurno={pasandoTurno}
+            onPasarTurno={pasarTurno}
+            insignia={<InfoTurno sessionIdTurno={turnoActual} jugadores={jugadores} />}
+          />
+        </div>
+      </div>
+      <div className={PANEL} style={{ gridArea: AREA.carRecursos }}>
+        <CarRecursos miJugador={jugadores[miSessionId]} />
+      </div>
+      <div className={PANEL} style={{ gridArea: AREA.carDesarrollo }}>
+        <CarDesarrollo
+          miJugador={jugadores[miSessionId]}
+          puedeComprar={puedeComprarCarta}
+          comprando={compraEnEspera !== null}
+          onComprar={comprarCarta}
+          puedeUsarCarta={puedeUsarCarta}
+          onUsarCarta={abrirMenuCartas}
+        />
+      </div>
+      <div className={PANEL} style={{ gridArea: AREA.negociar }}>
+        {/* Quien debe responder ve la propuesta; al responder vuelve el recuadro de proponer. */}
+        {debeResponder && ofertaActiva ? (
+          <ResponderIntercambio
+            oferta={ofertaActiva}
+            nombreOferente={jugadores[ofertaActiva.jugador]?.nombre ?? 'Un jugador'}
+            misRecursos={miJugadorReal?.recursos}
+            enviando={respuestaEnEspera}
+            onResponder={responderIntercambio}
+          />
+        ) : (
+          <ProponerIntercambio
+            ofertaActiva={ofertaActiva}
+            jugadores={jugadores}
+            misRecursos={miJugadorReal?.recursos}
+            puedeProponer={puedeProponer}
+            enviando={propuestaEnEspera}
+            onProponer={proponerIntercambio}
+          >
+            <IntercambioBanca
+              abierto={intercambioAbierto}
+              puedeIntercambiar={puedeIntercambiarBanca}
+              enviando={intercambioEnEspera}
+              recursosJugador={miJugadorReal.recursos}
+              recursosBanca={banca.recursos}
+              onAbrir={abrirIntercambio}
+              onCerrar={cerrarIntercambio}
+              onConfirmar={intercambiarBanca}
+            />
+          </ProponerIntercambio>
+        )}
+      </div>
+      <div className={PANEL} style={{ gridArea: AREA.existencias }}>
+        <Existencias
+          banca={banca}
+          miJugador={jugadores[miSessionId]}
+        />
+      </div>
+      <DescartarRecursos
+        pendientes={descartesPendientes}
+        recursos={estadoReal?.jugadores[miSessionId]?.recursos}
+        esSuTurnoDeDescartar={esSuTurnoDeDescartar}
+        enviando={descarteEnEspera !== null}
+        onDescartar={descartarRecurso}
+      />
+      <ElegirRobo
+        abierto={puedeRobar}
+        jugadoresParaRobar={partidaActual?.jugadoresParaRobar ?? []}
+        jugadores={jugadores}
+        enviando={robando}
+        onRobar={robarJugador}
+      />
+      <UsarCarta
+        abierto={menuCartasAbierto && puedeUsarCarta}
+        cartasUsables={cartasUsables}
+        onElegir={elegirCarta}
+        onCerrar={cerrarMenuCartas}
+      />
+      {/* Se monta al elegir la carta para que cada uso empiece con el diálogo vacío. */}
+      {abundancia !== null && (
+        <ElegirAbundancia
+          abierto
+          enviando={typeof abundancia === 'number'}
+          recursosBanca={banca.recursos}
+          onCerrar={cancelarAbundancia}
+          onConfirmar={jugarAbundancia}
+        />
+      )}
+      {monopolio !== null && (
+        <ElegirMonopolio
+          abierto
+          enviando={typeof monopolio === 'number'}
+          misRecursos={miJugadorReal.recursos}
+          onCerrar={cancelarMonopolio}
+          onConfirmar={jugarMonopolio}
+        />
+      )}
+      <FinPartida
+        abierto={partidaFinalizada && !verTableroFinal}
+        nombreGanador={nombreGanador}
+        soyElGanador={partidaActual?.ganador === miSessionId}
+        ganador={partidaActual?.ganador ?? ''}
+        jugadores={jugadores}
+        onSalir={() => onSalir?.()}
+        onVerTablero={() => setVerTableroFinal(true)}
+      />
     </div>
   );
 }
