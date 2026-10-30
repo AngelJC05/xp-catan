@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Button } from 'react-bootstrap';
 import CaraDado from './componentes/CaraDado';
 import './TirarDados.css';
@@ -14,9 +14,18 @@ interface Props {
   puedeLanzar: boolean;
   lanzando: boolean;
   onLanzar: () => void;
+  puedePasarTurno: boolean;
+  pasandoTurno: boolean;
+  onPasarTurno: () => void;
+  // Quién tiene el turno, arriba de los dados
+  insignia?: ReactNode;
 }
 
-function TirarDados({ resultado, puedeLanzar, lanzando, onLanzar }: Props) {
+// Se muestra flotando sobre el tablero: los dados son el botón de lanzar.
+function TirarDados({
+  resultado, puedeLanzar, lanzando, onLanzar,
+  puedePasarTurno, pasandoTurno, onPasarTurno, insignia,
+}: Props) {
   const [resultadoVisto, setResultadoVisto] = useState(resultado);
   const [tirada, setTirada] = useState(0);
 
@@ -32,39 +41,54 @@ function TirarDados({ resultado, puedeLanzar, lanzando, onLanzar }: Props) {
       : 'Espera tu turno y la fase de dados.';
 
   const clase = tirada > 0 ? 'caraDado--cae' : undefined;
+  const lanzarActivo = puedeLanzar && !lanzando;
+  const pasarActivo = puedePasarTurno && !pasandoTurno;
 
   return (
     <section
-      className="d-flex flex-column align-items-center justify-content-center gap-2 h-100 p-2 text-center"
-      aria-labelledby="tirar-dados-titulo"
+      aria-label="Dados"
+      className={`d-flex flex-column align-items-center gap-1 p-2 rounded-3 border border-3 bg-white bg-opacity-75 shadow-sm ${lanzarActivo ? 'border-primary' : 'border-white'}`}
     >
-      <h2 id="tirar-dados-titulo" className="h6 mb-0">Dados</h2>
-      <p className="small text-body-secondary mb-0" role="status">{estado}</p>
+      <span className="visually-hidden" role="status">{estado}</span>
+      {insignia}
 
-      <div className="d-flex justify-content-center gap-2">
-        <CaraDado
-          key={`a-${tirada}`}
-          valor={resultado?.dado1 ?? null}
-          etiqueta={resultado ? `Primer dado: ${resultado.dado1}` : 'Primer dado vacío'}
-          className={clase}
-        />
-        <CaraDado
-          key={`b-${tirada}`}
-          valor={resultado?.dado2 ?? null}
-          etiqueta={resultado ? `Segundo dado: ${resultado.dado2}` : 'Segundo dado vacío'}
-          className={clase}
-        />
-      </div>
+      <button
+        type="button"
+        className="d-flex align-items-center gap-3 border-0 bg-transparent p-1"
+        style={{ cursor: lanzarActivo ? 'pointer' : 'default' }}
+        onClick={() => { if (lanzarActivo) onLanzar(); }}
+        aria-disabled={!lanzarActivo}
+        aria-label="Lanzar dados"
+        title={estado}
+      >
+        <span className="d-flex gap-2">
+          <CaraDado
+            key={`a-${tirada}`}
+            valor={resultado?.dado1 ?? null}
+            etiqueta={resultado ? `Primer dado: ${resultado.dado1}` : 'Primer dado vacío'}
+            className={clase}
+          />
+          <CaraDado
+            key={`b-${tirada}`}
+            valor={resultado?.dado2 ?? null}
+            etiqueta={resultado ? `Segundo dado: ${resultado.dado2}` : 'Segundo dado vacío'}
+            className={clase}
+          />
+        </span>
+        <strong className="fs-3 text-body" title="Total de los dados">{resultado?.suma ?? '—'}</strong>
+      </button>
 
-      <p className="mb-0">Total: <strong>{resultado?.suma ?? '—'}</strong></p>
+      {lanzarActivo && <span className="small fw-bold text-primary">Toca los dados</span>}
 
       <Button
         size="sm"
-        variant="outline-primary"
-        onClick={onLanzar}
-        disabled={!puedeLanzar || lanzando}
+        variant={pasarActivo ? 'success' : 'outline-secondary'}
+        className="px-3 fw-bold"
+        onClick={onPasarTurno}
+        disabled={!pasarActivo}
+        title="Terminar tu turno"
       >
-        {lanzando ? 'Lanzando…' : 'Lanzar dados'}
+        {pasandoTurno ? 'Pasando…' : 'Pasar turno'}
       </Button>
     </section>
   );

@@ -32,23 +32,29 @@ function ResponderIntercambio({ oferta, nombreOferente, misRecursos, enviando, o
         <div className="h-100 w-100 d-flex flex-column border rounded bg-white overflow-hidden">
             <h3 className="text-center fs-6 fw-bold border-bottom mb-0 py-1">Negociar</h3>
 
-            <div className="flex-fill d-flex flex-column overflow-y-auto p-2 text-center">
-                <div className="my-auto d-flex flex-column gap-1">
+            <div className="flex-fill d-flex align-items-center gap-2 p-2 overflow-y-auto">
+                {/* Izquierda: la propuesta, con lo que se ofrece y lo que se pide */}
+                <div className="flex-fill min-w-0 d-flex flex-column gap-1 text-center">
                     <small>
                         <strong>{nombreOferente}</strong> propone:
                     </small>
 
-                    <ListaRecursos recursos={oferta.recursosOfrecidos} />
-                    <span role="img" aria-label="a cambio de" title="a cambio de" className="text-body-secondary">⇄</span>
-                    <ListaRecursos recursos={oferta.recursosSolicitados} />
+                    <div className="d-flex flex-wrap justify-content-center align-items-center gap-2">
+                        <ListaRecursos recursos={oferta.recursosOfrecidos} />
+                        <span role="img" aria-label="a cambio de" title="a cambio de" className="text-body-secondary">⇄</span>
+                        <ListaRecursos recursos={oferta.recursosSolicitados} />
+                    </div>
 
                     {!alcanza && (
                         <small className="text-danger">
                             Te falta <ListaRecursos recursos={faltantes} />
                         </small>
                     )}
+                </div>
 
-                    <Stack direction="row" spacing={1} sx={{ justifyContent: 'center' }}>
+                {/* Derecha: rechazar y aceptar */}
+                <div className="flex-shrink-0">
+                    <Stack spacing={1} sx={{ alignItems: 'center' }}>
                         <IconButton
                             color="error"
                             disabled={enviando}

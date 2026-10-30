@@ -22,7 +22,7 @@ function InfoJugadores({
   const lista = ordenJugadores.length ? ordenJugadores : Object.keys(jugadores);
 
   return (
-    <div className="d-flex gap-1 w-100 h-100">
+    <div className="d-grid gap-1 w-100" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
       {lista.map((id) => {
         const j = jugadores[id];
         if (!j) return null;
@@ -35,9 +35,8 @@ function InfoJugadores({
         return (
           <div
             key={id}
-            className="flex-fill min-w-0 overflow-hidden rounded-3 border d-flex flex-column bg-white"
+            className="min-w-0 overflow-hidden rounded-3 border d-flex flex-column bg-white"
           >
-            {/* Arriba: nombre y puntuacion sobre el color que eligio el jugador */}
             <div
               style={{
                 backgroundColor: colorDelJugador(jugadores, id),
@@ -51,8 +50,7 @@ function InfoJugadores({
               <span className="fw-bold flex-shrink-0">{j.puntuacion}/10</span>
             </div>
 
-            {/* Abajo: fondo blanco para que ningun icono se pierda con el color del jugador */}
-            <div className="d-flex justify-content-around align-items-center flex-fill px-1">
+            <div className="d-flex flex-wrap justify-content-around align-items-center column-gap-1 px-1 py-1">
               <ContadorIcono
                 icono={ICONO_CARTA_DESARROLLO}
                 cantidad={totalCartas(j)}

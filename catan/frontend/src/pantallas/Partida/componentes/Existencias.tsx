@@ -27,15 +27,16 @@ function Existencias({ banca, miJugador }: Props) {
 
         <h3 className="text-center fs-6 fw-bold border-bottom mb-0 py-1">Banca</h3>
 
-        <div className="d-flex flex-column justify-content-center flex-fill p-2">
+        <div className="d-flex flex-column justify-content-center flex-fill p-1">
           {/* Cuadricula de 3 columnas */}
-          <div className="row row-cols-3 g-2">
+          <div className="row row-cols-3 g-1">
             {RECURSOS.map((r) => (
               <div key={r} className="col d-flex justify-content-center">
                 <ContadorIcono
                   icono={ICONO_RECURSO[r]}
                   cantidad={banca.recursos[r]}
                   descripcion={`${conMayuscula(r)} en la banca`}
+                  tam={20}
                 />
               </div>
             ))}
@@ -45,6 +46,7 @@ function Existencias({ banca, miJugador }: Props) {
                 icono={ICONO_CARTA_DESARROLLO}
                 cantidad={banca.cartas.length}
                 descripcion="Cartas de desarrollo que quedan en el mazo"
+                tam={20}
               />
             </div>
           </div>
@@ -57,13 +59,14 @@ function Existencias({ banca, miJugador }: Props) {
         </h3>
 
         {miJugador ? (
-          <div className="d-flex flex-wrap justify-content-around gap-2 p-2">
+          <div className="d-flex flex-wrap justify-content-around gap-1 p-1">
             {PIEZAS.map((pieza) => (
               <ContadorIcono
                 key={pieza}
                 icono={ICONO_PIEZA[pieza]}
                 cantidad={miJugador.construccionesDisponibles[pieza]}
                 descripcion={DESCRIPCION_PIEZA[pieza]}
+                tam={20}
               />
             ))}
           </div>

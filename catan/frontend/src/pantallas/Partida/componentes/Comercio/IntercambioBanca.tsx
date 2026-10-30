@@ -43,7 +43,7 @@ function IntercambioBanca({
     <>
       <Button type="button" variant="outlined" size="small" fullWidth
         disabled={!puedeIntercambiar} onClick={abrir}>
-        Intercambiar con la banca
+        Banca
       </Button>
 
       <Dialog open={abierto} onClose={enviando ? undefined : onCerrar} fullWidth maxWidth="xs">
