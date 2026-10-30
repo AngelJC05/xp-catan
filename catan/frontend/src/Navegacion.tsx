@@ -7,6 +7,7 @@ import CrearSala from "./pantallas/CrearSala/CrearSala";
 import Reconectando from "./pantallas/Reconectando/Reconectando";
 import SalaEspera from "./pantallas/SalaEspera/SalaEspera";
 import PartidaTablero from "./pantallas/Partida/Partida";
+import DialogoError from "./componentes/DialogoError";
 import { useSalaCatan } from "./hooks/useSalaCatan";
 import { leerSesion } from "./servicios/sesionGuardada";
 import { guardarNombreJugador, leerNombreJugador } from "./utils/nombreJugador";
@@ -27,7 +28,7 @@ function Navegacion() {
   const [origenCrear, setOrigenCrear] = useState<"elegir" | "lobby">("elegir");
 
   const {
-    room, infoSala, jugadores, registro, partidaIniciada, esCreador,
+    room, infoSala, jugadores, registro, errorServidor, cerrarError, partidaIniciada, esCreador,
     crearSala, unirseASala, salirDeSala,
   } = useSalaCatan({
     nombreJugador,
@@ -89,23 +90,26 @@ function Navegacion() {
     );
   }
 
-  if (!partidaIniciada) {
-    return (
-      <SalaEspera
-        room={room}
-        infoSala={infoSala}
-        jugadores={jugadores}
-        maxJugadores={MAX_JUGADORES}
-        minJugadores={MIN_JUGADORES}
-        esCreador={esCreador}
-        registro={registro}
-        onIniciarPartida={() => room.send("msgIniciarPartida")}
-        onSalir={salirDeSala}
-      />
-    );
-  }
-
-  return <PartidaTablero sala={room} registro={registro} onSalir={salirDeSala} />;
+  return (
+    <>
+      {partidaIniciada ? (
+        <PartidaTablero sala={room} registro={registro} onSalir={salirDeSala} />
+      ) : (
+        <SalaEspera
+          room={room}
+          infoSala={infoSala}
+          jugadores={jugadores}
+          maxJugadores={MAX_JUGADORES}
+          minJugadores={MIN_JUGADORES}
+          esCreador={esCreador}
+          registro={registro}
+          onIniciarPartida={() => room.send("msgIniciarPartida")}
+          onSalir={salirDeSala}
+        />
+      )}
+      <DialogoError mensaje={errorServidor} onCerrar={cerrarError} />
+    </>
+  );
 }
 
 export default Navegacion;

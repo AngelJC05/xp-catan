@@ -45,6 +45,7 @@ export function useSalaCatan({ nombreJugador, setNombreJugador, onSalida, onReco
   const [jugadores, setJugadores] = useState<JugadorVista[]>([]);
   const [fase, setFase] = useState<number>(FASE_PARTIDA.LOBBY);
   const [creador, setCreador] = useState("");
+  const [errorServidor, setErrorServidor] = useState<string | null>(null);
   const registro = useRegistroSala(room);
   const salidaVoluntaria = useRef(false);
 
@@ -120,7 +121,7 @@ export function useSalaCatan({ nombreJugador, setNombreJugador, onSalida, onReco
     }
 
     function alRecibirError(err: { mensajeError: string }) {
-      alert(err.mensajeError);
+      setErrorServidor(err.mensajeError);
     }
 
     sincronizarEstado(salaActual.state as unknown as EstadoDeSala);
@@ -189,6 +190,8 @@ export function useSalaCatan({ nombreJugador, setNombreJugador, onSalida, onReco
     infoSala,
     jugadores,
     registro,
+    errorServidor,
+    cerrarError: () => setErrorServidor(null),
     partidaIniciada,
     esCreador,
     crearSala,
