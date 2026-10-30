@@ -154,4 +154,19 @@ describe("handler de camino gratis", () => {
     assert.strictEqual(difundidos.filter((envio) => envio.tipo === "sonido").length, 0);
   });
 
+  it("no deja colocar un camino gratis pasando por un vertice con una construccion rival", () => {
+    const { sala, partida, tablero } = armarCarreteras();
+    const { client, enviados } = armarCliente(ANGEL);
+    tablero.vertices.get("0,0,0").setPropietario(ALAN);
+    tablero.aristas.get("0,0,1").setPropietario(ANGEL);
+
+    manejarCaminoGratis(sala, client, { h: 0, d: 0, p: 0 });
+
+    assert.deepStrictEqual(enviados, [
+      { tipo: "error", mensaje: { mensajeError: "Una construccion rival bloquea ese camino" } }
+    ]);
+    assert.strictEqual(tablero.aristas.get("0,0,0").propietario, "");
+    assert.strictEqual(partida.carreterasGratis, 2);
+  });
+
 });
