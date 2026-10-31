@@ -1,15 +1,17 @@
 import { useState, type FormEvent } from "react";
-import "./Lobby.css";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
+import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import type { InfoSala } from "../sesionGuardada";
-import { ERROR_CODIGO_INCORRECTO, validarCodigoAcceso } from "../validacionSala";
+import { ICONO_UI } from "../../common/iconos";
+import Icono from "../../componentes/Icono";
+import type { InfoSala } from "../../servicios/sesionGuardada";
+import { ERROR_CODIGO_INCORRECTO, validarCodigoAcceso } from "../../utils/validacionSala";
 import { useSalasLobby } from "./hooks/useSalasLobby";
 import { useDebounce } from "./hooks/useDebounce";
 import TarjetaSala from "./componentes/TarjetaSala";
@@ -112,10 +114,10 @@ function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
 
   return (
     <div className="bg-info-subtle min-vh-100 px-3 py-4">
-      <div className="mx-auto d-flex flex-column align-items-start lobby__contenido">
+      <Container maxWidth="md" disableGutters className="d-flex flex-column align-items-start">
         {onVolver && (
-          <Button variant="text" onClick={onVolver}>
-            ← Volver
+          <Button variant="text" onClick={onVolver} startIcon={<Icono ruta={ICONO_UI.atras} />}>
+            Volver
           </Button>
         )}
 
@@ -170,7 +172,7 @@ function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
             <Typography variant="h5" component="h2">
               Salas disponibles
             </Typography>
-            {conexion === "conectado" && <Chip label="● En vivo" color="success" variant="outlined" size="small" />}
+            {conexion === "conectado" && <Chip label="En vivo" color="success" variant="outlined" size="small" />}
           </div>
 
           {conexion === "conectando" ? (
@@ -186,7 +188,7 @@ function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
           ) : salas.length === 0 ? (
             <Card variant="outlined" className="mb-4">
               <CardContent className="text-center fw-semibold text-body-secondary">
-                🏝️ No hay salas abiertas. ¡Crea una para empezar a jugar!
+                No hay salas abiertas. ¡Crea una para empezar a jugar!
               </CardContent>
             </Card>
           ) : (
@@ -227,10 +229,10 @@ function Lobby({ onCrearSala, onUnirseASala, onVolver }: LobbyProps) {
           )}
         </section>
 
-        <Button variant="contained" color="error" fullWidth size="large" onClick={onCrearSala}>
-          🏗️ Crear nueva sala
+        <Button variant="contained" color="error" fullWidth size="large" onClick={onCrearSala} startIcon={<Icono ruta={ICONO_UI.martillo} tam={22} />}>
+          Crear nueva sala
         </Button>
-      </div>
+      </Container>
 
       <DialogoCodigo
         sala={salaPorCodigo}

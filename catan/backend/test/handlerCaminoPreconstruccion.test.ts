@@ -69,9 +69,29 @@ describe("handler de camino en preconstruccion", () => {
 
     manejarCaminoPreconstruccion(sala, client, { h: 0, d: 0, p: 0 });
 
-    assert.deepStrictEqual(difundidos, [
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "log"), [
       { tipo: "log", mensaje: { jugador: "Angel", mensaje: " ha construido un camino" } }
     ]);
+  });
+
+  it("avisa a todos que suene el camino", () => {
+    const { sala, difundidos } = armarPreconstruccion();
+    const { client } = armarCliente(ANGEL);
+
+    manejarCaminoPreconstruccion(sala, client, { h: 0, d: 0, p: 0 });
+
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "sonido"), [
+      { tipo: "sonido", mensaje: { nombre: "camino" } }
+    ]);
+  });
+
+  it("no manda el sonido si no se pudo construir", () => {
+    const { sala, difundidos } = armarPreconstruccion();
+    const { client } = armarCliente(ANGEL);
+
+    manejarCaminoPreconstruccion(sala, client, { h: 0, d: 0, p: 2 });
+
+    assert.strictEqual(difundidos.filter((envio) => envio.tipo === "sonido").length, 0);
   });
 
   it("vuelve al paso del asentamiento y pasa el turno al siguiente en la ida", () => {

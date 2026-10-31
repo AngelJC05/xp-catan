@@ -1,12 +1,15 @@
 import { useState, type FormEvent } from "react";
-import "./IngresarNombre.css";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
+import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { LARGO_MAXIMO_NOMBRE, validarNombreJugador } from "../nombreJugador";
+import { ICONO_PIEZA, ICONO_UI } from "../../common/iconos";
+import Icono from "../../componentes/Icono";
+import { PIEZA } from "../../common/jugador";
+import { LARGO_MAXIMO_NOMBRE, validarNombreJugador } from "../../utils/nombreJugador";
 
 interface IngresarNombreProps {
   nombreInicial?: string;
@@ -29,10 +32,10 @@ function IngresarNombre({ nombreInicial = "", onConfirmar, onVolver }: IngresarN
 
   return (
     <div className="bg-info-subtle min-vh-100 d-flex align-items-center justify-content-center px-3 py-4">
-      <div className="w-100 d-flex flex-column align-items-start gap-3 ingresar-nombre__contenido">
+      <Container maxWidth="xs" disableGutters className="d-flex flex-column align-items-start gap-3">
         {onVolver && (
-          <Button variant="text" onClick={onVolver}>
-            ← Volver
+          <Button variant="text" onClick={onVolver} startIcon={<Icono ruta={ICONO_UI.atras} />}>
+            Volver
           </Button>
         )}
 
@@ -40,7 +43,7 @@ function IngresarNombre({ nombreInicial = "", onConfirmar, onVolver }: IngresarN
           <CardContent component="form" onSubmit={confirmar} className="p-4">
             <div className="d-flex align-items-center justify-content-between mb-3">
               <Chip label="Catan Online" color="primary" variant="outlined" size="small" />
-              <img src="/svg/poblado.svg" alt="" aria-hidden="true" width={32} height={32} />
+              <img src={ICONO_PIEZA[PIEZA.ASENTAMIENTO]} alt="" aria-hidden="true" width={32} height={32} />
             </div>
 
             <Typography variant="h5" component="h1" gutterBottom>
@@ -70,12 +73,12 @@ function IngresarNombre({ nombreInicial = "", onConfirmar, onVolver }: IngresarN
               slotProps={{ htmlInput: { maxLength: LARGO_MAXIMO_NOMBRE } }}
             />
 
-            <Button type="submit" variant="contained" fullWidth size="large" className="mt-3" disabled={!nombre.trim()}>
-              Continuar →
+            <Button type="submit" variant="contained" fullWidth size="large" className="mt-3" disabled={!nombre.trim()} endIcon={<Icono ruta={ICONO_UI.adelante} />}>
+              Continuar
             </Button>
           </CardContent>
         </Card>
-      </div>
+      </Container>
     </div>
   );
 }

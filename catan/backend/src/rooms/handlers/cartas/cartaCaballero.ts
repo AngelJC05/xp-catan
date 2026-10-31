@@ -4,7 +4,7 @@ import { Desarrollo, FaseJuego } from "../../../common/enums.js";
 import { jugarCaballero } from "../../../functions/jugarCaballero.js";
 import { moverLadron } from "../../../functions/moverLadron.js";
 import { verificarVictoria } from "../../../functions/verificarVictoria.js";
-import { enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
+import { difundirSonido, enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
 import { resolverRobo } from "../ladron/resolverRobo.js";
 import { enFaseJuego, esSuTurno, partidaEnCurso, puedeUsarCarta, tieneCarta, validar } from "../../validaciones/guardias.js";
 
@@ -49,6 +49,7 @@ export function manejarCartaCaballero(
     }
 
     registrarLogDeJugador(sala, client.sessionId, " ha jugado una carta de caballero");
+    difundirSonido(sala, "ladron");
 
     //* Gastar la carta, contar el caballero y revisar el ejercito mas grande
     jugarCaballero(sala.jugadores, client.sessionId, sala.partida, sala);

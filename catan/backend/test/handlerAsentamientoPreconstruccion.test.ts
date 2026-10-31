@@ -76,9 +76,30 @@ describe("handler de asentamiento en preconstruccion", () => {
 
     manejarAsentamientoPreconstruccion(sala, client, { h: 0, d: 0, p: 0 });
 
-    assert.deepStrictEqual(difundidos, [
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "log"), [
       { tipo: "log", mensaje: { jugador: "Angel", mensaje: " ha construido un asentamiento" } }
     ]);
+  });
+
+  it("avisa a todos que suene el asentamiento", () => {
+    const { sala, difundidos } = armarPreconstruccion();
+    const { client } = armarCliente(ANGEL);
+
+    manejarAsentamientoPreconstruccion(sala, client, { h: 0, d: 0, p: 0 });
+
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "sonido"), [
+      { tipo: "sonido", mensaje: { nombre: "asentamiento" } }
+    ]);
+  });
+
+  it("no manda el sonido si no se pudo construir", () => {
+    const { sala, difundidos, tablero } = armarPreconstruccion();
+    const { client } = armarCliente(ANGEL);
+    tablero.vertices.get("0,0,0").setPropietario(ALAN);
+
+    manejarAsentamientoPreconstruccion(sala, client, { h: 0, d: 0, p: 0 });
+
+    assert.strictEqual(difundidos.filter((envio) => envio.tipo === "sonido").length, 0);
   });
 
   it("pasa al paso del camino despues de construir", () => {

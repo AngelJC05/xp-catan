@@ -138,8 +138,19 @@ describe("handler de la carta de monopolio", () => {
 
     manejarCartaMonopolio(sala, client, { recurso: "madera" });
 
-    assert.deepStrictEqual(difundidos, [
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "log"), [
       { tipo: "log", mensaje: { jugador: "Angel", mensaje: " ha usado la carta de monopolio" } }
+    ]);
+  });
+
+  it("avisa a todos que suene el monopolio", () => {
+    const { sala, difundidos } = armarJuego();
+    const { client } = armarCliente(ANGEL);
+
+    manejarCartaMonopolio(sala, client, { recurso: "madera" });
+
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "sonido"), [
+      { tipo: "sonido", mensaje: { nombre: "monopolio" } }
     ]);
   });
 

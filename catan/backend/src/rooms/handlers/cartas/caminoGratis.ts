@@ -2,7 +2,7 @@ import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
 import { FaseJuego } from "../../../common/enums.js";
 import { construirCamino } from "../../../functions/construirCaminos.js";
-import { enviarError } from "../../ayudantes/notificaciones.js";
+import { difundirSonido, enviarError } from "../../ayudantes/notificaciones.js";
 import { enFaseJuego, esSuTurno, partidaEnCurso, validar } from "../../validaciones/guardias.js";
 
 //? Atiende el mensaje msgCaminoGratis: un camino de la carta de carreteras, sin cobrar recursos
@@ -48,6 +48,7 @@ export function manejarCaminoGratis(
     //* Si el camino se construyo puede cambiar quien tiene el camino mas largo
     if (!resultado.error) {
         sala.revisarCaminoMasLargo();
+        difundirSonido(sala, "camino");
     }
 
     //* Reducir los caminos gratis restantes y volver a las acciones al terminar

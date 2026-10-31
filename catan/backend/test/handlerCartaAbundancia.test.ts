@@ -95,6 +95,38 @@ describe("handler de la carta de abundancia", () => {
     assert.strictEqual(difundidos.length, 0);
   });
 
+  it("avisa si solo el primer recurso es invalido y no crea claves nuevas", () => {
+    const { sala, partida, jugadores, banca, difundidos } = armarJuego();
+    const { client, enviados } = armarCliente(ANGEL);
+
+    manejarCartaAbundancia(sala, client, { recurso1: "oro", recurso2: "madera" });
+
+    assert.deepStrictEqual(enviados, [
+      { tipo: "error", mensaje: { mensajeError: "Los recursos no son validos" } }
+    ]);
+    assert.strictEqual(jugadores.get(ANGEL).recursos.has("oro"), false);
+    assert.strictEqual(banca.recursos.has("oro"), false);
+    assert.strictEqual(jugadores.get(ANGEL).cartas_usables.get(ABUNDANCIA), 1);
+    assert.strictEqual(partida.cartaJugable, true);
+    assert.strictEqual(difundidos.length, 0);
+  });
+
+  it("avisa si solo el segundo recurso es invalido y no crea claves nuevas", () => {
+    const { sala, partida, jugadores, banca, difundidos } = armarJuego();
+    const { client, enviados } = armarCliente(ANGEL);
+
+    manejarCartaAbundancia(sala, client, { recurso1: "madera", recurso2: "oro" });
+
+    assert.deepStrictEqual(enviados, [
+      { tipo: "error", mensaje: { mensajeError: "Los recursos no son validos" } }
+    ]);
+    assert.strictEqual(jugadores.get(ANGEL).recursos.has("oro"), false);
+    assert.strictEqual(banca.recursos.has("oro"), false);
+    assert.strictEqual(jugadores.get(ANGEL).cartas_usables.get(ABUNDANCIA), 1);
+    assert.strictEqual(partida.cartaJugable, true);
+    assert.strictEqual(difundidos.length, 0);
+  });
+
   it("avisa si la banca no tiene los dos recursos pedidos", () => {
     const { sala, banca } = armarJuego();
     const { client, enviados } = armarCliente(ANGEL);
@@ -157,8 +189,19 @@ describe("handler de la carta de abundancia", () => {
 
     manejarCartaAbundancia(sala, client, { recurso1: "madera", recurso2: "trigo" });
 
-    assert.deepStrictEqual(difundidos, [
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "log"), [
       { tipo: "log", mensaje: { jugador: "Angel", mensaje: " ha usado la carta de abundancia" } }
+    ]);
+  });
+
+  it("avisa a todos que suene la abundancia", () => {
+    const { sala, difundidos } = armarJuego();
+    const { client } = armarCliente(ANGEL);
+
+    manejarCartaAbundancia(sala, client, { recurso1: "madera", recurso2: "trigo" });
+
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "sonido"), [
+      { tipo: "sonido", mensaje: { nombre: "abundancia" } }
     ]);
   });
 

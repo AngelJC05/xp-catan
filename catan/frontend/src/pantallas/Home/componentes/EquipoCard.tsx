@@ -6,6 +6,7 @@ import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import { DESARROLLADORES, LIDERAZGO, PAREJA_XP } from "../datos/equipo";
 import { colorParaNombre, iniciales } from "../utils/avatar";
+import { VERSION_PORTADA } from "../utils/version";
 
 export default function EquipoCard() {
   return (
@@ -20,7 +21,7 @@ export default function EquipoCard() {
           <Divider className="mb-3" />
 
           <Typography variant="subtitle1" component="h3" color="text.secondary" className="mb-2">
-            Pareja XP · versión 1.1
+            Pareja XP · versión {VERSION_PORTADA}
           </Typography>
 
           <ul className="list-unstyled row g-2 mb-4">

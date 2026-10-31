@@ -2,7 +2,7 @@ import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
 import { FaseJuego, FasePartida } from "../../../common/enums.js";
 import { moverLadron } from "../../../functions/moverLadron.js";
-import { enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
+import { difundirSonido, enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
 import { enFaseJuego, enFasePartida, esSuTurno, partidaEnCurso, validar } from "../../validaciones/guardias.js";
 import { resolverRobo } from "./resolverRobo.js";
 
@@ -42,6 +42,7 @@ export function manejarMoverLadron(
     }
 
     registrarLogDeJugador(sala, client.sessionId, resultado.mensaje);
+    difundirSonido(sala, "ladron");
 
     //* Segun los jugadores involucrados se pasa a las acciones, se roba o se elige a quien
     resolverRobo(sala, client.sessionId, resultado.jugadoresInvolucrados);

@@ -165,8 +165,19 @@ describe("handler de colocar ciudad", () => {
 
     manejarColocarCiudad(sala, client, { h: 0, d: 0, p: 0 });
 
-    assert.deepStrictEqual(difundidos, [
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "log"), [
       { tipo: "log", mensaje: { jugador: "Angel", mensaje: " ha construido una ciudad" } }
+    ]);
+  });
+
+  it("avisa a todos que suene la ciudad", () => {
+    const { sala, difundidos } = armarJuego();
+    const { client } = armarCliente(ANGEL);
+
+    manejarColocarCiudad(sala, client, { h: 0, d: 0, p: 0 });
+
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "sonido"), [
+      { tipo: "sonido", mensaje: { nombre: "ciudad" } }
     ]);
   });
 

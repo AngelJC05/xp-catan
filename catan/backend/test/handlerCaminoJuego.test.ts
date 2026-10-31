@@ -85,9 +85,29 @@ describe("handler de camino en juego", () => {
 
     manejarCaminoJuego(sala, client, { h: 0, d: 0, p: 0 });
 
-    assert.deepStrictEqual(difundidos, [
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "log"), [
       { tipo: "log", mensaje: { jugador: "Angel", mensaje: " ha construido un camino" } }
     ]);
+  });
+
+  it("avisa a todos que suene el camino", () => {
+    const { sala, difundidos } = armarJuego();
+    const { client } = armarCliente(ANGEL);
+
+    manejarCaminoJuego(sala, client, { h: 0, d: 0, p: 0 });
+
+    assert.deepStrictEqual(difundidos.filter((envio) => envio.tipo === "sonido"), [
+      { tipo: "sonido", mensaje: { nombre: "camino" } }
+    ]);
+  });
+
+  it("no manda el sonido si no se pudo construir", () => {
+    const { sala, difundidos } = armarJuego();
+    const { client } = armarCliente(ANGEL);
+
+    manejarCaminoJuego(sala, client, { h: 99, d: 99, p: 0 });
+
+    assert.strictEqual(difundidos.filter((envio) => envio.tipo === "sonido").length, 0);
   });
 
   it("revisa el camino mas largo despues de construir", () => {

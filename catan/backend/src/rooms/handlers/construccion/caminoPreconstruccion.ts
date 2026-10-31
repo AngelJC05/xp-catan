@@ -3,7 +3,7 @@ import type { CatanRoom } from "../../CatanRoom.js";
 import { FasePartida, FasePreconstruccion } from "../../../common/enums.js";
 import { construirCamino } from "../../../functions/construirCaminos.js";
 import { siguienteTurnoPreconstruccion } from "../../../functions/siguienteTurnoPreconstruccion.js";
-import { enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
+import { difundirSonido, enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
 import { enFasePartida, enFasePreconstruccion, esSuTurno, partidaEnCurso, validar } from "../../validaciones/guardias.js";
 
 //? Atiende msgColocarCamino durante la preconstruccion: el camino es gratis y avanza el turno
@@ -50,6 +50,7 @@ export function manejarCaminoPreconstruccion(
     }
 
     registrarLogDeJugador(sala, client.sessionId, resultado.mensaje);
+    difundirSonido(sala, "camino");
 
     //* Ahora le toca al siguiente jugador poner un asentamiento
     sala.partida.fasePreconstruccion = FasePreconstruccion.ASENTAMIENTO;

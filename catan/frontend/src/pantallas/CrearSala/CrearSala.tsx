@@ -1,21 +1,24 @@
 import { useState, type FormEvent } from "react";
-import "./CrearSala.css";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import Container from "@mui/material/Container";
 import Divider from "@mui/material/Divider";
 import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import type { Theme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
+import { ICONO_PIEZA, ICONO_UI } from "../../common/iconos";
+import Icono from "../../componentes/Icono";
+import { PIEZA } from "../../common/jugador";
 import {
   LARGO_MAXIMO_ALIAS,
   LARGO_MAXIMO_CODIGO,
   aliasSugerido,
   validarAlias,
   validarCodigoAcceso,
-} from "../validacionSala";
+} from "../../utils/validacionSala";
 
 // Lo que CatanRoom.onCreate sabe leer (además del nombre del jugador).
 export interface DatosNuevaSala {
@@ -68,16 +71,16 @@ function CrearSala({ nombreJugador, onCrear, onVolver }: CrearSalaProps) {
 
   return (
     <div className="bg-info-subtle min-vh-100 px-3 py-4">
-      <div className="mx-auto d-flex flex-column align-items-start gap-3 crear-sala__contenido">
-        <Button variant="text" onClick={onVolver}>
-          ← Volver
+      <Container maxWidth="xs" disableGutters className="d-flex flex-column align-items-start gap-3">
+        <Button variant="text" onClick={onVolver} startIcon={<Icono ruta={ICONO_UI.atras} />}>
+          Volver
         </Button>
 
         <Card variant="outlined" className="w-100">
           <CardContent component="form" onSubmit={crear} noValidate className="p-4 d-flex flex-column gap-3">
             <header>
               <div className="d-flex align-items-center gap-3 mb-3">
-                <img src="/svg/ciudad.svg" alt="" aria-hidden="true" width={40} height={40} />
+                <img src={ICONO_PIEZA[PIEZA.CIUDAD]} alt="" aria-hidden="true" width={40} height={40} />
                 <div>
                   <Typography variant="h5" component="h1">
                     Funda tu sala
@@ -116,7 +119,8 @@ function CrearSala({ nombreJugador, onCrear, onVolver }: CrearSalaProps) {
             >
               <div className="d-flex flex-column">
                 <span className="fw-semibold" id="privacidad-titulo">
-                  {privada ? "🔒 Sala privada" : "🌍 Sala pública"}
+                  <Icono ruta={privada ? ICONO_UI.privada : ICONO_UI.publica} className="me-2" />
+                  {privada ? "Sala privada" : "Sala pública"}
                 </span>
                 <small className="text-body-secondary">
                   {privada
@@ -169,12 +173,12 @@ function CrearSala({ nombreJugador, onCrear, onVolver }: CrearSalaProps) {
               <Alert severity="error">{errorServidor}</Alert>
             )}
 
-            <Button type="submit" variant="contained" color="error" fullWidth size="large" disabled={creando}>
-              {creando ? "Creando sala…" : "🏗️ Crear sala"}
+            <Button type="submit" variant="contained" color="error" fullWidth size="large" disabled={creando} startIcon={<Icono ruta={ICONO_UI.martillo} tam={22} />}>
+              {creando ? "Creando sala…" : "Crear sala"}
             </Button>
           </CardContent>
         </Card>
-      </div>
+      </Container>
     </div>
   );
 }

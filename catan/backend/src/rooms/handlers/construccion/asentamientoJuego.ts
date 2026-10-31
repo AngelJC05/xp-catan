@@ -3,7 +3,7 @@ import type { CatanRoom } from "../../CatanRoom.js";
 import { FaseJuego, FasePartida } from "../../../common/enums.js";
 import { construirAsentamiento } from "../../../functions/construirAsentamiento.js";
 import { verificarVictoria } from "../../../functions/verificarVictoria.js";
-import { enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
+import { difundirSonido, enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
 import { enFaseJuego, enFasePartida, esSuTurno, partidaEnCurso, validar } from "../../validaciones/guardias.js";
 
 //? Atiende msgColocarAsentamiento durante el juego: cuesta recursos y debe conectar con un camino propio
@@ -50,6 +50,7 @@ export function manejarAsentamientoJuego(
     }
 
     registrarLogDeJugador(sala, client.sessionId, resultado.mensaje);
+    difundirSonido(sala, "asentamiento");
 
     //* Verificar si el jugador ha ganado
     verificarVictoria(sala.partida, jugador, client.sessionId, sala);

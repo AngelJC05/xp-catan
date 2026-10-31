@@ -2,7 +2,7 @@ import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
 import { Desarrollo, FaseJuego } from "../../../common/enums.js";
 import { jugarMonopolio } from "../../../functions/jugarMonopolio.js";
-import { enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
+import { difundirSonido, enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
 import { enFaseJuego, esSuTurno, partidaEnCurso, puedeUsarCarta, tieneCarta, validar } from "../../validaciones/guardias.js";
 
 //? Atiende el mensaje msgCartaMonopolio: el jugador se queda con todo un recurso de los demas
@@ -43,6 +43,7 @@ export function manejarCartaMonopolio(
     }
 
     registrarLogDeJugador(sala, client.sessionId, resultado.mensaje);
+    difundirSonido(sala, "monopolio");
 
     //* Marcar que ya se uso una carta en este turno
     sala.partida.cartaJugable = false;

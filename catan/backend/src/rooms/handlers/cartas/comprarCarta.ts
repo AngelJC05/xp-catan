@@ -3,7 +3,7 @@ import type { CatanRoom } from "../../CatanRoom.js";
 import { FaseJuego } from "../../../common/enums.js";
 import { comprarCarta } from "../../../functions/comprarCarta.js";
 import { verificarVictoria } from "../../../functions/verificarVictoria.js";
-import { enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
+import { difundirSonido, enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
 import { enFaseJuego, esSuTurno, partidaEnCurso, validar } from "../../validaciones/guardias.js";
 
 //? Atiende el mensaje msgComprarCarta: el jugador paga trigo, lana y mineral por una carta de desarrollo
@@ -31,6 +31,7 @@ export function manejarComprarCarta(sala: CatanRoom, client: Client): void {
     }
 
     registrarLogDeJugador(sala, client.sessionId, resultado.mensaje);
+    difundirSonido(sala, "comprarCarta");
 
     //* Una carta de puntos de victoria puede dar la victoria
     verificarVictoria(sala.partida, jugador, client.sessionId, sala);
