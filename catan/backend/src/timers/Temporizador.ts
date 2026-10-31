@@ -1,3 +1,5 @@
+import { MapSchema } from "@colyseus/schema";
+import { Reloj } from "../schemas/Reloj.js";
 import type { NombreTiempo } from "./tiempos.js";
 
 //? Lo que necesita el temporizador del reloj de la sala
@@ -13,10 +15,18 @@ export interface RelojSala {
 //? Programa, cancela y limpia los relojes de la sala
 export class Temporizador {
     private relojSala: RelojSala;
+    private relojes: MapSchema<Reloj>;
+    private ahora: () => number;
     private activos = new Map<NombreTiempo, { clear(): void }>();
 
-    constructor(relojSala: RelojSala) {
+    constructor(
+        relojSala: RelojSala,
+        relojes: MapSchema<Reloj> = new MapSchema<Reloj>(),
+        ahora: () => number = () => Date.now()
+    ) {
         this.relojSala = relojSala;
+        this.relojes = relojes;
+        this.ahora = ahora;
     }
 
     //? Inicia el reloj de una accion o reinicia su tiempo si ya estaba en marcha
