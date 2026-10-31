@@ -21,6 +21,14 @@ function armarJuego() {
   return armado;
 }
 
+//? Funcion que devuelve una sala en juego vertice 0,0,0 Alan y arista 0,0,1 Angel
+function armarJuegoConVerticeRival() {
+  const armado = armarJuego();
+  armado.tablero.vertices.get("0,0,0").setPropietario(ALAN);
+  armado.tablero.aristas.get("0,0,1").setPropietario(ANGEL);
+  return armado;
+}
+
 describe("handler de camino en juego", () => {
 
   it("avisa que hay que lanzar los dados si aun no se hace", () => {
@@ -117,6 +125,52 @@ describe("handler de camino en juego", () => {
     manejarCaminoJuego(sala, client, { h: 0, d: 0, p: 0 });
 
     assert.strictEqual(estado.revisionesCamino, 1);
+  });
+
+  it("no deja construir un camino pasando por un vertice con una construccion rival", () => {
+    const { sala, tablero, jugadores } = armarJuegoConVerticeRival();
+    const { client, enviados } = armarCliente(ANGEL);
+
+    manejarCaminoJuego(sala, client, { h: 0, d: 0, p: 0 });
+
+    assert.deepStrictEqual(enviados, [
+      { tipo: "error", mensaje: { mensajeError: "Una construccion rival bloquea ese camino" } }
+    ]);
+    assert.strictEqual(tablero.aristas.get("0,0,0").propietario, "");
+    assert.strictEqual(jugadores.get(ANGEL).recursos.get("madera"), 1);
+  });
+
+  it("deja seguir el camino por el otro extremo si ese vertice esta libre", () => {
+    const { sala, tablero } = armarJuegoConVerticeRival();
+    const { client, enviados } = armarCliente(ANGEL);
+
+    manejarCaminoJuego(sala, client, { h: 0, d: 0, p: 2 });
+
+    assert.strictEqual(enviados.length, 0);
+    assert.strictEqual(tablero.aristas.get("0,0,2").propietario, ANGEL);
+  });
+
+  it("deja construir aunque choque con un camino rival si el vertice esta libre", () => {
+    const { sala, tablero } = armarJuegoConVerticeRival();
+    const { client, enviados } = armarCliente(ANGEL);
+    tablero.vertices.get("0,0,0").setPropietario("");
+    tablero.aristas.get("1,-1,2").setPropietario(ALAN);
+
+    manejarCaminoJuego(sala, client, { h: 0, d: 0, p: 0 });
+
+    assert.strictEqual(enviados.length, 0);
+    assert.strictEqual(tablero.aristas.get("0,0,0").propietario, ANGEL);
+  });
+
+  it("si tiene tu propia construccion en el vertice si puede construir", () => {
+    const { sala, tablero } = armarJuegoConVerticeRival();
+    const { client, enviados } = armarCliente(ANGEL);
+    tablero.vertices.get("0,0,0").setPropietario(ANGEL);
+
+    manejarCaminoJuego(sala, client, { h: 0, d: 0, p: 0 });
+
+    assert.strictEqual(enviados.length, 0);
+    assert.strictEqual(tablero.aristas.get("0,0,0").propietario, ANGEL);
   });
 
 });
