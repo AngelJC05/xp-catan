@@ -1,6 +1,7 @@
 import type { CatanRoom } from "../../CatanRoom.js";
 
-//? Atiende la destruccion de la sala (onDispose); aqui se limpiaran los temporizadores de la partida cuando existan
+//? Atiende la destruccion de la sala (onDispose)
 export function manejarDestruccion(sala: CatanRoom): void {
+    sala.temporizador.limpiar();
     console.log("room", sala.roomId, "disposing...");
 }

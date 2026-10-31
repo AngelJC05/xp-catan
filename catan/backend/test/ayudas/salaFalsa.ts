@@ -30,6 +30,7 @@ export function armarSala(nombresPorId: Record<string, string> = {}) {
   const estado = {
     bloqueada: false,
     revisionesCamino: 0,
+    relojesLimpiados: 0,
     reconexiones: [] as { sessionId: string, segundos: number }[]
   };
   
@@ -44,6 +45,7 @@ export function armarSala(nombresPorId: Record<string, string> = {}) {
     banca,
     metadata: {},
     codigoAcceso: "",
+    temporizador: { limpiar: () => { estado.relojesLimpiados++; } },
     ofertas: new Map<string, unknown>(),
     broadcast: (tipo: string, mensaje: unknown) => difundidos.push({ tipo, mensaje }),
     setMetadata: (metadata: object) => { sala.metadata = metadata; },
