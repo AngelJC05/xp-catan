@@ -39,9 +39,13 @@ export class Temporizador {
 
         const reloj = this.relojSala.setTimeout(() => {
             this.activos.delete(nombre);
+            this.relojes.delete(nombre);
             alVencer();
         }, segundos * 1000);
 
+        //* Se guarda cuando empieza y cuando termina para que los clientes hagan la cuenta regresiva
+        const inicio = this.ahora();
+        this.relojes.set(nombre, new Reloj(inicio, inicio + segundos * 1000));
         this.activos.set(nombre, reloj);
     }
 
@@ -52,12 +56,14 @@ export class Temporizador {
 
         reloj.clear();
         this.activos.delete(nombre);
+        this.relojes.delete(nombre);
     }
 
     //? Cancela todos los relojes activos
     limpiar(): void {
         this.activos.forEach((reloj) => reloj.clear());
         this.activos.clear();
+        this.relojes.clear();
     }
 
     //? Indica si una accion tiene un reloj corriendo
