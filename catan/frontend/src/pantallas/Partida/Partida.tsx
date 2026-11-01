@@ -21,12 +21,14 @@ import { useConstruccion } from './hooks/useConstruccion';
 import { useCartas } from './hooks/useCartas';
 import { useComercio } from './hooks/useComercio';
 import { useLadron } from './hooks/useLadron';
+import { useHoraServidor } from './hooks/useHoraServidor';
 import { AREA, FONDO_PARTIDA, GRILLA, PANEL } from './utils/layout';
 import Construir, {
   type TipoConstruccion,
 } from './componentes/Construir/Construir';
 import { FASE_JUEGO, FASE_PARTIDA, FASE_PRECONSTRUCCION } from '../../common/fases';
 import AvisosTablero from './componentes/AvisosTablero';
+import Cronometro from './componentes/Cronometro';
 import ElegirRobo from './componentes/ElegirRobo';
 import UsarCarta from './componentes/Cartas/UsarCarta';
 import ElegirAbundancia from './componentes/Cartas/ElegirAbundancia';
@@ -76,26 +78,41 @@ function Partida({ sala, registro, onSalir }: Props) {
   const esMiTurno = estadoReal !== null && turnoActual === miSessionId;
   const partidaActual = estadoReal?.partida;
   const miJugadorReal = estadoReal?.jugadores[miSessionId];
+
   const puedeLanzarDados = Boolean(
     sala
       && esMiTurno
       && estadoReal?.partida.fase === FASE_PARTIDA.JUEGO
       && estadoReal.partida.faseJuego === FASE_JUEGO.DADOS,
   );
+
   const puedePasarTurno = Boolean(
     sala
       && esMiTurno
       && estadoReal?.partida.fase === FASE_PARTIDA.JUEGO
       && estadoReal.partida.faseJuego === FASE_JUEGO.ACCIONES,
   );
-  const { resultadoDados, lanzandoDados, pasandoTurno, lanzarDados, pasarTurno } =
-    useDadosYTurno(sala, puedeLanzarDados, puedePasarTurno);
-  // Con la partida finalizada solo funciona Salir: las demás acciones dependen de la fase JUEGO.
+
+  const { 
+    resultadoDados, 
+    lanzandoDados, 
+    pasandoTurno, 
+    lanzarDados, 
+    pasarTurno 
+  } = useDadosYTurno(sala, puedeLanzarDados, puedePasarTurno);
+
+  const ahoraServidor = useHoraServidor(sala);
+  const relojPreconstruccion = partidaActual?.relojes?.preconstruccion;
+  const etiquetaReloj = partidaActual?.fasePreconstruccion === FASE_PRECONSTRUCCION.CAMINO
+    ? 'Camino'
+    : 'Asentamiento';
+
   const partidaFinalizada = Boolean(
     sala
       && partidaActual?.fase === FASE_PARTIDA.FINALIZADA
       && partidaActual.ganador !== '',
   );
+
   const nombreGanador = partidaActual?.ganador
     ? (jugadores[partidaActual.ganador]?.nombre ?? 'Un jugador')
     : '';
@@ -110,6 +127,7 @@ function Partida({ sala, registro, onSalir }: Props) {
   const enPreconstruccion = Boolean(
     sala && esMiTurno && estadoReal?.partida.fase === FASE_PARTIDA.PRECONSTRUCCION,
   );
+
   const colocandoCaminosGratis = enFaseCarreteras && esMiTurno;
   const {
     tipoConstruccion,
@@ -119,6 +137,7 @@ function Partida({ sala, registro, onSalir }: Props) {
     seleccionarConstruccion,
     seleccionarObjetivo,
   } = useConstruccion(sala, colocandoCaminosGratis, partidaActual?.carreterasGratis ?? 0);
+
   const {
     compraEnEspera,
     caballero,
@@ -139,6 +158,7 @@ function Partida({ sala, registro, onSalir }: Props) {
     jugarAbundancia,
     jugarMonopolio,
   } = useCartas({ sala, estado: estadoReal, esMiTurno, puedePasarTurno, limpiarConstruccion });
+
   const {
     descartesPendientes,
     descarteEnEspera,
@@ -151,6 +171,7 @@ function Partida({ sala, registro, onSalir }: Props) {
     moverLadron,
     robarJugador,
   } = useLadron({ sala, estado: estadoReal, esMiTurno });
+
   const {
     ofertaActiva,
     debeResponder,
@@ -166,6 +187,7 @@ function Partida({ sala, registro, onSalir }: Props) {
     proponerIntercambio,
     responderIntercambio,
   } = useComercio({ sala, estado: estadoReal, puedePasarTurno, pasandoTurno });
+  
   const tipoPermitido: TipoConstruccion | null = colocandoCaminosGratis
     ? 'camino'
     : !enPreconstruccion
@@ -232,6 +254,11 @@ function Partida({ sala, registro, onSalir }: Props) {
           esMiTurno={esMiTurno}
           carreterasGratis={partidaActual?.carreterasGratis ?? 0}
           nombreJugadorEnTurno={jugadores[turnoActual]?.nombre ?? 'El jugador en turno'}
+        />
+        <Cronometro
+          etiqueta={etiquetaReloj}
+          fin={relojPreconstruccion?.fin ?? null}
+          ahora={ahoraServidor}
         />
         <Tablero
           datos={datosTablero}
