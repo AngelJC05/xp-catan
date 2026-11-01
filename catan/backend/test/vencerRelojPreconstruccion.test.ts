@@ -13,7 +13,7 @@ const ALAN = "jugadorAlan";
 //? Funcion que devuelve una sala en preconstruccion con el temporizador
 function armarPreconstruccionConReloj() {
   const armado = armarSala({ [ANGEL]: "Angel", [ALAN]: "Alan" });
-  const { reloj, vencer } = armarReloj();
+  const { reloj, programados, vencer } = armarReloj();
 
   Object.assign(armado.sala, {
     temporizador: new Temporizador(reloj),
@@ -25,7 +25,7 @@ function armarPreconstruccionConReloj() {
   armado.partida.ordenJugadores.push(ANGEL, ALAN);
   armado.partida.turnoActual = ANGEL;
 
-  return { ...armado, vencer };
+  return { ...armado, programados, vencer };
 }
 
 //? Funcion que cuenta los vertices que son de un jugador
@@ -114,5 +114,42 @@ describe("reloj de preconstruccion al vencer en el paso del camino", () => {
     vencer(0);
 
     assert.strictEqual(partida.fasePreconstruccion, FasePreconstruccion.ASENTAMIENTO);
+  });
+});
+
+
+describe("reloj de preconstruccion se reinicia despues de vencer", () => {
+
+  it("programa otro reloj para el camino despues de colocar el asentamiento", () => {
+    const { sala, programados, vencer } = armarPreconstruccionConReloj();
+    iniciarRelojPreconstruccion(sala);
+
+    vencer(0);
+
+    assert.strictEqual(programados.length, 2);
+    assert.strictEqual(programados[1].milisegundos, TIEMPOS_POR_DEFECTO.preconstruccion * 1000);
+    assert.strictEqual(sala.temporizador.estaActivo("preconstruccion"), true);
+  });
+
+  it("programa otro reloj para el siguiente jugador despues de colocar el camino", () => {
+    const { sala, programados, vencer } = armarPreconstruccionEnCamino();
+    iniciarRelojPreconstruccion(sala);
+
+    vencer(0);
+
+    assert.strictEqual(programados.length, 2);
+    assert.strictEqual(sala.temporizador.estaActivo("preconstruccion"), true);
+  });
+
+  it("no programa otro reloj cuando la preconstruccion termina", () => {
+    const { sala, partida, programados, vencer } = armarPreconstruccionEnCamino();
+    partida.direccionPreconstruccion = -1;
+    iniciarRelojPreconstruccion(sala);
+
+    vencer(0);
+
+    assert.strictEqual(partida.fase, FasePartida.JUEGO);
+    assert.strictEqual(programados.length, 1);
+    assert.strictEqual(sala.temporizador.estaActivo("preconstruccion"), false);
   });
 });
