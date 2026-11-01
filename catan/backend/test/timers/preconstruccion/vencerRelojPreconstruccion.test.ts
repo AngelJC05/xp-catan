@@ -110,7 +110,7 @@ describe("reloj de preconstruccion se reinicia despues de vencer", () => {
     assert.strictEqual(sala.temporizador.estaActivo("preconstruccion"), true);
   });
 
-  it("no programa otro reloj cuando la preconstruccion termina", () => {
+  it("no programa otro reloj de preconstruccion cuando termina, sino el de los dados", () => {
     const { sala, partida, programados, vencer } = armarPreconstruccionEnCamino();
     partida.direccionPreconstruccion = -1;
     iniciarRelojPreconstruccion(sala);
@@ -118,7 +118,8 @@ describe("reloj de preconstruccion se reinicia despues de vencer", () => {
     vencer(0);
 
     assert.strictEqual(partida.fase, FasePartida.JUEGO);
-    assert.strictEqual(programados.length, 1);
+    assert.strictEqual(programados.length, 2);
     assert.strictEqual(sala.temporizador.estaActivo("preconstruccion"), false);
+    assert.strictEqual(sala.temporizador.estaActivo("dados"), true);
   });
 });
