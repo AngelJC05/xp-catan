@@ -2,7 +2,7 @@ import { describe, it } from "mocha";
 import assert from "node:assert";
 import { Construccion, FaseJuego, FasePartida, Terreno } from "../../../../src/common/enums.js";
 import { recursoTexto } from "../../../../src/common/recursoTexto.js";
-import { aplicarTirada } from "../../../../src/rooms/handlers/dados/aplicarTirada.js";
+import { aplicarTirada } from "../../../../src/rooms/acciones/dados/aplicarTirada.js";
 import type { Hexagono } from "../../../../src/schemas/Hexagono.js";
 import { verticesDelHexagono } from "../../../../src/functions/verticesDelHexagono.js";
 import { armarSala } from "../../../ayudas/salaFalsa.js";
