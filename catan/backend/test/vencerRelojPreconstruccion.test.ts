@@ -67,3 +67,52 @@ describe("reloj de preconstruccion al vencer en el paso del asentamiento", () =>
     assert.strictEqual(partida.fasePreconstruccion, FasePreconstruccion.CAMINO);
   });
 });
+
+
+//? Funcion que devuelve la preconstruccion en el paso del camino
+function armarPreconstruccionEnCamino() {
+  const armado = armarPreconstruccionConReloj();
+  armado.partida.fasePreconstruccion = FasePreconstruccion.CAMINO;
+  armado.jugadores.get(ANGEL).ultimoAsentamiento = "0,0,0";
+  return armado;
+}
+
+describe("reloj de preconstruccion al vencer en el paso del camino", () => {
+
+  it("coloca un camino al jugador del turno", () => {
+    const { sala, tablero, vencer } = armarPreconstruccionEnCamino();
+    iniciarRelojPreconstruccion(sala);
+
+    vencer(0);
+
+    assert.strictEqual(contarVertices(tablero.aristas.values(), ANGEL), 1);
+    assert.strictEqual(contarVertices(tablero.aristas.values(), ALAN), 0);
+  });
+
+  it("no coloca otro asentamiento", () => {
+    const { sala, tablero, vencer } = armarPreconstruccionEnCamino();
+    iniciarRelojPreconstruccion(sala);
+
+    vencer(0);
+
+    assert.strictEqual(contarVertices(tablero.vertices.values(), ANGEL), 0);
+  });
+
+  it("pasa el turno al siguiente jugador", () => {
+    const { sala, partida, vencer } = armarPreconstruccionEnCamino();
+    iniciarRelojPreconstruccion(sala);
+
+    vencer(0);
+
+    assert.strictEqual(partida.turnoActual, ALAN);
+  });
+
+  it("vuelve al paso del asentamiento", () => {
+    const { sala, partida, vencer } = armarPreconstruccionEnCamino();
+    iniciarRelojPreconstruccion(sala);
+
+    vencer(0);
+
+    assert.strictEqual(partida.fasePreconstruccion, FasePreconstruccion.ASENTAMIENTO);
+  });
+});
