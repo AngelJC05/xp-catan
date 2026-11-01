@@ -2,7 +2,7 @@ import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
 import { FasePartida } from "../../../common/enums.js";
 import { sacarJugador } from "../../../functions/sacarJugador.js";
-import { actualizarRelojPreconstruccion } from "../../../autoFunctions/actualizarRelojPreconstruccion.js";
+import { actualizarRelojPreconstruccion } from "../../../timers/preconstruccion/actualizarRelojPreconstruccion.js";
 import { registrarLogDeJugador, registrarLogSistema } from "../../ayudantes/notificaciones.js";
 
 //? Actualiza en la metadata de la sala el nombre del anfitrion segun el creador actual de la partida

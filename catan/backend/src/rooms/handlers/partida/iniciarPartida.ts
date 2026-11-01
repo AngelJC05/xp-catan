@@ -5,7 +5,7 @@ import { mezclar } from "../../../common/mezclar.js";
 import { enviarError } from "../../ayudantes/notificaciones.js";
 import { enFasePartida, esCreador, validar } from "../../validaciones/guardias.js";
 import { completarColores } from "../../../functions/completarColores.js";
-import { iniciarRelojPreconstruccion } from "../../../autoFunctions/iniciarRelojPreconstruccion.js";
+import { iniciarRelojPreconstruccion } from "../../../timers/preconstruccion/iniciarRelojPreconstruccion.js";
 
 //? Atiende el mensaje msgIniciarPartida: arranca la partida desde el lobby
 export function manejarIniciarPartida(sala: CatanRoom, client: Client): void {

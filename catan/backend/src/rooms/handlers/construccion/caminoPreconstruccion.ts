@@ -1,8 +1,8 @@
 import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
 import { FasePartida, FasePreconstruccion } from "../../../common/enums.js";
-import { colocarCaminoPreconstruccion } from "../../acciones/colocarCaminoPreconstruccion.js";
-import { actualizarRelojPreconstruccion } from "../../../autoFunctions/actualizarRelojPreconstruccion.js";
+import { colocarCaminoPreconstruccion } from "../../acciones/preconstruccion/colocarCaminoPreconstruccion.js";
+import { actualizarRelojPreconstruccion } from "../../../timers/preconstruccion/actualizarRelojPreconstruccion.js";
 import { enviarError } from "../../ayudantes/notificaciones.js";
 import { enFasePartida, enFasePreconstruccion, esSuTurno, partidaEnCurso, validar } from "../../validaciones/guardias.js";
 
