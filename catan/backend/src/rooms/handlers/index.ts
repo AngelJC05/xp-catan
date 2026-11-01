@@ -43,3 +43,4 @@ export { manejarSalida } from "./sala/salirDeSala.js";
 export { manejarCaidaConexion } from "./sala/perderConexion.js";
 export { manejarReconexion } from "./sala/reconectar.js";
 export { manejarDestruccion } from "./sala/destruirSala.js";
+export { manejarHora } from "./sala/sincronizarHora.js";
