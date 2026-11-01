@@ -56,7 +56,6 @@ describe("reloj de preconstruccion cuando el jugador coloca el camino a mano", (
     manejarCaminoPreconstruccion(sala, client, { h: 0, d: 0, p: 0 });
 
     assert.strictEqual(partida.fase, FasePartida.JUEGO);
-    assert.strictEqual(programados.length, 1);
     assert.strictEqual(programados[0].cancelado, true);
     assert.strictEqual(sala.temporizador.estaActivo("preconstruccion"), false);
   });

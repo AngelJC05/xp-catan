@@ -3,6 +3,7 @@ import type { CatanRoom } from "../../CatanRoom.js";
 import { FasePartida } from "../../../common/enums.js";
 import { sacarJugador } from "../../../functions/sacarJugador.js";
 import { actualizarRelojPreconstruccion } from "../../../timers/preconstruccion/actualizarRelojPreconstruccion.js";
+import { actualizarRelojDados } from "../../../timers/dados/actualizarRelojDados.js";
 import { registrarLogDeJugador, registrarLogSistema } from "../../ayudantes/notificaciones.js";
 
 //? Actualiza en la metadata de la sala el nombre del anfitrion segun el creador actual de la partida
@@ -55,6 +56,11 @@ function salirDePartida(sala: CatanRoom, sessionId: string): void {
     //* Si cambio el turno o la preconstruccion termino, el reloj se reinicia o se cancela
     if (eraSuTurno || sala.partida.fase !== FasePartida.PRECONSTRUCCION) {
         actualizarRelojPreconstruccion(sala);
+    }
+
+    //* Igual con el reloj de los dados: si cambio el turno o termino la partida
+    if (eraSuTurno || sala.partida.fase !== FasePartida.JUEGO) {
+        actualizarRelojDados(sala);
     }
 
     //* Si al sacarlo se gana avisar
