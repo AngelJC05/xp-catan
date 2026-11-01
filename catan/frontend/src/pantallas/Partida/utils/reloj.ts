@@ -8,12 +8,18 @@ export interface RelojVisible {
 
 // Decide que reloj muestra el cronometro y con que texto. Devuelve null si no hay ninguno activo.
 export function elegirRelojVisible(partida: DatosPartida | undefined): RelojVisible | null {
-  const reloj = partida?.relojes?.preconstruccion;
-  if (!partida || !reloj) return null;
+  if (!partida) return null;
 
-  const etiqueta = partida.fasePreconstruccion === FASE_PRECONSTRUCCION.CAMINO
-    ? 'Camino'
-    : 'Asentamiento';
+  const preconstruccion = partida.relojes?.preconstruccion;
+  if (preconstruccion) {
+    const etiqueta = partida.fasePreconstruccion === FASE_PRECONSTRUCCION.CAMINO
+      ? 'Camino'
+      : 'Asentamiento';
+    return { etiqueta, fin: preconstruccion.fin };
+  }
 
-  return { etiqueta, fin: reloj.fin };
+  const dados = partida.relojes?.dados;
+  if (dados) return { etiqueta: 'Dados', fin: dados.fin };
+
+  return null;
 }
