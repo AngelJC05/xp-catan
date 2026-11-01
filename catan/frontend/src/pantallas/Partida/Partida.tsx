@@ -35,6 +35,7 @@ import ElegirAbundancia from './componentes/Cartas/ElegirAbundancia';
 import ElegirMonopolio from './componentes/Cartas/ElegirMonopolio';
 import FinPartida from './componentes/FinPartida';
 import SalirPartida from './componentes/SalirPartida';
+import Ayuda from './componentes/Ayuda/Ayuda';
 import ProponerIntercambio from './componentes/Comercio/ProponerIntercambio/ProponerIntercambio';
 import ResponderIntercambio from './componentes/Comercio/ResponderIntercambio';
 
@@ -211,8 +212,9 @@ function Partida({ sala, registro, onSalir }: Props) {
 
   return (
     <div className="w-100 h-100 d-grid p-2 overflow-hidden" style={GRILLA}>
-      <div className="m-2" style={{ gridArea: AREA.salir, alignSelf: 'start', justifySelf: 'start', zIndex: 1 }}>
+      <div className="m-2 d-flex gap-2" style={{ gridArea: AREA.salir, alignSelf: 'start', justifySelf: 'start', zIndex: 1 }}>
         <SalirPartida onSalir={() => onSalir?.()} />
+        <Ayuda />
       </div>
       <div className={PANEL} style={{ gridArea: AREA.tabCostos }}>
         <TablaCostes />
