@@ -1,6 +1,7 @@
 import type { CatanRoom } from "../../CatanRoom.js";
 import { activarCartasCompradas } from "../../../functions/activarCartasCompradas.js";
 import { siguienteTurno } from "../../../functions/siguienteTurno.js";
+import { actualizarRelojDados } from "../../../timers/dados/actualizarRelojDados.js";
 import { registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
 
 //? Termina el turno de un jugador y le da el turno al siguiente
@@ -21,4 +22,7 @@ export function terminarTurno(sala: CatanRoom, sessionId: string): void {
     sala.partida.ofertaIntercambio.limpiarOferta();
 
     siguienteTurno(sala.partida);
+
+    //* El siguiente jugador empieza con el reloj de los dados
+    actualizarRelojDados(sala);
 }

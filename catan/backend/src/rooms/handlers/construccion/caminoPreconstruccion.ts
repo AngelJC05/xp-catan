@@ -3,6 +3,7 @@ import type { CatanRoom } from "../../CatanRoom.js";
 import { FasePartida, FasePreconstruccion } from "../../../common/enums.js";
 import { colocarCaminoPreconstruccion } from "../../acciones/preconstruccion/colocarCaminoPreconstruccion.js";
 import { actualizarRelojPreconstruccion } from "../../../timers/preconstruccion/actualizarRelojPreconstruccion.js";
+import { actualizarRelojDados } from "../../../timers/dados/actualizarRelojDados.js";
 import { enviarError } from "../../ayudantes/notificaciones.js";
 import { enFasePartida, enFasePreconstruccion, esSuTurno, partidaEnCurso, validar } from "../../validaciones/guardias.js";
 
@@ -39,4 +40,7 @@ export function manejarCaminoPreconstruccion(
 
     //* La siguiente pieza empieza con un reloj nuevo
     actualizarRelojPreconstruccion(sala);
+
+    //* Si ese camino termino la preconstruccion, empieza el reloj de los dados
+    actualizarRelojDados(sala);
 }

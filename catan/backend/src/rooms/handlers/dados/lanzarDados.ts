@@ -23,5 +23,8 @@ export function manejarLanzarDados(sala: CatanRoom, client: Client): void {
         return;
     }
 
+    //* Ya tiro a tiempo, asi que su reloj se cancela
+    sala.temporizador.cancelar("dados");
+
     aplicarTirada(sala, lanzarDados());
 }
