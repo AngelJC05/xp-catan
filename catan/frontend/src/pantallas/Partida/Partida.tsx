@@ -22,6 +22,7 @@ import { useCartas } from './hooks/useCartas';
 import { useComercio } from './hooks/useComercio';
 import { useLadron } from './hooks/useLadron';
 import { useHoraServidor } from './hooks/useHoraServidor';
+import { elegirRelojVisible } from './utils/reloj';
 import { AREA, FONDO_PARTIDA, GRILLA, PANEL } from './utils/layout';
 import Construir, {
   type TipoConstruccion,
@@ -103,10 +104,7 @@ function Partida({ sala, registro, onSalir }: Props) {
   } = useDadosYTurno(sala, puedeLanzarDados, puedePasarTurno);
 
   const ahoraServidor = useHoraServidor(sala);
-  const relojPreconstruccion = partidaActual?.relojes?.preconstruccion;
-  const etiquetaReloj = partidaActual?.fasePreconstruccion === FASE_PRECONSTRUCCION.CAMINO
-    ? 'Camino'
-    : 'Asentamiento';
+  const relojVisible = elegirRelojVisible(partidaActual);
 
   const partidaFinalizada = Boolean(
     sala
@@ -258,8 +256,8 @@ function Partida({ sala, registro, onSalir }: Props) {
           nombreJugadorEnTurno={jugadores[turnoActual]?.nombre ?? 'El jugador en turno'}
         />
         <Cronometro
-          etiqueta={etiquetaReloj}
-          fin={relojPreconstruccion?.fin ?? null}
+          etiqueta={relojVisible?.etiqueta ?? ''}
+          fin={relojVisible?.fin ?? null}
           ahora={ahoraServidor}
         />
         <Tablero
