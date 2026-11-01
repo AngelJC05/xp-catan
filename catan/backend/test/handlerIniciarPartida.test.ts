@@ -2,6 +2,9 @@ import { describe, it } from "mocha";
 import assert from "node:assert";
 import { ColorJugador, FasePartida } from "../src/common/enums.js";
 import { manejarIniciarPartida } from "../src/rooms/handlers/partida/iniciarPartida.js";
+import { Temporizador } from "../src/timers/Temporizador.js";
+import { TIEMPOS_POR_DEFECTO } from "../src/timers/tiempos.js";
+import { armarReloj } from "./ayudas/relojFalso.js";
 import { armarCliente, armarSala } from "./ayudas/salaFalsa.js";
 
 const ANGEL = "jugadorAngel";
@@ -103,6 +106,41 @@ describe("handler de iniciar partida", () => {
 
     assert.deepStrictEqual(sala.metadata, { alias: "Sala de prueba", estado: "EN JUEGO" });
     assert.strictEqual(estado.bloqueada, true);
+  });
+
+});
+
+describe("reloj al iniciar la partida", () => {
+
+  //? Funcion que devuelve el lobby con el temporizador real que usa el reloj falso
+  function armarLobbyConReloj() {
+    const armado = armarLobby();
+    const { reloj, programados } = armarReloj();
+    Object.assign(armado.sala, {
+      temporizador: new Temporizador(reloj),
+      tiempos: { ...TIEMPOS_POR_DEFECTO }
+    });
+    return { ...armado, programados };
+  }
+
+  it("arranca el reloj de la preconstruccion", () => {
+    const { sala, programados } = armarLobbyConReloj();
+    const { client } = armarCliente(ANGEL);
+
+    manejarIniciarPartida(sala, client);
+
+    assert.strictEqual(programados.length, 1);
+    assert.strictEqual(programados[0].milisegundos, TIEMPOS_POR_DEFECTO.preconstruccion * 1000);
+    assert.strictEqual(sala.temporizador.estaActivo("preconstruccion"), true);
+  });
+
+  it("no arranca el reloj si no se pudo iniciar la partida", () => {
+    const { sala, programados } = armarLobbyConReloj();
+    const { client } = armarCliente(ALAN);
+
+    manejarIniciarPartida(sala, client);
+
+    assert.strictEqual(programados.length, 0);
   });
 
 });
