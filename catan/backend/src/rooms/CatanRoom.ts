@@ -29,7 +29,8 @@ import {
   manejarSalida,
   manejarCaidaConexion,
   manejarReconexion,
-  manejarDestruccion
+  manejarDestruccion,
+  manejarHora
 } from "./handlers/index.js";
 
 
@@ -61,6 +62,8 @@ export class CatanRoom extends Room {
     ) => manejarElegirColor(this, client, mensaje),
 
     msgIniciarPartida: (client: Client) => manejarIniciarPartida(this, client),
+
+    msgHora: () => manejarHora(),
 
     msgColocarAsentamiento: (
       client: Client,
