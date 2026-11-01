@@ -2,6 +2,7 @@ import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
 import { FasePartida } from "../../../common/enums.js";
 import { sacarJugador } from "../../../functions/sacarJugador.js";
+import { actualizarRelojPreconstruccion } from "../../../timers/preconstruccion/actualizarRelojPreconstruccion.js";
 import { registrarLogDeJugador, registrarLogSistema } from "../../ayudantes/notificaciones.js";
 
 //? Actualiza en la metadata de la sala el nombre del anfitrion segun el creador actual de la partida
@@ -35,6 +36,9 @@ function salirDePartida(sala: CatanRoom, sessionId: string): void {
     //* Ver si era el creador de la sala
     const eraCreador = sala.partida.creador === sessionId;
 
+    //* Ver si era su turno, para darle su reloj completo al siguiente
+    const eraSuTurno = sala.partida.turnoActual === sessionId;
+
     //* Avisar del abandono antes de borrarlo, para tener su nombre
     registrarLogDeJugador(sala, sessionId, " ha abandonado la partida");
 
@@ -46,6 +50,11 @@ function salirDePartida(sala: CatanRoom, sessionId: string): void {
     //* Actualizar el anfitrion si era el creador el que abandono
     if (eraCreador) {
         actualizarAnfitrion(sala);
+    }
+
+    //* Si cambio el turno o la preconstruccion termino, el reloj se reinicia o se cancela
+    if (eraSuTurno || sala.partida.fase !== FasePartida.PRECONSTRUCCION) {
+        actualizarRelojPreconstruccion(sala);
     }
 
     //* Si al sacarlo se gana avisar

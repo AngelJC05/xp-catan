@@ -1,9 +1,9 @@
 import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
 import { FasePartida, FasePreconstruccion } from "../../../common/enums.js";
-import { construirAsentamiento } from "../../../functions/construirAsentamiento.js";
-import { darMaterialInicial } from "../../../functions/darMaterialInicial.js";
-import { difundirSonido, enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
+import { colocarAsentamientoPreconstruccion } from "../../acciones/preconstruccion/colocarAsentamientoPreconstruccion.js";
+import { actualizarRelojPreconstruccion } from "../../../timers/preconstruccion/actualizarRelojPreconstruccion.js";
+import { enviarError } from "../../ayudantes/notificaciones.js";
 import { enFasePartida, enFasePreconstruccion, esSuTurno, partidaEnCurso, validar } from "../../validaciones/guardias.js";
 
 //? Atiende msgColocarAsentamiento durante la preconstruccion: el asentamiento es gratis
@@ -26,36 +26,17 @@ export function manejarAsentamientoPreconstruccion(
         enviarError(client, error);
         return;
     }
-1
-    //* Obtener el jugador que envio el mensaje
-    const jugador = sala.jugadores.get(client.sessionId);
-    if (!jugador) return;
 
     const { h, d, p } = mensaje;
 
-    //* Intentar construir el asentamiento
-    const resultado = construirAsentamiento(
-        sala.tablero.vertices,
-        sala.tablero.aristas,
-        sala.partida,
-        h, d, p,
-        jugador,
-        sala.banca,
-        client.sessionId
-    );
+    //* Colocar el asentamiento
+    const resultado = colocarAsentamientoPreconstruccion(sala, client.sessionId, h, d, p);
 
     if (resultado.error) {
         enviarError(client, resultado.mensaje);
         return;
     }
 
-    registrarLogDeJugador(sala, client.sessionId, resultado.mensaje);
-    difundirSonido(sala, "asentamiento");
-
-    //* En la vuelta de regreso el segundo asentamiento da material inicial
-    if (sala.partida.direccionPreconstruccion === -1) {
-        darMaterialInicial(sala.tablero.hexagonos, jugador, h, d, p, sala.banca);
-    }
-
-    sala.partida.fasePreconstruccion = FasePreconstruccion.CAMINO;
+    //* La siguiente pieza empieza con un reloj nuevo
+    actualizarRelojPreconstruccion(sala);
 }
