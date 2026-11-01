@@ -1,32 +1,9 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
 import { FasePartida, FasePreconstruccion } from "../src/common/enums.js";
-import { Temporizador } from "../src/timers/Temporizador.js";
 import { TIEMPOS_POR_DEFECTO } from "../src/timers/tiempos.js";
 import { iniciarRelojPreconstruccion } from "../src/autoFunctions/iniciarRelojPreconstruccion.js";
-import { armarReloj } from "./ayudas/relojFalso.js";
-import { armarSala } from "./ayudas/salaFalsa.js";
-
-const ANGEL = "jugadorAngel";
-const ALAN = "jugadorAlan";
-
-//? Funcion que devuelve una sala en preconstruccion con el temporizador
-function armarPreconstruccionConReloj() {
-  const armado = armarSala({ [ANGEL]: "Angel", [ALAN]: "Alan" });
-  const { reloj, programados, vencer } = armarReloj();
-
-  Object.assign(armado.sala, {
-    temporizador: new Temporizador(reloj),
-    tiempos: { ...TIEMPOS_POR_DEFECTO }
-  });
-
-  armado.partida.fase = FasePartida.PRECONSTRUCCION;
-  armado.partida.fasePreconstruccion = FasePreconstruccion.ASENTAMIENTO;
-  armado.partida.ordenJugadores.push(ANGEL, ALAN);
-  armado.partida.turnoActual = ANGEL;
-
-  return { ...armado, programados, vencer };
-}
+import { ALAN, ANGEL, armarPreconstruccionConReloj, armarPreconstruccionEnCamino } from "./ayudas/preconstruccionConReloj.js";
 
 //? Funcion que cuenta los vertices que son de un jugador
 function contarVertices(vertices: Iterable<{ propietario: string }>, sessionId: string) {
@@ -68,14 +45,6 @@ describe("reloj de preconstruccion al vencer en el paso del asentamiento", () =>
   });
 });
 
-
-//? Funcion que devuelve la preconstruccion en el paso del camino
-function armarPreconstruccionEnCamino() {
-  const armado = armarPreconstruccionConReloj();
-  armado.partida.fasePreconstruccion = FasePreconstruccion.CAMINO;
-  armado.jugadores.get(ANGEL).ultimoAsentamiento = "0,0,0";
-  return armado;
-}
 
 describe("reloj de preconstruccion al vencer en el paso del camino", () => {
 
