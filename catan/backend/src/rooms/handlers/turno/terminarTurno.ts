@@ -1,6 +1,7 @@
 import type { CatanRoom } from "../../CatanRoom.js";
 import { activarCartasCompradas } from "../../../functions/activarCartasCompradas.js";
 import { siguienteTurno } from "../../../functions/siguienteTurno.js";
+import { cerrarOferta } from "../../acciones/comercio/cerrarOferta.js";
 import { actualizarRelojDados } from "../../../timers/dados/actualizarRelojDados.js";
 import { registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
 
@@ -19,7 +20,7 @@ export function terminarTurno(sala: CatanRoom, sessionId: string): void {
     sala.partida.cartaJugable = true;
 
     //* Cancelar ofertas de intercambio activas
-    sala.partida.ofertaIntercambio.limpiarOferta();
+    cerrarOferta(sala);
 
     siguienteTurno(sala.partida);
 

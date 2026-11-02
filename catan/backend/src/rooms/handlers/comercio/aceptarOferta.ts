@@ -2,6 +2,7 @@ import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
 import { intercambiarRecursosMixtos } from "../../../functions/intercambiarRecursos.js";
 import { enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
+import { cerrarOferta } from "../../acciones/comercio/cerrarOferta.js";
 
 //? Registra que un jugador acepto la oferta de intercambio activa y mueve los recursos
 //? Asume que la respuesta ya fue validada por manejarResponderIntercambio
@@ -18,7 +19,7 @@ export function aceptarOferta(sala: CatanRoom, client: Client): void {
 
     //* Si a quien ofrecio ya no le alcanza, la oferta se cancela
     if (resultado.faltaA === "oferente") {
-        oferta.limpiarOferta();
+        cerrarOferta(sala);
         enviarError(client, "Oferta cancelada, el negociante no tiene ya recursos");
         return;
     }
@@ -27,7 +28,7 @@ export function aceptarOferta(sala: CatanRoom, client: Client): void {
     if (resultado.faltaA === "aceptante") {
         oferta.registrarRespuesta(client.sessionId, -1);
         if (oferta.todosRechazaron()) {
-            oferta.limpiarOferta();
+            cerrarOferta(sala);
         }
         return;
     }
@@ -40,5 +41,5 @@ export function aceptarOferta(sala: CatanRoom, client: Client): void {
     registrarLogDeJugador(sala, client.sessionId, " ha aceptado la oferta de intercambio");
 
     //* El intercambio ya se hizo, la oferta termina
-    oferta.limpiarOferta();
+    cerrarOferta(sala);
 }
