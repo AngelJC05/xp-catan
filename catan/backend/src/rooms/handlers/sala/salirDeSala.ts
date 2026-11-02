@@ -63,6 +63,11 @@ function salirDePartida(sala: CatanRoom, sessionId: string): void {
         actualizarRelojDados(sala);
     }
 
+    //* Al sacarlo la oferta pudo cerrarse (era suya o ya todos rechazaron); entonces su reloj sobra
+    if (sala.partida.ofertaIntercambio.jugador === "") {
+        sala.temporizador.cancelar("oferta");
+    }
+
     //* Si al sacarlo se gana avisar
     if (sala.partida.fase === FasePartida.FINALIZADA) {
         registrarLogSistema(sala, `${sala.jugadores.get(sala.partida.ganador)?.nombre} gana por abandono...`);

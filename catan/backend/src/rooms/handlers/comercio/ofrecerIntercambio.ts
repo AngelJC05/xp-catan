@@ -2,6 +2,7 @@ import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
 import { FaseJuego } from "../../../common/enums.js";
 import { enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
+import { iniciarRelojOferta } from "../../../timers/oferta/iniciarRelojOferta.js";
 import { enFaseJuego, esSuTurno, partidaEnCurso, sinOfertaActiva, validar } from "../../validaciones/guardias.js";
 
 //? Atiende el mensaje msgIntercambiarJugador: el jugador del turno publica una oferta con recursos de cada lado
@@ -35,4 +36,7 @@ export function manejarOfrecerIntercambio(
     }
 
     registrarLogDeJugador(sala, client.sessionId, " ha hecho una oferta de intercambio");
+
+    //* Los demas tienen un tiempo limite para responder
+    iniciarRelojOferta(sala);
 }
