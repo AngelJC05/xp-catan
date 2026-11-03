@@ -1,6 +1,6 @@
 import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
-import { FasePartida } from "../../../common/enums.js";
+import { FaseJuego, FasePartida } from "../../../common/enums.js";
 import { sacarJugador } from "../../../functions/sacarJugador.js";
 import { actualizarRelojPreconstruccion } from "../../../timers/preconstruccion/actualizarRelojPreconstruccion.js";
 import { actualizarRelojDados } from "../../../timers/dados/actualizarRelojDados.js";
@@ -66,6 +66,11 @@ function salirDePartida(sala: CatanRoom, sessionId: string): void {
     //* Al sacarlo la oferta pudo cerrarse (era suya o ya todos rechazaron); entonces su reloj sobra
     if (sala.partida.ofertaIntercambio.jugador === "") {
         sala.temporizador.cancelar("oferta");
+    }
+
+    //* Igual con el descarte: pudo terminar porque salio el ultimo que faltaba o porque cambio el turno
+    if (sala.partida.fase !== FasePartida.JUEGO || sala.partida.faseJuego !== FaseJuego.DESCARTE) {
+        sala.temporizador.cancelar("descarte");
     }
 
     //* Si al sacarlo se gana avisar

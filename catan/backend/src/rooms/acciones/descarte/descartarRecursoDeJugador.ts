@@ -35,6 +35,7 @@ export function descartarRecursoDeJugador(
     //* Si ya nadie debe descartar se pasa a mover al ladron
     if (sala.partida.jugadoresParaDescartar.size === 0) {
         sala.partida.faseJuego = FaseJuego.LADRON;
+        sala.temporizador.cancelar("descarte");
         registrarLogSistema(sala, "Todos los jugadores han terminado de descartar");
     }
 

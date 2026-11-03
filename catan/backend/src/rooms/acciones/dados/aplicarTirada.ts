@@ -3,6 +3,7 @@ import { FaseJuego } from "../../../common/enums.js";
 import { buscarHexagonos } from "../../../functions/buscarHexagonos.js";
 import { darRecursosJugador } from "../../../functions/darRecursosJugador.js";
 import { verticesDelHexagono } from "../../../functions/verticesDelHexagono.js";
+import { iniciarRelojDescarte } from "../../../timers/descarte/iniciarRelojDescarte.js";
 
 //? Aplica el resultado de una tirada de dados a la partida: reparte recursos o activa el 7
 //? Recibe la tirada ya hecha para que tambien la pueda usar un temporizador
@@ -65,6 +66,9 @@ function activarSiete(sala: CatanRoom): void {
     //* Si alguien debe descartar se va a descarte; si no, directo al ladron
     if (sala.partida.jugadoresParaDescartar.size > 0) {
         sala.partida.faseJuego = FaseJuego.DESCARTE;
+
+        //* Los que deben descartar tienen un tiempo limite
+        iniciarRelojDescarte(sala);
     } else {
         sala.partida.faseJuego = FaseJuego.LADRON;
     }
