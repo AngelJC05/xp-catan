@@ -6,6 +6,7 @@ interface Props {
   etiqueta: string;
   fin: number | null;
   ahora: () => number;
+  enLinea?: boolean;
 }
 
 const SEGUNDOS_URGENTE = 10;
@@ -16,7 +17,7 @@ function segundosRestantes(fin: number, ahora: () => number) {
   return Math.max(0, Math.ceil((fin - ahora()) / 1000));
 }
 
-function Cronometro({ etiqueta, fin, ahora }: Props) {
+function Cronometro({ etiqueta, fin, ahora, enLinea = false }: Props) {
   const [segundos, setSegundos] = useState(0);
 
   useEffect(() => {
@@ -38,7 +39,7 @@ function Cronometro({ etiqueta, fin, ahora }: Props) {
   const urgente = segundos <= SEGUNDOS_URGENTE;
 
   return (
-    <Paper elevation={3} sx={{ ...POSICION, px: 2, py: 1, textAlign: 'center' }}>
+    <Paper elevation={3} sx={{ ...(enLinea ? {} : POSICION), px: 2, py: 1, textAlign: 'center' }}>
       <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>
         {etiqueta}
       </Typography>
