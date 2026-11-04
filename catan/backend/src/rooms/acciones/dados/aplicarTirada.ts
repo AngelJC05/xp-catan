@@ -4,6 +4,7 @@ import { buscarHexagonos } from "../../../functions/buscarHexagonos.js";
 import { darRecursosJugador } from "../../../functions/darRecursosJugador.js";
 import { verticesDelHexagono } from "../../../functions/verticesDelHexagono.js";
 import { iniciarRelojDescarte } from "../../../timers/descarte/iniciarRelojDescarte.js";
+import { iniciarRelojLadron } from "../../../timers/ladron/iniciarRelojLadron.js";
 
 //? Aplica el resultado de una tirada de dados a la partida: reparte recursos o activa el 7
 //? Recibe la tirada ya hecha para que tambien la pueda usar un temporizador
@@ -71,5 +72,8 @@ function activarSiete(sala: CatanRoom): void {
         iniciarRelojDescarte(sala);
     } else {
         sala.partida.faseJuego = FaseJuego.LADRON;
+
+        //* El jugador del turno tiene un tiempo limite para mover al ladron
+        iniciarRelojLadron(sala);
     }
 }

@@ -24,6 +24,9 @@ export function colocarLadron(
 
     if (resultado.error) return resultado;
 
+    //* El ladron ya se movio, asi que su reloj se cancela
+    sala.temporizador.cancelar("ladron");
+
     registrarLogDeJugador(sala, sessionId, resultado.mensaje);
     difundirSonido(sala, "ladron");
 

@@ -2,6 +2,7 @@ import type { CatanRoom } from "../../CatanRoom.js";
 import { FaseJuego } from "../../../common/enums.js";
 import { descartarRecurso } from "../../../functions/descartarRecurso.js";
 import { registrarLogDeJugador, registrarLogSistema } from "../../ayudantes/notificaciones.js";
+import { iniciarRelojLadron } from "../../../timers/ladron/iniciarRelojLadron.js";
 
 //? Descarta un recurso de un jugador que debe descartar y, si ya nadie falta, pasa a mover al ladron
 //? Esta separado del mensaje para que tambien lo pueda usar el reloj de descarte
@@ -36,6 +37,7 @@ export function descartarRecursoDeJugador(
     if (sala.partida.jugadoresParaDescartar.size === 0) {
         sala.partida.faseJuego = FaseJuego.LADRON;
         sala.temporizador.cancelar("descarte");
+        iniciarRelojLadron(sala);
         registrarLogSistema(sala, "Todos los jugadores han terminado de descartar");
     }
 
