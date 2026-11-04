@@ -21,6 +21,9 @@ export function elegirRelojVisible(partida: DatosPartida | undefined): RelojVisi
   const dados = partida.relojes?.dados;
   if (dados) return { etiqueta: 'Dados', fin: dados.fin };
 
+  const descarte = partida.relojes?.descarte;
+  if (descarte) return { etiqueta: 'Descarte', fin: descarte.fin };
+
   const oferta = partida.relojes?.oferta;
   if (oferta) return { etiqueta: 'Oferta', fin: oferta.fin };
 
