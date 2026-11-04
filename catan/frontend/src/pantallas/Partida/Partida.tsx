@@ -341,6 +341,8 @@ function Partida({ sala, registro, onSalir }: Props) {
         esSuTurnoDeDescartar={esSuTurnoDeDescartar}
         enviando={descarteEnEspera !== null}
         onDescartar={descartarRecurso}
+        finReloj={partidaActual?.relojes?.descarte?.fin ?? null}
+        ahora={ahoraServidor}
       />
       <ElegirRobo
         abierto={puedeRobar}
