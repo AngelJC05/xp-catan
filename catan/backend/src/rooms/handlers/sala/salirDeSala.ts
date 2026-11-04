@@ -4,6 +4,7 @@ import { FaseJuego, FasePartida } from "../../../common/enums.js";
 import { sacarJugador } from "../../../functions/sacarJugador.js";
 import { actualizarRelojPreconstruccion } from "../../../timers/preconstruccion/actualizarRelojPreconstruccion.js";
 import { actualizarRelojDados } from "../../../timers/dados/actualizarRelojDados.js";
+import { iniciarRelojLadron } from "../../../timers/ladron/iniciarRelojLadron.js";
 import { registrarLogDeJugador, registrarLogSistema } from "../../ayudantes/notificaciones.js";
 
 //? Actualiza en la metadata de la sala el nombre del anfitrion segun el creador actual de la partida
@@ -71,6 +72,13 @@ function salirDePartida(sala: CatanRoom, sessionId: string): void {
     //* Igual con el descarte: pudo terminar porque salio el ultimo que faltaba o porque cambio el turno
     if (sala.partida.fase !== FasePartida.JUEGO || sala.partida.faseJuego !== FaseJuego.DESCARTE) {
         sala.temporizador.cancelar("descarte");
+    }
+
+    //* Si al sacarlo termino el descarte arranca el reloj del ladron; si cambio el turno ya no hace falta
+    if (sala.partida.fase === FasePartida.JUEGO && sala.partida.faseJuego === FaseJuego.LADRON) {
+        if (!sala.temporizador.estaActivo("ladron")) iniciarRelojLadron(sala);
+    } else {
+        sala.temporizador.cancelar("ladron");
     }
 
     //* Si al sacarlo se gana avisar
