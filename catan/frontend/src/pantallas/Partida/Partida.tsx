@@ -350,6 +350,8 @@ function Partida({ sala, registro, onSalir }: Props) {
         jugadores={jugadores}
         enviando={robando}
         onRobar={robarJugador}
+        finReloj={partidaActual?.relojes?.robo?.fin ?? null}
+        ahora={ahoraServidor}
       />
       <UsarCarta
         abierto={menuCartasAbierto && puedeUsarCarta}
