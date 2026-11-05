@@ -1,11 +1,22 @@
 import { TIEMPOS_PERMITIDOS, type NombreTiempo } from "../../timers/tiempos.js";
+import { PUNTOS_MAXIMOS, PUNTOS_MINIMOS } from "./puntosParaGanar.js";
 
 //? Revisa que lo que manda el cliente sea una configuracion valida para la sala.
 //? Devuelve el mensaje de error si algo no es valido, o null si todo esta bien
 export function validarConfiguracion(configuracion: Record<string, unknown>): string | null {
     for (const [opcion, valor] of Object.entries(configuracion)) {
-        //* Los puntos para ganar se validan aparte
-        if (opcion === "puntos") continue;
+        //* Los puntos para ganar son un entero entre el minimo y el maximo
+        if (opcion === "puntos") {
+            const valido = typeof valor === "number"
+                && Number.isInteger(valor)
+                && valor >= PUNTOS_MINIMOS
+                && valor <= PUNTOS_MAXIMOS;
+
+            if (!valido) {
+                return `Los puntos para ganar deben ser un entero de ${PUNTOS_MINIMOS} a ${PUNTOS_MAXIMOS}`;
+            }
+            continue;
+        }
 
         //* Solo existen las opciones de los temporizadores
         if (!Object.keys(TIEMPOS_PERMITIDOS).includes(opcion)) {
