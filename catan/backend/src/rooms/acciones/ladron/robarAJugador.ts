@@ -1,6 +1,7 @@
 import type { CatanRoom } from "../../CatanRoom.js";
 import { FaseJuego } from "../../../common/enums.js";
 import { robarJugador } from "../../../functions/robarJugador.js";
+import { iniciarRelojAcciones } from "../../../timers/acciones/iniciarRelojAcciones.js";
 import { registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
 
 //? El jugador del turno le roba un recurso al azar al jugador elegido y se vuelve a las acciones
@@ -15,4 +16,7 @@ export function robarAJugador(sala: CatanRoom, sessionId: string, sessionIdRobad
     sala.partida.jugadoresParaRobar.clear();
     sala.partida.faseJuego = FaseJuego.ACCIONES;
     sala.temporizador.cancelar("robo");
+
+    //* Despues del 7 aqui empieza el tiempo de las acciones; con el caballero ya venia corriendo
+    iniciarRelojAcciones(sala);
 }

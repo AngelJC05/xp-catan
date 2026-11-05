@@ -5,6 +5,7 @@ import { sacarJugador } from "../../../functions/sacarJugador.js";
 import { actualizarRelojPreconstruccion } from "../../../timers/preconstruccion/actualizarRelojPreconstruccion.js";
 import { actualizarRelojDados } from "../../../timers/dados/actualizarRelojDados.js";
 import { iniciarRelojLadron } from "../../../timers/ladron/iniciarRelojLadron.js";
+import { iniciarRelojAcciones } from "../../../timers/acciones/iniciarRelojAcciones.js";
 import { registrarLogDeJugador, registrarLogSistema } from "../../ayudantes/notificaciones.js";
 
 //? Actualiza en la metadata de la sala el nombre del anfitrion segun el creador actual de la partida
@@ -84,6 +85,16 @@ function salirDePartida(sala: CatanRoom, sessionId: string): void {
     //* El robo pudo terminar porque ya no queda a quien robar o porque cambio el turno
     if (sala.partida.fase !== FasePartida.JUEGO || sala.partida.faseJuego !== FaseJuego.ROBO) {
         sala.temporizador.cancelar("robo");
+    }
+
+    //* El tiempo de las acciones era del jugador que salio, o ya no hay partida
+    if (eraSuTurno || sala.partida.fase !== FasePartida.JUEGO) {
+        sala.temporizador.cancelar("acciones");
+    }
+
+    //* Si al sacarlo termino el robo del 7 se entra a las acciones; si ya corria no se reinicia
+    if (sala.partida.fase === FasePartida.JUEGO && sala.partida.faseJuego === FaseJuego.ACCIONES) {
+        iniciarRelojAcciones(sala);
     }
 
     //* Si al sacarlo se gana avisar

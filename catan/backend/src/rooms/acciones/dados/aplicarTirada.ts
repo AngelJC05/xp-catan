@@ -5,6 +5,7 @@ import { darRecursosJugador } from "../../../functions/darRecursosJugador.js";
 import { verticesDelHexagono } from "../../../functions/verticesDelHexagono.js";
 import { iniciarRelojDescarte } from "../../../timers/descarte/iniciarRelojDescarte.js";
 import { iniciarRelojLadron } from "../../../timers/ladron/iniciarRelojLadron.js";
+import { iniciarRelojAcciones } from "../../../timers/acciones/iniciarRelojAcciones.js";
 
 //? Aplica el resultado de una tirada de dados a la partida: reparte recursos o activa el 7
 //? Recibe la tirada ya hecha para que tambien la pueda usar un temporizador
@@ -42,6 +43,9 @@ export function aplicarTirada(
     });
 
     sala.partida.faseJuego = FaseJuego.ACCIONES;
+
+    //* Empieza el tiempo para las acciones del turno
+    iniciarRelojAcciones(sala);
 }
 
 //? Con un 7 quien tenga mas de 7 recursos descarta la mitad; si nadie debe, se pasa al ladron

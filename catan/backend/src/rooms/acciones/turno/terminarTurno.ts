@@ -22,6 +22,9 @@ export function terminarTurno(sala: CatanRoom, sessionId: string): void {
     //* Cancelar ofertas de intercambio activas
     cerrarOferta(sala);
 
+    //* El tiempo de las acciones ya no corre para este jugador
+    sala.temporizador.cancelar("acciones");
+
     siguienteTurno(sala.partida);
 
     //* El siguiente jugador empieza con el reloj de los dados
