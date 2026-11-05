@@ -25,6 +25,21 @@ export function manejarIniciarPartida(sala: CatanRoom, client: Client): void {
         return;
     }
 
+    //* Se aplica la configuracion elegida en el lobby: tiempos de la sala y puntos para ganar
+    const configuracion = sala.partida.configuracion;
+    sala.tiempos = {
+        preconstruccion: configuracion.preconstruccion,
+        dados: configuracion.dados,
+        acciones: configuracion.acciones,
+        oferta: configuracion.oferta,
+        ladron: configuracion.ladron,
+        robo: configuracion.robo,
+        descarte: configuracion.descarte
+    };
+    sala.jugadores.forEach((jugador) => {
+        jugador.puntosParaGanar = configuracion.puntos;
+    });
+
     //* Se completan los colores de los jugadores que no eligieron color
     completarColores(sala.jugadores);
 

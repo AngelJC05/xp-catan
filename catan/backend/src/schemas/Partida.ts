@@ -1,5 +1,6 @@
 import { ArraySchema, MapSchema, Schema, type } from "@colyseus/schema";
 import { FaseJuego, FasePartida, FasePreconstruccion } from "../common/enums.js";
+import { Configuracion } from "./Configuracion.js";
 import { Jugador } from "./Jugador.js";
 import { OfertaIntercambio } from "./OfertaIntercambio.js";
 import { Reloj } from "./Reloj.js";
@@ -21,6 +22,7 @@ export class Partida extends Schema {
   @type("uint8") carreterasGratis: number;
   @type(OfertaIntercambio) ofertaIntercambio = new OfertaIntercambio();
   @type({ map: Reloj }) relojes = new MapSchema<Reloj>();
+  @type(Configuracion) configuracion = new Configuracion();
 
   constructor() {
     super();

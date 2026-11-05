@@ -3,6 +3,7 @@ import assert from "node:assert";
 import { ColorJugador, FasePartida } from "../../../../src/common/enums.js";
 import { manejarIniciarPartida } from "../../../../src/rooms/handlers/partida/iniciarPartida.js";
 import { Temporizador } from "../../../../src/timers/Temporizador.js";
+import { PUNTOS_POR_DEFECTO } from "../../../../src/rooms/configuracion/puntosParaGanar.js";
 import { TIEMPOS_POR_DEFECTO } from "../../../../src/timers/tiempos.js";
 import { armarReloj } from "../../../ayudas/relojFalso.js";
 import { armarCliente, armarSala } from "../../../ayudas/salaFalsa.js";
@@ -110,6 +111,56 @@ describe("handler de iniciar partida", () => {
 
 });
 
+describe("configuracion al iniciar la partida", () => {
+
+  it("pasa los tiempos de la configuracion a la sala", () => {
+    const { sala, partida } = armarLobby();
+    const { client } = armarCliente(ANGEL);
+    Object.assign(partida.configuracion, {
+      preconstruccion: 60, dados: 15, acciones: 120, oferta: 20, ladron: 20, robo: 20, descarte: 15
+    });
+
+    manejarIniciarPartida(sala, client);
+
+    assert.deepStrictEqual(sala.tiempos, {
+      preconstruccion: 60, dados: 15, acciones: 120, oferta: 20, ladron: 20, robo: 20, descarte: 15
+    });
+  });
+
+  it("deja a cada jugador con los puntos para ganar de la configuracion", () => {
+    const { sala, partida, jugadores } = armarLobby();
+    const { client } = armarCliente(ANGEL);
+    partida.configuracion.puntos = 7;
+
+    manejarIniciarPartida(sala, client);
+
+    assert.strictEqual(jugadores.get(ANGEL).puntosParaGanar, 7);
+    assert.strictEqual(jugadores.get(ALAN).puntosParaGanar, 7);
+  });
+
+  it("si el creador no configuro nada quedan los valores por defecto", () => {
+    const { sala, jugadores } = armarLobby();
+    const { client } = armarCliente(ANGEL);
+
+    manejarIniciarPartida(sala, client);
+
+    assert.deepStrictEqual(sala.tiempos, TIEMPOS_POR_DEFECTO);
+    assert.strictEqual(jugadores.get(ANGEL).puntosParaGanar, PUNTOS_POR_DEFECTO);
+  });
+
+  it("no cambia nada de la sala si no se pudo iniciar la partida", () => {
+    const { sala, partida, jugadores } = armarLobby();
+    const { client } = armarCliente(ALAN);
+    Object.assign(partida.configuracion, { acciones: 120, puntos: 7 });
+
+    manejarIniciarPartida(sala, client);
+
+    assert.strictEqual(sala.tiempos.acciones, TIEMPOS_POR_DEFECTO.acciones);
+    assert.strictEqual(jugadores.get(ANGEL).puntosParaGanar, PUNTOS_POR_DEFECTO);
+  });
+
+});
+
 describe("reloj al iniciar la partida", () => {
 
   //? Funcion que devuelve el lobby con el temporizador real que usa el reloj falso
@@ -132,6 +183,16 @@ describe("reloj al iniciar la partida", () => {
     assert.strictEqual(programados.length, 1);
     assert.strictEqual(programados[0].milisegundos, TIEMPOS_POR_DEFECTO.preconstruccion * 1000);
     assert.strictEqual(sala.temporizador.estaActivo("preconstruccion"), true);
+  });
+
+  it("el reloj de la preconstruccion usa el tiempo configurado", () => {
+    const { sala, partida, programados } = armarLobbyConReloj();
+    const { client } = armarCliente(ANGEL);
+    partida.configuracion.preconstruccion = 60;
+
+    manejarIniciarPartida(sala, client);
+
+    assert.strictEqual(programados[0].milisegundos, 60 * 1000);
   });
 
   it("no arranca el reloj si no se pudo iniciar la partida", () => {

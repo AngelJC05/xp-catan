@@ -1,6 +1,6 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
-import { TIEMPOS_POR_DEFECTO, leerTiempos } from "../../src/timers/tiempos.js";
+import { TIEMPOS_POR_DEFECTO, TIEMPOS_PERMITIDOS, leerTiempos } from "../../src/timers/tiempos.js";
 
 describe("tiempos de la sala", () => {
 
@@ -15,6 +15,46 @@ describe("tiempos de la sala", () => {
     it("todos son segundos positivos", () => {
       for (const segundos of Object.values(TIEMPOS_POR_DEFECTO)) {
         assert.ok(Number.isFinite(segundos) && segundos > 0);
+      }
+    });
+
+  });
+
+  describe("TIEMPOS_POR_DEFECTO elegidos", () => {
+
+    it("ladron, robo y oferta duran 20 segundos", () => {
+      assert.strictEqual(TIEMPOS_POR_DEFECTO.ladron, 20);
+      assert.strictEqual(TIEMPOS_POR_DEFECTO.robo, 20);
+      assert.strictEqual(TIEMPOS_POR_DEFECTO.oferta, 20);
+    });
+
+  });
+
+  describe("TIEMPOS_PERMITIDOS", () => {
+
+    it("tiene una lista para cada accion", () => {
+      assert.deepStrictEqual(
+        Object.keys(TIEMPOS_PERMITIDOS).sort(),
+        Object.keys(TIEMPOS_POR_DEFECTO).sort()
+      );
+    });
+
+    it("las listas son las que se pueden elegir en la sala", () => {
+      assert.deepStrictEqual(TIEMPOS_PERMITIDOS, {
+        preconstruccion: [20, 40, 45, 60],
+        dados: [15],
+        acciones: [30, 60, 90, 120, 150],
+        oferta: [20],
+        ladron: [20],
+        robo: [20],
+        descarte: [15, 30]
+      });
+    });
+
+    it("el tiempo por defecto de cada accion esta entre sus opciones", () => {
+      for (const [accion, segundos] of Object.entries(TIEMPOS_POR_DEFECTO)) {
+        const opciones = TIEMPOS_PERMITIDOS[accion as keyof typeof TIEMPOS_PERMITIDOS];
+        assert.ok(opciones.includes(segundos), `${accion}: ${segundos} no esta en ${opciones}`);
       }
     });
 
