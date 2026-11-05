@@ -22,14 +22,14 @@ import { useCartas } from './hooks/useCartas';
 import { useComercio } from './hooks/useComercio';
 import { useLadron } from './hooks/useLadron';
 import { useHoraServidor } from './hooks/useHoraServidor';
-import { elegirRelojVisible } from './utils/reloj';
+import { elegirRelojesVisibles } from './utils/reloj';
 import { AREA, FONDO_PARTIDA, GRILLA, PANEL } from './utils/layout';
 import Construir, {
   type TipoConstruccion,
 } from './componentes/Construir/Construir';
 import { FASE_JUEGO, FASE_PARTIDA, FASE_PRECONSTRUCCION } from '../../common/fases';
 import AvisosTablero from './componentes/AvisosTablero';
-import Cronometro from './componentes/Cronometro';
+import PilaCronometros from './componentes/PilaCronometros';
 import ElegirRobo from './componentes/ElegirRobo';
 import UsarCarta from './componentes/Cartas/UsarCarta';
 import ElegirAbundancia from './componentes/Cartas/ElegirAbundancia';
@@ -105,7 +105,7 @@ function Partida({ sala, registro, onSalir }: Props) {
   } = useDadosYTurno(sala, puedeLanzarDados, puedePasarTurno);
 
   const ahoraServidor = useHoraServidor(sala);
-  const relojVisible = elegirRelojVisible(partidaActual);
+  const relojesVisibles = elegirRelojesVisibles(partidaActual);
 
   const partidaFinalizada = Boolean(
     sala
@@ -257,11 +257,7 @@ function Partida({ sala, registro, onSalir }: Props) {
           carreterasGratis={partidaActual?.carreterasGratis ?? 0}
           nombreJugadorEnTurno={jugadores[turnoActual]?.nombre ?? 'El jugador en turno'}
         />
-        <Cronometro
-          etiqueta={relojVisible?.etiqueta ?? ''}
-          fin={relojVisible?.fin ?? null}
-          ahora={ahoraServidor}
-        />
+        <PilaCronometros relojes={relojesVisibles} ahora={ahoraServidor} />
         <Tablero
           datos={datosTablero}
           jugadores={jugadores}
