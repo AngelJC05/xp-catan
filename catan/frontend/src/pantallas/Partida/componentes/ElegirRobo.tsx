@@ -4,6 +4,7 @@ import { colorDelJugador, totalRecursos } from "../../../common/jugador";
 import { COLOR, colorTextoSobre } from "../../../common/colores";
 import { ICONO_RECURSOS } from "../../../common/iconos";
 import ContadorIcono from "./comunes/ContadorIcono";
+import Cronometro from "./Cronometro";
 
 interface Props{
     abierto: boolean;
@@ -11,11 +12,13 @@ interface Props{
     jugadores: Jugadores;
     enviando: boolean;
     onRobar: (sessionId: string) => void;
+    finReloj: number | null;
+    ahora: () => number;
 }
 
 //* Backend llena jugadoresParaRobar al mover al ladron cuando hay 2 o mas jugadores
 
-function ElegirRobo({abierto, jugadoresParaRobar, jugadores, enviando, onRobar}: Props){
+function ElegirRobo({abierto, jugadoresParaRobar, jugadores, enviando, onRobar, finReloj, ahora}: Props){
     return (
         <Dialog open={abierto} fullWidth maxWidth="xs" aria-labelledby="robar-titulo">
             {/*Titulo del modal*/}
@@ -23,6 +26,8 @@ function ElegirRobo({abierto, jugadoresParaRobar, jugadores, enviando, onRobar}:
 
             {/*Cuerpo del modal*/}
             <DialogContent>
+                {/*Tiempo que le queda para elegir; si se acaba el juego elige al azar*/}
+                <Cronometro etiqueta="Robar" fin={finReloj} ahora={ahora} enLinea />
                 <Typography color="text.secondary">
                     Se le quitará un recurso al azar.
                 </Typography>
