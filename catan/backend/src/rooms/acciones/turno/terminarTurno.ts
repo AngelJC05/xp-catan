@@ -1,7 +1,7 @@
 import type { CatanRoom } from "../../CatanRoom.js";
 import { activarCartasCompradas } from "../../../functions/activarCartasCompradas.js";
 import { siguienteTurno } from "../../../functions/siguienteTurno.js";
-import { cerrarOferta } from "../../acciones/comercio/cerrarOferta.js";
+import { cerrarOferta } from "../comercio/cerrarOferta.js";
 import { actualizarRelojDados } from "../../../timers/dados/actualizarRelojDados.js";
 import { registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
 
