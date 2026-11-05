@@ -1,4 +1,5 @@
 import { RECURSOS, type Recurso } from '../../../common/jugador';
+import type { ConfiguracionSala } from '../../../common/configuracionSala';
 
 export interface DatosPartida {
   creador: string;
@@ -17,6 +18,7 @@ export interface DatosPartida {
   carreterasGratis: number;
   ofertaIntercambio: Oferta;
   relojes: Record<string, Reloj>;
+  configuracion: ConfiguracionSala;
 }
 
 /* schemas/Reloj.ts — cuando empieza y cuando termina un reloj, en hora del servidor (milisegundos). */

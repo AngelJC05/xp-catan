@@ -39,6 +39,7 @@ import SalirPartida from './componentes/SalirPartida';
 import Ayuda from './componentes/Ayuda/Ayuda';
 import ProponerIntercambio from './componentes/Comercio/ProponerIntercambio/ProponerIntercambio';
 import ResponderIntercambio from './componentes/Comercio/ResponderIntercambio';
+import { CONFIGURACION_POR_DEFECTO } from '../../common/configuracionSala';
 
 interface Props {
   sala?: Room | null;
@@ -240,6 +241,7 @@ function Partida({ sala, registro, onSalir }: Props) {
           miSessionId={miSessionId}
           ejercitoMasGrande={partidaActual?.ejercitoMasGrande ?? ''}
           caminoMasLargo={partidaActual?.caminoMasLargo ?? ''}
+          puntosParaGanar={partidaActual?.configuracion.puntos ?? CONFIGURACION_POR_DEFECTO.puntos}
         />
       </div>
       <div

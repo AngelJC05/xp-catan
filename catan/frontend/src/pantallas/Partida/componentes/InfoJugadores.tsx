@@ -10,6 +10,7 @@ interface Props {
   miSessionId: string;
   ejercitoMasGrande: string;
   caminoMasLargo: string;
+  puntosParaGanar: number;
 }
 
 function InfoJugadores({
@@ -18,6 +19,7 @@ function InfoJugadores({
   miSessionId,
   ejercitoMasGrande,
   caminoMasLargo,
+  puntosParaGanar,
 }: Props) {
   const lista = ordenJugadores.length ? ordenJugadores : Object.keys(jugadores);
 
@@ -47,7 +49,7 @@ function InfoJugadores({
               <span className="flex-grow-1 text-truncate fw-semibold">
                 {yo && '(Yo) '}{j.nombre}
               </span>
-              <span className="fw-bold flex-shrink-0">{j.puntuacion}/10</span>
+              <span className="fw-bold flex-shrink-0">{j.puntuacion}/{puntosParaGanar}</span>
             </div>
 
             <div className="d-flex flex-wrap justify-content-around align-items-center column-gap-1 px-1 py-1">
