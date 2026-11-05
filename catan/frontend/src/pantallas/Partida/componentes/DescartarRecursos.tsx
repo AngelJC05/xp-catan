@@ -4,6 +4,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
 import type { Recurso, Recursos } from '../../../common/jugador';
 import SelectorRecurso from './comunes/SelectorRecurso';
+import Cronometro from './Cronometro';
 
 interface Props {
   pendientes: number;
@@ -11,10 +12,12 @@ interface Props {
   esSuTurnoDeDescartar: boolean;
   enviando: boolean;
   onDescartar: (recurso: Recurso) => void;
+  finReloj: number | null;
+  ahora: () => number;
 }
 
 function DescartarRecursos({
-  pendientes, recursos, esSuTurnoDeDescartar, enviando, onDescartar,
+  pendientes, recursos, esSuTurnoDeDescartar, enviando, onDescartar, finReloj, ahora,
 }: Props) {
   const disponibles = (recurso: Recurso) => recursos?.[recurso] ?? 0;
 
@@ -22,6 +25,7 @@ function DescartarRecursos({
     <Dialog open={pendientes > 0} fullWidth maxWidth="xs" aria-labelledby="descartar-titulo">
       <DialogTitle id="descartar-titulo">Descartar recursos</DialogTitle>
       <DialogContent>
+        <Cronometro etiqueta="Descartar" fin={finReloj} ahora={ahora} enLinea />
         <Typography role="status">
           Te falta descartar {pendientes} {pendientes === 1 ? 'recurso' : 'recursos'}.
         </Typography>

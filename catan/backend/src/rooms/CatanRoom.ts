@@ -1,10 +1,13 @@
 import { Room, Client, CloseCode, Delayed } from "colyseus";
 import { CatanState } from "../states/CatanState.js";
 import { revisarCaminoMasLargo } from "./ayudantes/revisarCaminoMasLargo.js";
+import { Temporizador } from "../timers/Temporizador.js";
+import { TIEMPOS_POR_DEFECTO, type Tiempos } from "../timers/tiempos.js";
 import {
   manejarChat,
   manejarIniciarPartida,
   manejarElegirColor,
+  manejarConfigurarSala,
   manejarColocarAsentamiento,
   manejarColocarCamino,
   manejarColocarCiudad,
@@ -27,19 +30,24 @@ import {
   manejarSalida,
   manejarCaidaConexion,
   manejarReconexion,
-  manejarDestruccion
+  manejarDestruccion,
+  manejarHora
 } from "./handlers/index.js";
 
 
 export class CatanRoom extends Room {
   maxClients = 4;
+  codigoAcceso = "";
+
   state = new CatanState();
   partida = this.state.partida;
   tablero = this.state.tablero;
   banca = this.state.banca;
   jugadores = this.state.jugadores;
   ofertas = new Map<string, unknown>();
-  codigoAcceso = "";
+  
+  tiempos: Tiempos = { ...TIEMPOS_POR_DEFECTO };
+  temporizador = new Temporizador(this.clock, this.partida.relojes);
 
 
   messages = {
@@ -54,7 +62,14 @@ export class CatanRoom extends Room {
       mensaje: { color: number }
     ) => manejarElegirColor(this, client, mensaje),
 
+    msgConfigurarSala: (
+      client: Client,
+      mensaje: Record<string, unknown>
+    ) => manejarConfigurarSala(this, client, mensaje),
+
     msgIniciarPartida: (client: Client) => manejarIniciarPartida(this, client),
+
+    msgHora: () => manejarHora(),
 
     msgColocarAsentamiento: (
       client: Client,

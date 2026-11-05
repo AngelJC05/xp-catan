@@ -12,6 +12,7 @@ import {
 import type { DatosNuevaSala } from "../pantallas/CrearSala/CrearSala";
 import type { JugadorVista } from "../pantallas/SalaEspera/tipos";
 import { FASE_PARTIDA } from "../common/fases";
+import { CONFIGURACION_POR_DEFECTO, type ConfiguracionSala } from "../common/configuracionSala";
 import { mensajeDeError } from "../utils/mensajeErrorSala";
 import { useRegistroSala } from "./useRegistroSala";
 
@@ -26,9 +27,24 @@ interface EstadoDeSala {
     fase: number;
     turnoActual: string;
     creador: string;
+    configuracion: ConfiguracionSala;
   };
   jugadores: {
     forEach: (callback: (jugador: JugadorEstado, sessionId: string) => void) => void;
+  };
+}
+
+// Copia los valores del schema a un objeto simple para guardarlo en el estado de React
+function leerConfiguracion(c: ConfiguracionSala): ConfiguracionSala {
+  return {
+    preconstruccion: c.preconstruccion,
+    dados: c.dados,
+    acciones: c.acciones,
+    oferta: c.oferta,
+    ladron: c.ladron,
+    robo: c.robo,
+    descarte: c.descarte,
+    puntos: c.puntos,
   };
 }
 
@@ -45,6 +61,7 @@ export function useSalaCatan({ nombreJugador, setNombreJugador, onSalida, onReco
   const [jugadores, setJugadores] = useState<JugadorVista[]>([]);
   const [fase, setFase] = useState<number>(FASE_PARTIDA.LOBBY);
   const [creador, setCreador] = useState("");
+  const [configuracion, setConfiguracion] = useState<ConfiguracionSala>(CONFIGURACION_POR_DEFECTO);
   const [errorServidor, setErrorServidor] = useState<string | null>(null);
   const registro = useRegistroSala(room);
   const salidaVoluntaria = useRef(false);
@@ -86,6 +103,7 @@ export function useSalaCatan({ nombreJugador, setNombreJugador, onSalida, onReco
 
       setFase(state.partida.fase);
       setCreador(state.partida.creador);
+      setConfiguracion(leerConfiguracion(state.partida.configuracion));
 
       const listaJugadores: JugadorVista[] = [];
       state.jugadores.forEach((jugador, sessionId) => {
@@ -116,6 +134,7 @@ export function useSalaCatan({ nombreJugador, setNombreJugador, onSalida, onReco
       setJugadores([]);
       setFase(FASE_PARTIDA.LOBBY);
       setCreador("");
+      setConfiguracion(CONFIGURACION_POR_DEFECTO);
       onSalida(salidaVoluntaria.current);
       salidaVoluntaria.current = false;
     }
@@ -194,6 +213,7 @@ export function useSalaCatan({ nombreJugador, setNombreJugador, onSalida, onReco
     cerrarError: () => setErrorServidor(null),
     partidaIniciada,
     esCreador,
+    configuracion,
     crearSala,
     unirseASala,
     salirDeSala,

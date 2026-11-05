@@ -5,7 +5,7 @@ import { jugarCaballero } from "../../../functions/jugarCaballero.js";
 import { moverLadron } from "../../../functions/moverLadron.js";
 import { verificarVictoria } from "../../../functions/verificarVictoria.js";
 import { difundirSonido, enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
-import { resolverRobo } from "../ladron/resolverRobo.js";
+import { resolverRobo } from "../../acciones/ladron/resolverRobo.js";
 import { enFaseJuego, esSuTurno, partidaEnCurso, puedeUsarCarta, tieneCarta, validar } from "../../validaciones/guardias.js";
 
 //? Atiende el mensaje msgCartaCaballero: mueve al ladron con la carta y resuelve el robo

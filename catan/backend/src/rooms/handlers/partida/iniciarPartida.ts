@@ -5,6 +5,7 @@ import { mezclar } from "../../../common/mezclar.js";
 import { enviarError } from "../../ayudantes/notificaciones.js";
 import { enFasePartida, esCreador, validar } from "../../validaciones/guardias.js";
 import { completarColores } from "../../../functions/completarColores.js";
+import { iniciarRelojPreconstruccion } from "../../../timers/preconstruccion/iniciarRelojPreconstruccion.js";
 
 //? Atiende el mensaje msgIniciarPartida: arranca la partida desde el lobby
 export function manejarIniciarPartida(sala: CatanRoom, client: Client): void {
@@ -24,6 +25,21 @@ export function manejarIniciarPartida(sala: CatanRoom, client: Client): void {
         return;
     }
 
+    //* Se aplica la configuracion elegida en el lobby: tiempos de la sala y puntos para ganar
+    const configuracion = sala.partida.configuracion;
+    sala.tiempos = {
+        preconstruccion: configuracion.preconstruccion,
+        dados: configuracion.dados,
+        acciones: configuracion.acciones,
+        oferta: configuracion.oferta,
+        ladron: configuracion.ladron,
+        robo: configuracion.robo,
+        descarte: configuracion.descarte
+    };
+    sala.jugadores.forEach((jugador) => {
+        jugador.puntosParaGanar = configuracion.puntos;
+    });
+
     //* Se completan los colores de los jugadores que no eligieron color
     completarColores(sala.jugadores);
 
@@ -32,6 +48,9 @@ export function manejarIniciarPartida(sala: CatanRoom, client: Client): void {
     sala.partida.turnoActual = sala.partida.ordenJugadores[0];
     sala.broadcast("inicio", { mensaje: "La partida ha comenzado" });
     sala.partida.fase = FasePartida.PRECONSTRUCCION;
+
+    //* Empieza el reloj del primer turno de la preconstruccion
+    iniciarRelojPreconstruccion(sala);
 
     //* setMetadata reemplaza todo, por eso se conserva el resto de campos
     sala.setMetadata({ ...sala.metadata, estado: "EN JUEGO" });

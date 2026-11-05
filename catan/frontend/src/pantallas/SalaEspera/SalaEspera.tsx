@@ -10,10 +10,12 @@ import Chat, { type LineaRegistro } from "../../componentes/Chat";
 import { ICONO_UI } from "../../common/iconos";
 import Icono from "../../componentes/Icono";
 import type { InfoSala } from "../../servicios/sesionGuardada";
+import type { ConfiguracionSala as Configuracion } from "../../common/configuracionSala";
 import type { JugadorVista } from "./tipos";
 import TarjetaJugador from "./componentes/TarjetaJugador";
 import AsientoVacio from "./componentes/AsientoVacio";
 import CampoCopiable from "./componentes/CampoCopiable";
+import ConfiguracionSala from "./componentes/ConfiguracionSala";
 
 interface SalaEsperaProps {
   room: Room;
@@ -22,6 +24,7 @@ interface SalaEsperaProps {
   maxJugadores: number;
   minJugadores: number;
   esCreador: boolean;
+  configuracion: Configuracion;
   registro: LineaRegistro[];
   onIniciarPartida: () => void;
   onSalir: () => void;
@@ -34,6 +37,7 @@ function SalaEspera({
   maxJugadores,
   minJugadores,
   esCreador,
+  configuracion,
   registro,
   onIniciarPartida,
   onSalir,
@@ -99,6 +103,14 @@ function SalaEspera({
                     )
                   )}
                 </ul>
+              </div>
+
+              <div className="w-100 mb-4">
+                <ConfiguracionSala
+                  configuracion={configuracion}
+                  esCreador={esCreador}
+                  onCambiar={(cambio) => room.send("msgConfigurarSala", cambio)}
+                />
               </div>
 
               <div className="w-100 d-flex flex-column gap-2 mb-4">

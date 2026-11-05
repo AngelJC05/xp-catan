@@ -1,7 +1,11 @@
 import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
-import { FasePartida } from "../../../common/enums.js";
+import { FaseJuego, FasePartida } from "../../../common/enums.js";
 import { sacarJugador } from "../../../functions/sacarJugador.js";
+import { actualizarRelojPreconstruccion } from "../../../timers/preconstruccion/actualizarRelojPreconstruccion.js";
+import { actualizarRelojDados } from "../../../timers/dados/actualizarRelojDados.js";
+import { iniciarRelojLadron } from "../../../timers/ladron/iniciarRelojLadron.js";
+import { iniciarRelojAcciones } from "../../../timers/acciones/iniciarRelojAcciones.js";
 import { registrarLogDeJugador, registrarLogSistema } from "../../ayudantes/notificaciones.js";
 
 //? Actualiza en la metadata de la sala el nombre del anfitrion segun el creador actual de la partida
@@ -35,6 +39,9 @@ function salirDePartida(sala: CatanRoom, sessionId: string): void {
     //* Ver si era el creador de la sala
     const eraCreador = sala.partida.creador === sessionId;
 
+    //* Ver si era su turno, para darle su reloj completo al siguiente
+    const eraSuTurno = sala.partida.turnoActual === sessionId;
+
     //* Avisar del abandono antes de borrarlo, para tener su nombre
     registrarLogDeJugador(sala, sessionId, " ha abandonado la partida");
 
@@ -46,6 +53,48 @@ function salirDePartida(sala: CatanRoom, sessionId: string): void {
     //* Actualizar el anfitrion si era el creador el que abandono
     if (eraCreador) {
         actualizarAnfitrion(sala);
+    }
+
+    //* Si cambio el turno o la preconstruccion termino, el reloj se reinicia o se cancela
+    if (eraSuTurno || sala.partida.fase !== FasePartida.PRECONSTRUCCION) {
+        actualizarRelojPreconstruccion(sala);
+    }
+
+    //* Igual con el reloj de los dados: si cambio el turno o termino la partida
+    if (eraSuTurno || sala.partida.fase !== FasePartida.JUEGO) {
+        actualizarRelojDados(sala);
+    }
+
+    //* Al sacarlo la oferta pudo cerrarse (era suya o ya todos rechazaron); entonces su reloj sobra
+    if (sala.partida.ofertaIntercambio.jugador === "") {
+        sala.temporizador.cancelar("oferta");
+    }
+
+    //* Igual con el descarte: pudo terminar porque salio el ultimo que faltaba o porque cambio el turno
+    if (sala.partida.fase !== FasePartida.JUEGO || sala.partida.faseJuego !== FaseJuego.DESCARTE) {
+        sala.temporizador.cancelar("descarte");
+    }
+
+    //* Si al sacarlo termino el descarte arranca el reloj del ladron; si cambio el turno ya no hace falta
+    if (sala.partida.fase === FasePartida.JUEGO && sala.partida.faseJuego === FaseJuego.LADRON) {
+        if (!sala.temporizador.estaActivo("ladron")) iniciarRelojLadron(sala);
+    } else {
+        sala.temporizador.cancelar("ladron");
+    }
+
+    //* El robo pudo terminar porque ya no queda a quien robar o porque cambio el turno
+    if (sala.partida.fase !== FasePartida.JUEGO || sala.partida.faseJuego !== FaseJuego.ROBO) {
+        sala.temporizador.cancelar("robo");
+    }
+
+    //* El tiempo de las acciones era del jugador que salio, o ya no hay partida
+    if (eraSuTurno || sala.partida.fase !== FasePartida.JUEGO) {
+        sala.temporizador.cancelar("acciones");
+    }
+
+    //* Si al sacarlo termino el robo del 7 se entra a las acciones; si ya corria no se reinicia
+    if (sala.partida.fase === FasePartida.JUEGO && sala.partida.faseJuego === FaseJuego.ACCIONES) {
+        iniciarRelojAcciones(sala);
     }
 
     //* Si al sacarlo se gana avisar

@@ -2,6 +2,7 @@ import type { Client } from "colyseus";
 import type { CatanRoom } from "../../src/rooms/CatanRoom.js";
 import { Jugador } from "../../src/schemas/Jugador.js";
 import { CatanState } from "../../src/states/CatanState.js";
+import { TIEMPOS_POR_DEFECTO } from "../../src/timers/tiempos.js";
 
 export interface Envio {
   tipo: string;
@@ -30,6 +31,7 @@ export function armarSala(nombresPorId: Record<string, string> = {}) {
   const estado = {
     bloqueada: false,
     revisionesCamino: 0,
+    relojesLimpiados: 0,
     reconexiones: [] as { sessionId: string, segundos: number }[]
   };
   
@@ -44,6 +46,13 @@ export function armarSala(nombresPorId: Record<string, string> = {}) {
     banca,
     metadata: {},
     codigoAcceso: "",
+    temporizador: {
+      limpiar: () => { estado.relojesLimpiados++; },
+      programar: () => {},
+      cancelar: () => {},
+      estaActivo: () => false
+    },
+    tiempos: { ...TIEMPOS_POR_DEFECTO },
     ofertas: new Map<string, unknown>(),
     broadcast: (tipo: string, mensaje: unknown) => difundidos.push({ tipo, mensaje }),
     setMetadata: (metadata: object) => { sala.metadata = metadata; },
