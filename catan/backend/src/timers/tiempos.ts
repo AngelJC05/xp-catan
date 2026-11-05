@@ -16,20 +16,20 @@ export const TIEMPOS_POR_DEFECTO: Readonly<Tiempos> = {
     dados: 15,
     acciones: 90,
     oferta: 20,
-    ladron: 25,
-    robo: 15,
+    ladron: 20,
+    robo: 20,
     descarte: 30
 };
 
 //? Segundos que se pueden elegir para cada accion al configurar la sala
 export const TIEMPOS_PERMITIDOS: Readonly<Record<NombreTiempo, readonly number[]>> = {
-    preconstruccion: [],
-    dados: [],
-    acciones: [],
-    oferta: [],
-    ladron: [],
-    robo: [],
-    descarte: []
+    preconstruccion: [20, 40, 45, 60],
+    dados: [15],
+    acciones: [30, 60, 90, 120, 150],
+    oferta: [20],
+    ladron: [20],
+    robo: [20],
+    descarte: [15, 30]
 };
 
 //? Devuelve el tiempo enviado si es un numero de 0 en adelante, y si no el tiempo por defecto
