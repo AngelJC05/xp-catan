@@ -29,4 +29,10 @@ export function manejarConfigurarSala(
         enviarError(client, resultado.mensaje);
         return;
     }
+
+    //* Ya validada, se guarda solo lo que llego y el resto queda como estaba
+    const configuracion = sala.partida.configuracion as unknown as Record<string, number>;
+    for (const [opcion, valor] of Object.entries(mensaje)) {
+        configuracion[opcion] = valor as number;
+    }
 }

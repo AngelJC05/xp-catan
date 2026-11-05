@@ -4,6 +4,7 @@ export { manejarChat } from "./chat/chat.js";
 //* partida
 export { manejarIniciarPartida } from "./partida/iniciarPartida.js";
 export { manejarElegirColor } from "./partida/elegirColor.js";
+export { manejarConfigurarSala } from "./partida/configurarSala.js";
 
 //* construccion
 export { manejarColocarAsentamiento } from "./construccion/colocarAsentamiento.js";

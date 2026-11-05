@@ -7,6 +7,7 @@ import {
   manejarChat,
   manejarIniciarPartida,
   manejarElegirColor,
+  manejarConfigurarSala,
   manejarColocarAsentamiento,
   manejarColocarCamino,
   manejarColocarCiudad,
@@ -60,6 +61,11 @@ export class CatanRoom extends Room {
       client: Client,
       mensaje: { color: number }
     ) => manejarElegirColor(this, client, mensaje),
+
+    msgConfigurarSala: (
+      client: Client,
+      mensaje: Record<string, unknown>
+    ) => manejarConfigurarSala(this, client, mensaje),
 
     msgIniciarPartida: (client: Client) => manejarIniciarPartida(this, client),
 
