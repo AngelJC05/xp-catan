@@ -1,5 +1,6 @@
 import type { CatanRoom } from "../../CatanRoom.js";
 import { FaseJuego } from "../../../common/enums.js";
+import { iniciarRelojAcciones } from "../../../timers/acciones/iniciarRelojAcciones.js";
 import { iniciarRelojRobo } from "../../../timers/robo/iniciarRelojRobo.js";
 import { robarAJugador } from "./robarAJugador.js";
 
@@ -13,6 +14,7 @@ export function resolverRobo(
     //* Si no hay jugadores involucrados se pasa a las acciones
     if (involucrados.length === 0) {
         sala.partida.faseJuego = FaseJuego.ACCIONES;
+        iniciarRelojAcciones(sala);
         return;
     }
 

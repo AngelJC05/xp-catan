@@ -3,7 +3,7 @@ import type { CatanRoom } from "../../CatanRoom.js";
 import { FaseJuego } from "../../../common/enums.js";
 import { enviarError } from "../../ayudantes/notificaciones.js";
 import { enFaseJuego, esSuTurno, partidaEnCurso, validar } from "../../validaciones/guardias.js";
-import { terminarTurno } from "./terminarTurno.js";
+import { terminarTurno } from "../../acciones/turno/terminarTurno.js";
 
 //? Atiende el mensaje msgPasarTurno: el jugador termina voluntariamente su turno
 export function manejarPasarTurno(sala: CatanRoom, client: Client): void {

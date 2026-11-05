@@ -49,7 +49,8 @@ export function armarSala(nombresPorId: Record<string, string> = {}) {
     temporizador: {
       limpiar: () => { estado.relojesLimpiados++; },
       programar: () => {},
-      cancelar: () => {}
+      cancelar: () => {},
+      estaActivo: () => false
     },
     tiempos: { ...TIEMPOS_POR_DEFECTO },
     ofertas: new Map<string, unknown>(),

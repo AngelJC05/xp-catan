@@ -1,7 +1,7 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
 import { Desarrollo, FaseJuego, FasePartida } from "../../../../src/common/enums.js";
-import { terminarTurno } from "../../../../src/rooms/handlers/turno/terminarTurno.js";
+import { terminarTurno } from "../../../../src/rooms/acciones/turno/terminarTurno.js";
 import { armarSala } from "../../../ayudas/salaFalsa.js";
 
 const ANGEL = "jugadorAngel";
