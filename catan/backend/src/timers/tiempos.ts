@@ -21,6 +21,17 @@ export const TIEMPOS_POR_DEFECTO: Readonly<Tiempos> = {
     descarte: 30
 };
 
+//? Segundos que se pueden elegir para cada accion al configurar la sala
+export const TIEMPOS_PERMITIDOS: Readonly<Record<NombreTiempo, readonly number[]>> = {
+    preconstruccion: [],
+    dados: [],
+    acciones: [],
+    oferta: [],
+    ladron: [],
+    robo: [],
+    descarte: []
+};
+
 //? Devuelve el tiempo enviado si es un numero de 0 en adelante, y si no el tiempo por defecto
 function elegirTiempo(enviado: unknown, porDefecto: number): number {
     //* Solo se aceptan numeros, sin NaN ni Infinity
