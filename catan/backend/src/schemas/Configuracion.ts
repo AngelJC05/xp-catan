@@ -1,5 +1,8 @@
 import { Schema, type } from "@colyseus/schema";
+import { PUNTOS_POR_DEFECTO } from "../rooms/configuracion/puntosParaGanar.js";
+import { TIEMPOS_POR_DEFECTO } from "../timers/tiempos.js";
 
+//? Configuracion de la partida que elige el creador en el lobby: segundos de cada temporizador y puntos para ganar
 export class Configuracion extends Schema {
     @type("uint8") preconstruccion: number;
     @type("uint8") dados: number;
@@ -12,13 +15,13 @@ export class Configuracion extends Schema {
 
     constructor() {
         super();
-        this.preconstruccion = 0;
-        this.dados = 0;
-        this.acciones = 0;
-        this.oferta = 0;
-        this.ladron = 0;
-        this.robo = 0;
-        this.descarte = 0;
-        this.puntos = 0;
+        this.preconstruccion = TIEMPOS_POR_DEFECTO.preconstruccion;
+        this.dados = TIEMPOS_POR_DEFECTO.dados;
+        this.acciones = TIEMPOS_POR_DEFECTO.acciones;
+        this.oferta = TIEMPOS_POR_DEFECTO.oferta;
+        this.ladron = TIEMPOS_POR_DEFECTO.ladron;
+        this.robo = TIEMPOS_POR_DEFECTO.robo;
+        this.descarte = TIEMPOS_POR_DEFECTO.descarte;
+        this.puntos = PUNTOS_POR_DEFECTO;
     }
 }
