@@ -14,4 +14,5 @@ export function robarAJugador(sala: CatanRoom, sessionId: string, sessionIdRobad
     //* Limpiar la lista y volver a las acciones
     sala.partida.jugadoresParaRobar.clear();
     sala.partida.faseJuego = FaseJuego.ACCIONES;
+    sala.temporizador.cancelar("robo");
 }

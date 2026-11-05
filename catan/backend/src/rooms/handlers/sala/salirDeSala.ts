@@ -81,6 +81,11 @@ function salirDePartida(sala: CatanRoom, sessionId: string): void {
         sala.temporizador.cancelar("ladron");
     }
 
+    //* El robo pudo terminar porque ya no queda a quien robar o porque cambio el turno
+    if (sala.partida.fase !== FasePartida.JUEGO || sala.partida.faseJuego !== FaseJuego.ROBO) {
+        sala.temporizador.cancelar("robo");
+    }
+
     //* Si al sacarlo se gana avisar
     if (sala.partida.fase === FasePartida.FINALIZADA) {
         registrarLogSistema(sala, `${sala.jugadores.get(sala.partida.ganador)?.nombre} gana por abandono...`);

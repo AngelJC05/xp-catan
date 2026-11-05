@@ -1,5 +1,6 @@
 import type { CatanRoom } from "../../CatanRoom.js";
 import { FaseJuego } from "../../../common/enums.js";
+import { iniciarRelojRobo } from "../../../timers/robo/iniciarRelojRobo.js";
 import { robarAJugador } from "./robarAJugador.js";
 
 //? Decide que pasa despues de mover al ladron segun los jugadores que se pueden robar
@@ -25,4 +26,7 @@ export function resolverRobo(
     sala.partida.jugadoresParaRobar.clear();
     sala.partida.jugadoresParaRobar.push(...involucrados);
     sala.partida.faseJuego = FaseJuego.ROBO;
+
+    //* El jugador del turno tiene un tiempo limite para elegir
+    iniciarRelojRobo(sala);
 }
