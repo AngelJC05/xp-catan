@@ -28,7 +28,7 @@ function Navegacion() {
   const [origenCrear, setOrigenCrear] = useState<"elegir" | "lobby">("elegir");
 
   const {
-    room, infoSala, jugadores, registro, errorServidor, cerrarError, partidaIniciada, esCreador,
+    room, infoSala, jugadores, registro, errorServidor, cerrarError, partidaIniciada, esCreador, configuracion,
     crearSala, unirseASala, salirDeSala,
   } = useSalaCatan({
     nombreJugador,
@@ -102,6 +102,7 @@ function Navegacion() {
           maxJugadores={MAX_JUGADORES}
           minJugadores={MIN_JUGADORES}
           esCreador={esCreador}
+          configuracion={configuracion}
           registro={registro}
           onIniciarPartida={() => room.send("msgIniciarPartida")}
           onSalir={salirDeSala}
