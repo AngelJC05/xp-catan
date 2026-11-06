@@ -4,6 +4,7 @@ import { Jugador } from "../schemas/Jugador.js";
 import { Banca } from "../schemas/Banca.js";
 import { Tablero } from "../schemas/Tablero.js";
 import { Partida } from "../schemas/Partida.js";
+import { elegirNuevoCreador } from "./elegirNuevoCreador.js";
 import { siguienteTurnoPreconstruccion } from "./siguienteTurnoPreconstruccion.js";
 import { siguienteTurno } from "./siguienteTurno.js";
 
@@ -103,9 +104,9 @@ export function sacarJugador(
         : partida.ordenJugadores[partida.ordenJugadores.length - 1];
     }
 
-    //*Pasar el creador al siguiente jugador en el orden
+    //*Pasar el creador a la siguiente persona en el orden, nunca a un bot
     if (partida.creador === sessionId) {
-        partida.creador = partida.ordenJugadores[0] ?? "";
+        partida.creador = elegirNuevoCreador(partida.ordenJugadores, jugadores);
     }
 
     //* Si queda solo uno, gana de forma automatica
