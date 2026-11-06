@@ -9,6 +9,8 @@ import {
   manejarIniciarPartida,
   manejarElegirColor,
   manejarConfigurarSala,
+  manejarAgregarBot,
+  manejarQuitarBot,
   manejarColocarAsentamiento,
   manejarColocarCamino,
   manejarColocarCiudad,
@@ -67,6 +69,13 @@ export class CatanRoom extends Room {
       client: Client,
       mensaje: Record<string, unknown>
     ) => manejarConfigurarSala(this, client, mensaje),
+
+    msgAgregarBot: (client: Client) => manejarAgregarBot(this, client),
+
+    msgQuitarBot: (
+      client: Client,
+      mensaje: { sessionId: string }
+    ) => manejarQuitarBot(this, client, mensaje),
 
     msgIniciarPartida: (client: Client) => manejarIniciarPartida(this, client),
 
