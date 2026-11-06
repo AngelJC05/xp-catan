@@ -20,6 +20,7 @@ interface JugadorEstado {
   nombre: string;
   puntuacion: number;
   color: number;
+  esBot: boolean;
 }
 
 interface EstadoDeSala {
@@ -115,6 +116,7 @@ export function useSalaCatan({ nombreJugador, setNombreJugador, onSalida, onReco
           sessionId,
           nombre: jugador.nombre,
           color: jugador.color,
+          esBot: jugador.esBot,
           score: jugador.puntuacion,
           esUsuarioActual,
           esSuTurno: sessionId === state.partida.turnoActual,
