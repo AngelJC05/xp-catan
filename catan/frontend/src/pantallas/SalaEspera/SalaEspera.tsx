@@ -96,7 +96,9 @@ function SalaEspera({
                         ocupados={jugadores
                           .filter((otro) => otro.sessionId !== jugador.sessionId)
                           .map((otro) => otro.color)}
+                        puedeQuitar={esCreador && jugador.esBot}
                         onElegirColor={(color) => room.send("msgElegirColor", { color })}
+                        onQuitar={() => room.send("msgQuitarBot", { sessionId: jugador.sessionId })}
                       />
                     ) : (
                       <AsientoVacio key={`vacio-${i}`} />
@@ -104,6 +106,18 @@ function SalaEspera({
                   )}
                 </ul>
               </div>
+
+              {esCreador && (
+                <Button
+                  variant="outlined"
+                  className="mb-4"
+                  startIcon={<Icono ruta={ICONO_UI.bot} tam={20} />}
+                  onClick={() => room.send("msgAgregarBot")}
+                  disabled={jugadores.length >= maxJugadores}
+                >
+                  Agregar bot
+                </Button>
+              )}
 
               <div className="w-100 mb-4">
                 <ConfiguracionSala
