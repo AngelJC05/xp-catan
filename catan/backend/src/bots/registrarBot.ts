@@ -1,6 +1,7 @@
 import type { Client } from "colyseus";
 import type { CatanRoom } from "../rooms/CatanRoom.js";
 import { Jugador } from "../schemas/Jugador.js";
+import { actualizarCupoBots } from "./actualizarCupoBots.js";
 import { NOMBRES_BOT } from "./nombresBot.js";
 
 //? Devuelve el primer sessionId bot-1, bot-2... que no este en uso
@@ -29,6 +30,7 @@ export function registrarBot(sala: CatanRoom): Client {
     bot.esBot = true;
     sala.jugadores.set(sessionId, bot);
     sala.partida.ordenJugadores.push(sessionId);
+    actualizarCupoBots(sala);
 
     //* Los bots no leen lo se le envia
     return { sessionId, send: () => {} } as unknown as Client;

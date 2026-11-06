@@ -6,6 +6,10 @@ export { manejarIniciarPartida } from "./partida/iniciarPartida.js";
 export { manejarElegirColor } from "./partida/elegirColor.js";
 export { manejarConfigurarSala } from "./partida/configurarSala.js";
 
+//* bots
+export { manejarAgregarBot } from "./bots/agregarBot.js";
+export { manejarQuitarBot } from "./bots/quitarBot.js";
+
 //* construccion
 export { manejarColocarAsentamiento } from "./construccion/colocarAsentamiento.js";
 export { manejarColocarCamino } from "./construccion/colocarCamino.js";

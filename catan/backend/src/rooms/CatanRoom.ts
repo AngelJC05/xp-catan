@@ -3,11 +3,14 @@ import { CatanState } from "../states/CatanState.js";
 import { revisarCaminoMasLargo } from "./ayudantes/revisarCaminoMasLargo.js";
 import { Temporizador } from "../timers/Temporizador.js";
 import { TIEMPOS_POR_DEFECTO, type Tiempos } from "../timers/tiempos.js";
+import { MAX_JUGADORES } from "./configuracion/limitesSala.js";
 import {
   manejarChat,
   manejarIniciarPartida,
   manejarElegirColor,
   manejarConfigurarSala,
+  manejarAgregarBot,
+  manejarQuitarBot,
   manejarColocarAsentamiento,
   manejarColocarCamino,
   manejarColocarCiudad,
@@ -36,7 +39,7 @@ import {
 
 
 export class CatanRoom extends Room {
-  maxClients = 4;
+  maxClients = MAX_JUGADORES;
   codigoAcceso = "";
 
   state = new CatanState();
@@ -66,6 +69,13 @@ export class CatanRoom extends Room {
       client: Client,
       mensaje: Record<string, unknown>
     ) => manejarConfigurarSala(this, client, mensaje),
+
+    msgAgregarBot: (client: Client) => manejarAgregarBot(this, client),
+
+    msgQuitarBot: (
+      client: Client,
+      mensaje: { sessionId: string }
+    ) => manejarQuitarBot(this, client, mensaje),
 
     msgIniciarPartida: (client: Client) => manejarIniciarPartida(this, client),
 
