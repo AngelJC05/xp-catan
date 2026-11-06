@@ -27,9 +27,9 @@ function salirDelLobby(sala: CatanRoom, sessionId: string): void {
         sala.partida.ordenJugadores.splice(indice, 1);
     }
 
-    //* Si se fue el creador, el siguiente en entrar pasa a ser el anfitrion
+    //* Si se fue el creador, el siguiente en entrar que no sea un bot pasa a ser el anfitrion
     if (sala.partida.creador === sessionId) {
-        sala.partida.creador = sala.partida.ordenJugadores[0] ?? "";
+        sala.partida.creador = sala.partida.ordenJugadores.find((id) => !sala.jugadores.get(id)?.esBot) ?? "";
         actualizarAnfitrion(sala);
     }
 }
