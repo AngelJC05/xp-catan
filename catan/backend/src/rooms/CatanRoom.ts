@@ -3,6 +3,7 @@ import { CatanState } from "../states/CatanState.js";
 import { revisarCaminoMasLargo } from "./ayudantes/revisarCaminoMasLargo.js";
 import { Temporizador } from "../timers/Temporizador.js";
 import { TIEMPOS_POR_DEFECTO, type Tiempos } from "../timers/tiempos.js";
+import { MAX_JUGADORES } from "./configuracion/limitesSala.js";
 import {
   manejarChat,
   manejarIniciarPartida,
@@ -36,7 +37,7 @@ import {
 
 
 export class CatanRoom extends Room {
-  maxClients = 4;
+  maxClients = MAX_JUGADORES;
   codigoAcceso = "";
 
   state = new CatanState();
