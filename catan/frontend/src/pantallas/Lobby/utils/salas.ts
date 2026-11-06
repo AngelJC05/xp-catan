@@ -23,15 +23,19 @@ export interface MetadataSala {
   estado?: string;
   privada?: boolean;
   anfitrion?: string;
+  bots?: number;
 }
 
+// Los bots no son clientes: Colyseus los descuenta del cupo, así que se suman para mostrar el total real.
 export function salaDesdeListado(sala: RoomAvailable<MetadataSala>): SalaDisponible {
+  const bots = sala.metadata?.bots ?? 0;
+
   return {
     id: sala.roomId,
     nombre: sala.metadata?.alias || "Catan Room",
     tipo: sala.metadata?.privada ? "privada" : "publica",
-    jugadores: sala.clients,
-    maxJugadores: sala.maxClients,
+    jugadores: sala.clients + bots,
+    maxJugadores: sala.maxClients + bots,
     anfitrion: sala.metadata?.anfitrion || "",
   };
 }
