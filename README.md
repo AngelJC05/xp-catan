@@ -25,3 +25,6 @@ mejor manejo de errores y una experiencia de juego mucho más agradable. (Para m
 Esta versión integra cronómetros que se encargan de realizar automáticamente las acciones por parte de los jugadores por si 
 hay ausencia de uno de ellos, además de permitir indicar cuantos puntos se requieren para ganar o algunos tiempos mismamente
 de los establecidos por defecto (Para más detalles revisar la documentacion)
+
+**V1.4 - Beta**
+Aun sin definir
