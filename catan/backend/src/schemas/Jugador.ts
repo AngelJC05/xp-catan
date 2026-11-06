@@ -22,7 +22,7 @@ export class Jugador extends Schema {
     constructor(nombre: string = "") {
         super();
         this.nombre = nombre;
-        this.esBot = true;
+        this.esBot = false;
         this.color = ColorJugador.SIN_COLOR;
         this.puntuacion = 0;
         this.puntosParaGanar = 10;
