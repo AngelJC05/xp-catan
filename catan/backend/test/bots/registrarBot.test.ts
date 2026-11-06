@@ -113,6 +113,31 @@ describe("registrarBot", () => {
 
 });
 
+describe("registrarBot y el lugar en la sala", () => {
+
+  it("cada bot ocupa un lugar de la sala", () => {
+    const { sala } = armarLobby();
+    assert.strictEqual(sala.maxClients, 4);
+
+    registrarBot(sala);
+    assert.strictEqual(sala.maxClients, 3);
+
+    registrarBot(sala);
+    assert.strictEqual(sala.maxClients, 2);
+  });
+
+  it("publica en la metadata cuantos bots hay sin perder el resto", () => {
+    const { sala } = armarLobby();
+    sala.metadata = { alias: "Sala", anfitrion: "Angel" };
+
+    registrarBot(sala);
+    registrarBot(sala);
+
+    assert.deepStrictEqual(sala.metadata, { alias: "Sala", anfitrion: "Angel", bots: 2 });
+  });
+
+});
+
 describe("cliente falso del bot", () => {
 
   it("recibir un mensaje no hace nada ni falla", () => {

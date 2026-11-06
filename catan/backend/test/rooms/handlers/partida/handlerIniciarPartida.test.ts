@@ -1,6 +1,7 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
 import { ColorJugador, FasePartida } from "../../../../src/common/enums.js";
+import { registrarBot } from "../../../../src/bots/registrarBot.js";
 import { manejarIniciarPartida } from "../../../../src/rooms/handlers/partida/iniciarPartida.js";
 import { Temporizador } from "../../../../src/timers/Temporizador.js";
 import { PUNTOS_POR_DEFECTO } from "../../../../src/rooms/configuracion/puntosParaGanar.js";
@@ -106,6 +107,69 @@ describe("handler de iniciar partida", () => {
     manejarIniciarPartida(sala, client);
 
     assert.deepStrictEqual(sala.metadata, { alias: "Sala de prueba", estado: "EN JUEGO" });
+    assert.strictEqual(estado.bloqueada, true);
+  });
+
+});
+
+describe("iniciar la partida con bots", () => {
+
+  //? Funcion que devuelve un lobby con Angel como unico humano y un bot
+  function armarLobbyConBot() {
+    const armado = armarSala({ [ANGEL]: "Angel" });
+    armado.partida.creador = ANGEL;
+    armado.partida.ordenJugadores.push(ANGEL);
+    const bot = registrarBot(armado.sala).sessionId;
+    return { ...armado, bot };
+  }
+
+  it("se puede iniciar con una persona y un bot", () => {
+    const { sala, partida } = armarLobbyConBot();
+    const { client, enviados } = armarCliente(ANGEL);
+
+    manejarIniciarPartida(sala, client);
+
+    assert.strictEqual(enviados.length, 0);
+    assert.strictEqual(partida.fase, FasePartida.PRECONSTRUCCION);
+  });
+
+  it("no se puede iniciar con una sola persona y ningun bot", () => {
+    const { sala, partida } = armarSala({ [ANGEL]: "Angel" });
+    partida.creador = ANGEL;
+    partida.ordenJugadores.push(ANGEL);
+    const { client, enviados } = armarCliente(ANGEL);
+
+    manejarIniciarPartida(sala, client);
+
+    assert.strictEqual(enviados.length, 1);
+    assert.strictEqual(partida.fase, FasePartida.LOBBY);
+  });
+
+  it("el bot recibe color al iniciar como cualquier jugador", () => {
+    const { sala, jugadores, bot } = armarLobbyConBot();
+    const { client } = armarCliente(ANGEL);
+
+    manejarIniciarPartida(sala, client);
+
+    assert.notStrictEqual(jugadores.get(bot).color, ColorJugador.SIN_COLOR);
+    assert.notStrictEqual(jugadores.get(bot).color, jugadores.get(ANGEL).color);
+  });
+
+  it("el bot entra al orden de turnos", () => {
+    const { sala, partida, bot } = armarLobbyConBot();
+    const { client } = armarCliente(ANGEL);
+
+    manejarIniciarPartida(sala, client);
+
+    assert.deepStrictEqual([...partida.ordenJugadores].sort(), [ANGEL, bot].sort());
+  });
+
+  it("la sala se cierra al iniciar aunque haya bots", () => {
+    const { sala, estado } = armarLobbyConBot();
+    const { client } = armarCliente(ANGEL);
+
+    manejarIniciarPartida(sala, client);
+
     assert.strictEqual(estado.bloqueada, true);
   });
 

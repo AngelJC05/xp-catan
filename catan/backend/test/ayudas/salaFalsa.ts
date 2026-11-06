@@ -46,6 +46,7 @@ export function armarSala(nombresPorId: Record<string, string> = {}) {
     banca,
     metadata: {},
     codigoAcceso: "",
+    maxClients: 4,
     temporizador: {
       limpiar: () => { estado.relojesLimpiados++; },
       programar: () => {},
