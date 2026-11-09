@@ -1,8 +1,7 @@
 import type { CatanRoom } from "../../rooms/CatanRoom.js";
 import { FaseJuego, FasePartida } from "../../common/enums.js";
-import { descartarRecursoDeJugador } from "../../rooms/acciones/descarte/descartarRecursoDeJugador.js";
 import { registrarLogDeJugador } from "../../rooms/ayudantes/notificaciones.js";
-import { elegirRecursoDescarte } from "./elecciones/elegirRecursoDescarte.js";
+import { descarteAutomaticoDeJugador } from "./descarteAutomaticoDeJugador.js";
 
 //? Descarta al azar lo que le falta a cada jugador que no descarto a tiempo, y sigue a mover al ladron
 export function descarteAutomatico(sala: CatanRoom): void {
@@ -14,16 +13,9 @@ export function descarteAutomatico(sala: CatanRoom): void {
     const pendientes = Array.from(sala.partida.jugadoresParaDescartar.entries());
 
     for (const [sessionId, cantidad] of pendientes) {
-        const jugador = sala.jugadores.get(sessionId);
-        if (!jugador) continue;
+        if (!sala.jugadores.has(sessionId)) continue;
 
         registrarLogDeJugador(sala, sessionId, ` no descarto a tiempo, se le descartaron ${cantidad} recursos al azar`);
-
-        for (let i = 0; i < cantidad; i++) {
-            const recurso = elegirRecursoDescarte(jugador);
-            if (recurso === "") break;
-
-            descartarRecursoDeJugador(sala, sessionId, recurso);
-        }
+        descarteAutomaticoDeJugador(sala, sessionId);
     }
 }
