@@ -40,4 +40,14 @@ describe("decision del bot con el ladron", () => {
     assert.strictEqual(partida.faseJuego, FaseJuego.ACCIONES);
     assert.strictEqual(sala.temporizador.estaActivo("acciones"), true);
   });
+
+  it("avisa en el log que movio al ladron pero no dice que se le acabo el tiempo", () => {
+    const { sala, difundidos } = armarLadron();
+
+    decidirLadron(sala, ANGEL);
+
+    const avisos = difundidos.filter((envio) => envio.tipo === "log");
+    assert.ok(avisos.length > 0);
+    assert.strictEqual(avisos.filter((envio) => JSON.stringify(envio.mensaje).includes("a tiempo")).length, 0);
+  });
 });

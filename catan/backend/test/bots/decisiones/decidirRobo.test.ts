@@ -69,4 +69,14 @@ describe("decision del bot en el robo", () => {
 
     assert.strictEqual(armado.partida.faseJuego, FaseJuego.ACCIONES);
   });
+
+  it("avisa en el log que robo pero no dice que se le acabo el tiempo", () => {
+    const armado = armarRobo();
+
+    decidirRobo(armado.sala, ANGEL);
+
+    const avisos = armado.difundidos.filter((envio) => envio.tipo === "log");
+    assert.ok(avisos.length > 0);
+    assert.strictEqual(avisos.filter((envio) => JSON.stringify(envio.mensaje).includes("a tiempo")).length, 0);
+  });
 });
