@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, it } from "mocha";
 import assert from "node:assert";
-import { DECISIONES_BOT } from "../../src/bots/decisionesBot.js";
+import { DECISIONES_BOT, type DecisionesBot } from "../../src/bots/decisionesBot.js";
 import { despertarBots, PAUSA_BOT_MS } from "../../src/bots/despertarBots.js";
 import type { SituacionBot } from "../../src/bots/situacionDelBot.js";
 import { FaseJuego, FasePartida, FasePreconstruccion } from "../../src/common/enums.js";
@@ -72,12 +72,17 @@ function ponerEnSituacion(sala: CatanRoom, situacion: SituacionBot) {
 
 describe("bots junto a los relojes de la sala", () => {
 
+  let originales: DecisionesBot;
+
   beforeEach(() => {
+    originales = { ...DECISIONES_BOT };
+    for (const situacion of Object.keys(DECISIONES_BOT) as SituacionBot[]) delete DECISIONES_BOT[situacion];
     for (const situacion of SITUACIONES) DECISIONES_BOT[situacion] = () => {};
   });
 
   afterEach(() => {
-    for (const situacion of SITUACIONES) delete DECISIONES_BOT[situacion];
+    for (const situacion of Object.keys(DECISIONES_BOT) as SituacionBot[]) delete DECISIONES_BOT[situacion];
+    Object.assign(DECISIONES_BOT, originales);
   });
 
   describe("despiertan al bot cuando arranca el reloj de", () => {

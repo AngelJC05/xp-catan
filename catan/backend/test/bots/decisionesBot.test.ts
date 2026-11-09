@@ -1,0 +1,26 @@
+import { describe, it } from "mocha";
+import assert from "node:assert";
+import { DECISIONES_BOT } from "../../src/bots/decisionesBot.js";
+import { decidirDados } from "../../src/bots/decisiones/decidirDados.js";
+import { decidirDescarte } from "../../src/bots/decisiones/decidirDescarte.js";
+import { decidirLadron } from "../../src/bots/decisiones/decidirLadron.js";
+import { decidirPreconstruccion } from "../../src/bots/decisiones/decidirPreconstruccion.js";
+import { decidirRobo } from "../../src/bots/decisiones/decidirRobo.js";
+
+describe("DECISIONES_BOT", () => {
+
+  it("tiene la decision de cada situacion que el bot ya sabe resolver", () => {
+    assert.strictEqual(DECISIONES_BOT.asentamientoInicial, decidirPreconstruccion);
+    assert.strictEqual(DECISIONES_BOT.caminoInicial, decidirPreconstruccion);
+    assert.strictEqual(DECISIONES_BOT.dados, decidirDados);
+    assert.strictEqual(DECISIONES_BOT.descarte, decidirDescarte);
+    assert.strictEqual(DECISIONES_BOT.ladron, decidirLadron);
+    assert.strictEqual(DECISIONES_BOT.robo, decidirRobo);
+  });
+
+  it("no tiene decision para lo que todavia no esta hecho: acciones, carreteras y ofertas", () => {
+    assert.strictEqual(DECISIONES_BOT.acciones, undefined);
+    assert.strictEqual(DECISIONES_BOT.carreteras, undefined);
+    assert.strictEqual(DECISIONES_BOT.oferta, undefined);
+  });
+});
