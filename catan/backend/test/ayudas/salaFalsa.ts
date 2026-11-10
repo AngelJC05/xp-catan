@@ -53,6 +53,7 @@ export function armarSala(nombresPorId: Record<string, string> = {}) {
       cancelar: () => {},
       estaActivo: () => false
     },
+    clock: { setTimeout: () => ({ clear: () => {} }) },
     tiempos: { ...TIEMPOS_POR_DEFECTO },
     ofertas: new Map<string, unknown>(),
     broadcast: (tipo: string, mensaje: unknown) => difundidos.push({ tipo, mensaje }),
