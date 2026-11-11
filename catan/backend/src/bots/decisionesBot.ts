@@ -1,5 +1,6 @@
 import type { CatanRoom } from "../rooms/CatanRoom.js";
 import type { SituacionBot } from "./situacionDelBot.js";
+import { decidirAcciones } from "./decisiones/decidirAcciones.js";
 import { decidirDados } from "./decisiones/decidirDados.js";
 import { decidirDescarte } from "./decisiones/decidirDescarte.js";
 import { decidirLadron } from "./decisiones/decidirLadron.js";
@@ -14,6 +15,7 @@ export type DecisionesBot = Partial<Record<SituacionBot, DecisionBot>>;
 export const DECISIONES_BOT: DecisionesBot = {
     asentamientoInicial: decidirPreconstruccion,
     caminoInicial: decidirPreconstruccion,
+    acciones: decidirAcciones,
     dados: decidirDados,
     descarte: decidirDescarte,
     ladron: decidirLadron,
