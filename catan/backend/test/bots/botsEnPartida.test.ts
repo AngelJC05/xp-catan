@@ -2,6 +2,8 @@ import { describe, it } from "mocha";
 import assert from "node:assert";
 import { FaseJuego } from "../../src/common/enums.js";
 import { aplicarTirada } from "../../src/rooms/acciones/dados/aplicarTirada.js";
+import { iniciarRelojAcciones } from "../../src/timers/acciones/iniciarRelojAcciones.js";
+import { PAUSA_BOT_MS } from "../../src/bots/despertarBots.js";
 import { iniciarRelojDados } from "../../src/timers/dados/iniciarRelojDados.js";
 import { iniciarRelojPreconstruccion } from "../../src/timers/preconstruccion/iniciarRelojPreconstruccion.js";
 import { Jugador } from "../../src/schemas/Jugador.js";
@@ -108,6 +110,60 @@ describe("bots jugando con las decisiones reales", () => {
       assert.strictEqual(armado.partida.jugadoresParaDescartar.has(ALAN), false);
       assert.strictEqual(armado.partida.jugadoresParaDescartar.has(LUIS), true);
       assert.strictEqual(armado.sala.temporizador.estaActivo("descarte"), true);
+    });
+  });
+
+  describe("acciones", () => {
+
+    //? Funcion que deja el juego en la fase de acciones del turno de Angel con el reloj humano en marcha
+    function armarEnAcciones() {
+      const armado = armarJuegoConReloj();
+      armado.partida.faseJuego = FaseJuego.ACCIONES;
+      return armado;
+    }
+
+    it("el bot pasa el turno a los 5 s sin esperar el reloj humano de las acciones", () => {
+      const armado = armarEnAcciones();
+      const { programados, vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+      assert.strictEqual(programados.length, 1);
+      assert.strictEqual(programados[0].milisegundos, PAUSA_BOT_MS);
+
+      vencer(0);
+
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+      assert.strictEqual(armado.partida.faseJuego, FaseJuego.DADOS);
+      assert.strictEqual(armado.sala.temporizador.estaActivo("acciones"), false);
+    });
+
+    it("si el siguiente jugador es un bot se despierta solo y tira los dados", () => {
+      const armado = armarEnAcciones();
+      const { programados, vencer } = ponerBots(armado, ANGEL, ALAN);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+      assert.strictEqual(programados.length, 2);
+
+      vencer(1);
+      const dados = armado.difundidos.filter((envio) => envio.tipo === "dados");
+      assert.strictEqual(dados.length, 1);
+    });
+
+    it("una partida solo de bots recorre todos los turnos sin bloquearse", () => {
+      const armado = armarJuegoConReloj();
+      armado.jugadores.set(LUIS, new Jugador("Luis"));
+      armado.partida.ordenJugadores.push(LUIS);
+      const { programados, vencer } = ponerBots(armado, ANGEL, ALAN, LUIS);
+      iniciarRelojDados(armado.sala);
+
+      const turnos = new Set<string>();
+      for (let paso = 0; paso < 30; paso++) {
+        assert.ok(programados.length > paso, `el bot se quedo sin accion en el paso ${paso}`);
+        vencer(paso);
+        turnos.add(armado.partida.turnoActual);
+      }
+
+      assert.deepStrictEqual([...turnos].sort(), [ALAN, ANGEL, LUIS].sort());
     });
   });
 });
