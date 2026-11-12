@@ -1,58 +1,10 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
 import { verticesAlcanzables } from "../../../src/bots/metas/verticesAlcanzables.js";
-import { Construccion } from "../../../src/common/enums.js";
-import { aristasDelVertice, extremosDeArista } from "../../../src/functions/aristas.js";
-import { armarSala } from "../../ayudas/salaFalsa.js";
+import { armarCadena, construir, trazar } from "../../ayudas/cadena.js";
 
 const BOT = "bot-1";
 const RIVAL = "jugadorRival";
-
-//? Funcion que busca en el tablero una cadena de 4 caminos seguidos: v0 - v1 - v2 - v3 - v4
-//? Devuelve los 5 vertices y los 4 caminos, donde caminos[i] une vertices[i] con vertices[i + 1]
-function armarCadena() {
-  const { tablero } = armarSala();
-
-  //* Desde un vertice da un paso a un camino y vertice que existan, sin volver al anterior
-  function paso(vertice: string, anterior: string | null) {
-    for (const camino of aristasDelVertice(vertice)) {
-      if (!tablero.aristas.has(camino)) continue;
-      const [a, b] = extremosDeArista(camino);
-      const siguiente = a === vertice ? b : a;
-      if (siguiente !== anterior && tablero.vertices.has(siguiente)) return { camino, siguiente };
-    }
-    return null;
-  }
-
-  for (const inicio of tablero.vertices.keys()) {
-    const vertices = [inicio];
-    const caminos: string[] = [];
-
-    for (let i = 0; i < 4; i++) {
-      const dado = paso(vertices[i], vertices[i - 1] ?? null);
-      if (!dado) break;
-      caminos.push(dado.camino);
-      vertices.push(dado.siguiente);
-    }
-
-    if (caminos.length === 4) return { tablero, vertices, caminos };
-  }
-
-  throw new Error("No se encontro una cadena de 4 caminos en el tablero");
-}
-
-type Cadena = ReturnType<typeof armarCadena>;
-
-//? Funcion que pone una construccion de alguien en un vertice
-function construir(cadena: Cadena, vertice: string, sessionId: string) {
-  cadena.tablero.vertices.get(vertice)?.setPropietario(sessionId);
-  cadena.tablero.vertices.get(vertice)?.setConstruccion(Construccion.ASENTAMIENTO);
-}
-
-//? Funcion que pone un camino de alguien
-function trazar(cadena: Cadena, camino: string, sessionId: string) {
-  cadena.tablero.aristas.get(camino)?.setPropietario(sessionId);
-}
 
 describe("vertices alcanzables", () => {
 
