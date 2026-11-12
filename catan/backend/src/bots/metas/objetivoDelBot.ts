@@ -6,6 +6,7 @@ import { esConstruible } from "../criterios/esConstruible.js";
 import { esVerticeRelevante, puntuarVertice } from "../criterios/puntuarVertice.js";
 import { COSTOS, type Costo, type TipoObjetivo } from "./costos.js";
 import { faltaYSobra } from "./faltaYSobra.js";
+import { recursosQueProduce } from "./recursosQueProduce.js";
 import { verticesAlcanzables } from "./verticesAlcanzables.js";
 
 //? Lo que el bot quiere conseguir: que es, en que vertice (vacio para la carta), lo que cuesta y lo que le falta y sobra
@@ -26,7 +27,13 @@ interface Candidato {
 
 //? Devuelve el primer objetivo posible segun la prioridad: ciudad, poblado, camino y carta
 //? Se calcula con el tablero de ese momento, asi que si un rival invalida un vertice la siguiente vez sale otro
-export function objetivoDelBot(tablero: Tablero, jugador: Jugador, sessionId: string): Objetivo {
+//? La produccion se puede pasar ya calculada; si no, se saca del tablero
+export function objetivoDelBot(
+    tablero: Tablero,
+    jugador: Jugador,
+    sessionId: string,
+    produccion: Set<string> = recursosQueProduce(tablero, sessionId)
+): Objetivo {
     const ciudad = mejorCiudad(tablero, jugador, sessionId);
     if (ciudad) return armar(jugador, "ciudad", ciudad.vertice);
 
