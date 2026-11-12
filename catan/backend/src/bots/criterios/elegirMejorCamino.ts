@@ -1,9 +1,10 @@
 import { Tablero } from "../../schemas/Tablero.js";
 import { aristasDelVertice, extremosDeArista } from "../../functions/aristas.js";
+import { esConstruible } from "./esConstruible.js";
 import { puntuarVertice } from "./puntuarVertice.js";
 
 //? Hasta cuantos caminos de distancia busca el bot un vertice donde construir
-const DISTANCIA_MAXIMA = 2;
+export const DISTANCIA_MAXIMA = 2;
 
 //? Lo que vale un camino posible: el mejor vertice al que lleva y a cuantos caminos esta
 interface Destino {
@@ -96,16 +97,4 @@ function tocaLoDelBot(tablero: Tablero, sessionId: string, vertice: string, cami
 
     return aristasDelVertice(vertice).some((clave) =>
         clave !== camino && tablero.aristas.get(clave)?.propietario === sessionId);
-}
-
-//? Se puede construir en un vertice libre que no tenga construcciones en los vertices vecinos
-function esConstruible(tablero: Tablero, vertice: string): boolean {
-    if (tablero.vertices.get(vertice)?.propietario !== "") return false;
-
-    return aristasDelVertice(vertice).every((clave) => {
-        if (!tablero.aristas.has(clave)) return true;
-        const [a, b] = extremosDeArista(clave);
-        const vecino = tablero.vertices.get(a === vertice ? b : a);
-        return !vecino || vecino.propietario === "";
-    });
 }
