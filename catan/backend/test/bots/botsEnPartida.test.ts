@@ -234,4 +234,57 @@ describe("bots jugando con las decisiones reales", () => {
       assert.strictEqual(armado.partida.turnoActual, ALAN);
     });
   });
+
+  describe("compra de cartas", () => {
+
+    //? Funcion que deja el juego en la fase de acciones de Angel, sin construcciones, para que su objetivo sea la carta
+    function armarSinConstrucciones(recursos: number) {
+      const armado = armarJuegoConReloj();
+      armado.partida.faseJuego = FaseJuego.ACCIONES;
+
+      const jugador = armado.jugadores.get(ANGEL);
+      for (const recurso of ["mineral", "trigo", "lana"]) jugador.recursos.set(recurso, recursos);
+
+      return { ...armado, cartas: () => contarCartas(jugador.cartas_inusables.values()) + contarCartas(jugador.cartas_usables.values()) };
+    }
+
+    //? Funcion que suma las cantidades de cartas; al pasar el turno las compradas pasan de inusables a usables
+    function contarCartas(cantidades: Iterable<number>) {
+      let total = 0;
+      for (const cantidad of cantidades) total += cantidad;
+      return total;
+    }
+
+    it("el bot compra una carta por cada despertar mientras le alcance y despues pasa el turno", () => {
+      const armado = armarSinConstrucciones(2);
+      const { programados, vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+      assert.strictEqual(armado.cartas(), 1);
+      assert.strictEqual(armado.partida.turnoActual, ANGEL);
+      assert.strictEqual(programados.length, 2);
+
+      vencer(1);
+      assert.strictEqual(armado.cartas(), 2);
+      assert.strictEqual(armado.partida.turnoActual, ANGEL);
+
+      vencer(2);
+      assert.strictEqual(armado.cartas(), 2);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+      assert.strictEqual(armado.partida.faseJuego, FaseJuego.DADOS);
+    });
+
+    it("si el mazo esta vacio no compra y pasa el turno", () => {
+      const armado = armarSinConstrucciones(2);
+      while (armado.banca.cartas.length > 0) armado.banca.cartas.shift();
+      const { vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+
+      assert.strictEqual(armado.cartas(), 0);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+    });
+  });
 });
