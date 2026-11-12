@@ -1,13 +1,14 @@
 import { Construccion } from "../../src/common/enums.js";
 import { aristasDelVertice, extremosDeArista } from "../../src/functions/aristas.js";
 import { hexagonosDelVertice } from "../../src/functions/hexagonosDelVertice.js";
+import type { Tablero } from "../../src/schemas/Tablero.js";
 import type { Vertice } from "../../src/schemas/Vertices.js";
 import { armarSala } from "./salaFalsa.js";
 
-//? Funcion que busca en el tablero una cadena de 4 caminos seguidos: v0 - v1 - v2 - v3 - v4
+//? Funcion que busca en el tablero (el indicado o uno nuevo) una cadena de 4 caminos seguidos: v0 - v1 - v2 - v3 - v4
 //? Todos los vertices tocan 3 terrenos. Devuelve los 5 vertices y los 4 caminos, donde caminos[i] une vertices[i] con vertices[i + 1]
-export function armarCadena() {
-  const { tablero } = armarSala();
+export function armarCadena(tableroExistente?: Tablero) {
+  const tablero = tableroExistente ?? armarSala().tablero;
 
   function esInterior(vertice: string) {
     const objeto = tablero.vertices.get(vertice);
