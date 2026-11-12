@@ -4,7 +4,7 @@ import { DECISIONES_BOT, type DecisionesBot } from "./decisionesBot.js";
 import { situacionDelBot } from "./situacionDelBot.js";
 
 //? Pausa entre que un bot detecta que le toca y actua, para que parezca que piensa
-export const PAUSA_BOT_MS = 2500;
+export const PAUSA_BOT_MS = 3500;
 
 //? Lo que cada sala tiene programado por bot, no se publica a los clientes
 const programados = new WeakMap<
