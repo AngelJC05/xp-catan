@@ -23,6 +23,18 @@ describe("decision del bot con el ladron", () => {
     assert.notStrictEqual(`${tablero.ladron.h},${tablero.ladron.d}`, antes);
   });
 
+  it("lo pone en el terreno con el numero mas probable si no hay rivales cerca", () => {
+    const { sala, tablero } = armarLadron();
+    tablero.hexagonos.forEach((hexagono) => { hexagono.numero = 0; });
+    const destino = [...tablero.hexagonos.values()].find((hexagono) =>
+      hexagono.h !== tablero.ladron.h || hexagono.d !== tablero.ladron.d);
+    destino.numero = 8;
+
+    decidirLadron(sala, ANGEL);
+
+    assert.deepStrictEqual([tablero.ladron.h, tablero.ladron.d], [destino.h, destino.d]);
+  });
+
   it("cancela el reloj humano del ladron", () => {
     const { sala, programados } = armarLadron();
 

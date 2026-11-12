@@ -52,6 +52,17 @@ describe("decision del bot en el robo", () => {
     assert.strictEqual(trigoDe(armado, ALAN, LUIS), 1);
   });
 
+  it("le roba al rival con mas puntos", () => {
+    const armado = armarRobo();
+    armado.jugadores.get(ALAN).puntuacion = 2;
+    armado.jugadores.get(LUIS).puntuacion = 5;
+
+    decidirRobo(armado.sala, ANGEL);
+
+    assert.strictEqual(trigoDe(armado, LUIS), 0);
+    assert.strictEqual(trigoDe(armado, ALAN), 1);
+  });
+
   it("cancela el reloj humano del robo", () => {
     const armado = armarRobo();
 
