@@ -159,7 +159,9 @@ describe("objetivo del bot", () => {
 
     it("con dos vertices relevantes del mismo valor prefiere el mas cercano", () => {
       const escenario = armarEscenario();
-      const [, , v2, v3] = escenario.vertices;
+      const [v0, , v2, v3] = escenario.vertices;
+      //* Un rival pegado a v1 evita que ese vertice sea un poblado mejor que el camino
+      construir(escenario.cadena, v0, RIVAL);
       trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
       hacerRelevantes(escenario.cadena, v2, v3);
 
@@ -177,7 +179,8 @@ describe("objetivo del bot", () => {
 
     it("no considera vertices a mas de 2 caminos nuevos", () => {
       const escenario = armarEscenario();
-      const v4 = escenario.vertices[4];
+      const [v0, , , , v4] = escenario.vertices;
+      construir(escenario.cadena, v0, RIVAL);
       trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
       hacerRelevantes(escenario.cadena, v4, vecinoDe(escenario.cadena, v4, escenario.vertices[3]));
 
@@ -187,8 +190,10 @@ describe("objetivo del bot", () => {
 
   describe("carta", () => {
 
-    it("es el objetivo si no hay ningun vertice relevante", () => {
+    it("es el objetivo si no hay nada que construir", () => {
       const escenario = armarEscenario();
+      const v0 = escenario.vertices[0];
+      construir(escenario.cadena, v0, RIVAL);
       trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
 
       verificar(calcular(escenario), "carta");

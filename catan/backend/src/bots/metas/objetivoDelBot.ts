@@ -3,7 +3,7 @@ import type { Jugador } from "../../schemas/Jugador.js";
 import type { Tablero } from "../../schemas/Tablero.js";
 import { DISTANCIA_MAXIMA } from "../criterios/elegirMejorCamino.js";
 import { esConstruible } from "../criterios/esConstruible.js";
-import { esVerticeRelevante, puntuarVertice } from "../criterios/puntuarVertice.js";
+import { puntuarVertice, VALOR_INTERES } from "../criterios/puntuarVertice.js";
 import { COSTOS, type Costo, type TipoObjetivo } from "./costos.js";
 import { faltaYSobra } from "./faltaYSobra.js";
 import { recursosQueProduce } from "./recursosQueProduce.js";
@@ -25,7 +25,11 @@ interface Candidato {
     caminosNuevos: number;
 }
 
-//? Devuelve el primer objetivo posible segun la prioridad: ciudad, poblado, camino y carta
+//? Valor desde el que un vertice sirve para un poblado antes que subir una ciudad
+const VALOR_POBLADO_ACEPTABLE = 4;
+
+//? Devuelve el primer objetivo posible segun la prioridad: poblado, camino hacia un poblado, ciudad, poblado pobre y carta
+//? Una meta solo se toma si el bot produce los recursos que pide; si no, pasa a la siguiente para no estancarse
 //? Se calcula con el tablero de ese momento, asi que si un rival invalida un vertice la siguiente vez sale otro
 //? La produccion se puede pasar ya calculada; si no, se saca del tablero
 export function objetivoDelBot(
@@ -34,20 +38,31 @@ export function objetivoDelBot(
     sessionId: string,
     produccion: Set<string> = recursosQueProduce(tablero, sessionId)
 ): Objetivo {
-    const ciudad = mejorCiudad(tablero, jugador, sessionId);
-    if (ciudad) return armar(jugador, "ciudad", ciudad.vertice);
+    const viable = (tipo: TipoObjetivo) => Object.keys(COSTOS[tipo]).every((recurso) => produccion.has(recurso));
+    const puedePoblar = quedan(jugador, Construccion.ASENTAMIENTO) && viable("poblado");
 
-    const alcanzables = verticesAlcanzables(tablero, sessionId, DISTANCIA_MAXIMA);
-    const candidatos = candidatosRelevantes(tablero, alcanzables);
+    const candidatos = candidatosConstruibles(tablero, verticesAlcanzables(tablero, sessionId, DISTANCIA_MAXIMA));
+    const conectados = candidatos.filter((candidato) => candidato.caminosNuevos === 0);
 
-    if (quedan(jugador, Construccion.ASENTAMIENTO)) {
-        const poblado = mejorCandidato(candidatos.filter((candidato) => candidato.caminosNuevos === 0));
+    if (puedePoblar) {
+        const poblado = mejorCandidato(conectados.filter((candidato) => candidato.valor >= VALOR_POBLADO_ACEPTABLE));
         if (poblado) return armar(jugador, "poblado", poblado.vertice);
     }
 
-    if (quedan(jugador, Construccion.CAMINO)) {
-        const camino = mejorCandidato(candidatos.filter((candidato) => candidato.caminosNuevos > 0));
+    if (puedePoblar && quedan(jugador, Construccion.CAMINO) && viable("camino")) {
+        const camino = mejorCandidato(candidatos.filter((candidato) =>
+            candidato.caminosNuevos > 0 && candidato.valor >= VALOR_INTERES));
         if (camino) return armar(jugador, "camino", camino.vertice);
+    }
+
+    if (viable("ciudad")) {
+        const ciudad = mejorCiudad(tablero, jugador, sessionId);
+        if (ciudad) return armar(jugador, "ciudad", ciudad.vertice);
+    }
+
+    if (puedePoblar) {
+        const pobre = mejorCandidato(conectados);
+        if (pobre) return armar(jugador, "poblado", pobre.vertice);
     }
 
     return armar(jugador, "carta", "");
@@ -70,13 +85,13 @@ function mejorCiudad(tablero: Tablero, jugador: Jugador, sessionId: string): Can
     return mejorCandidato(asentamientos);
 }
 
-//? Los vertices alcanzables donde se puede construir y que valen la pena
-function candidatosRelevantes(tablero: Tablero, alcanzables: Map<string, number>): Candidato[] {
+//? Los vertices alcanzables donde se puede construir, con su valor
+function candidatosConstruibles(tablero: Tablero, alcanzables: Map<string, number>): Candidato[] {
     const candidatos: Candidato[] = [];
 
     for (const [clave, caminosNuevos] of alcanzables) {
         const vertice = tablero.vertices.get(clave);
-        if (!vertice || !esConstruible(tablero, clave) || !esVerticeRelevante(tablero.hexagonos, vertice)) continue;
+        if (!vertice || !esConstruible(tablero, clave)) continue;
 
         candidatos.push({ vertice: clave, valor: puntuarVertice(tablero.hexagonos, vertice), caminosNuevos });
     }
