@@ -29,7 +29,8 @@ interface Candidato {
 const VALOR_POBLADO_ACEPTABLE = 4;
 
 //? Devuelve el primer objetivo posible segun la prioridad: poblado, camino hacia un poblado, ciudad, poblado pobre y carta
-//? Una meta solo se toma si el bot produce los recursos que pide; si no, pasa a la siguiente para no estancarse
+//? Si ya le alcanza para una ciudad la toma de una vez, salvo que tambien le alcance para el poblado, que va primero
+//? Una meta solo se toma si el bot ya tiene lo que pide o lo produce; si no, pasa a la siguiente para no estancarse
 //? Se calcula con el tablero de ese momento, asi que si un rival invalida un vertice la siguiente vez sale otro
 //? La produccion se puede pasar ya calculada; si no, se saca del tablero
 export function objetivoDelBot(
@@ -38,16 +39,25 @@ export function objetivoDelBot(
     sessionId: string,
     produccion: Set<string> = recursosQueProduce(tablero, sessionId)
 ): Objetivo {
-    const viable = (tipo: TipoObjetivo) => Object.keys(COSTOS[tipo]).every((recurso) => produccion.has(recurso));
+    const tiene = (recurso: string, cantidad: number) => (jugador.recursos.get(recurso) ?? 0) >= cantidad;
+    const alcanza = (tipo: TipoObjetivo) => Object.entries(COSTOS[tipo]).every(([recurso, cantidad]) => tiene(recurso, cantidad));
+    const viable = (tipo: TipoObjetivo) => Object.entries(COSTOS[tipo])
+        .every(([recurso, cantidad]) => produccion.has(recurso) || tiene(recurso, cantidad));
+
     const puedePoblar = quedan(jugador, Construccion.ASENTAMIENTO) && viable("poblado");
 
     const candidatos = candidatosConstruibles(tablero, verticesAlcanzables(tablero, sessionId, DISTANCIA_MAXIMA));
     const conectados = candidatos.filter((candidato) => candidato.caminosNuevos === 0);
 
-    if (puedePoblar) {
-        const poblado = mejorCandidato(conectados.filter((candidato) => candidato.valor >= VALOR_POBLADO_ACEPTABLE));
-        if (poblado) return armar(jugador, "poblado", poblado.vertice);
-    }
+    const poblado = puedePoblar
+        ? mejorCandidato(conectados.filter((candidato) => candidato.valor >= VALOR_POBLADO_ACEPTABLE))
+        : null;
+    const ciudad = viable("ciudad") ? mejorCiudad(tablero, jugador, sessionId) : null;
+
+    if (poblado && alcanza("poblado")) return armar(jugador, "poblado", poblado.vertice);
+    if (ciudad && alcanza("ciudad")) return armar(jugador, "ciudad", ciudad.vertice);
+
+    if (poblado) return armar(jugador, "poblado", poblado.vertice);
 
     if (puedePoblar && quedan(jugador, Construccion.CAMINO) && viable("camino")) {
         const camino = mejorCandidato(candidatos.filter((candidato) =>
@@ -55,10 +65,7 @@ export function objetivoDelBot(
         if (camino) return armar(jugador, "camino", camino.vertice);
     }
 
-    if (viable("ciudad")) {
-        const ciudad = mejorCiudad(tablero, jugador, sessionId);
-        if (ciudad) return armar(jugador, "ciudad", ciudad.vertice);
-    }
+    if (ciudad) return armar(jugador, "ciudad", ciudad.vertice);
 
     if (puedePoblar) {
         const pobre = mejorCandidato(conectados);

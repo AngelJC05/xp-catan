@@ -48,6 +48,19 @@ describe("decision del bot en la preconstruccion", () => {
       assert.strictEqual(contarPiezas(tablero.vertices.values(), ALAN), 0);
     });
 
+    it("pone el asentamiento en el vertice que mejor puntua", () => {
+      //* 0,0,0 es el unico vertice que toca 0,0 / 1,-1 / 0,-1 (5 + 4 + 3 puntos)
+      const { sala, tablero } = armarPreconstruccionConReloj();
+      tablero.hexagonos.forEach((hexagono) => { hexagono.numero = 0; });
+      tablero.hexagonos.get("0,0").numero = 6;
+      tablero.hexagonos.get("1,-1").numero = 5;
+      tablero.hexagonos.get("0,-1").numero = 4;
+
+      decidirPreconstruccion(sala, ANGEL);
+
+      assert.strictEqual(tablero.vertices.get("0,0,0").propietario, ANGEL);
+    });
+
     it("pasa al paso del camino", () => {
       const { sala, partida } = armarPreconstruccionConReloj();
 
