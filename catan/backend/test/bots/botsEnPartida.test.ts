@@ -122,7 +122,7 @@ describe("bots jugando con las decisiones reales", () => {
       return armado;
     }
 
-    it("el bot pasa el turno a los 5 s sin esperar el reloj humano de las acciones", () => {
+    it("el bot pasa el turno tras su pausa sin esperar el reloj humano de las acciones", () => {
       const armado = armarEnAcciones();
       const { programados, vencer } = ponerBots(armado, ANGEL);
       iniciarRelojAcciones(armado.sala);
