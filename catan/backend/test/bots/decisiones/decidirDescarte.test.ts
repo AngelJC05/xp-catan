@@ -1,7 +1,7 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
 import { decidirDescarte } from "../../../src/bots/decisiones/decidirDescarte.js";
-import { FaseJuego } from "../../../src/common/enums.js";
+import { Construccion, FaseJuego } from "../../../src/common/enums.js";
 import { Jugador } from "../../../src/schemas/Jugador.js";
 import { aplicarTirada } from "../../../src/rooms/acciones/dados/aplicarTirada.js";
 import { ALAN, ANGEL, armarJuegoConReloj, tiradaDe } from "../../ayudas/juegoConReloj.js";
@@ -38,6 +38,54 @@ describe("decision del bot en el descarte", () => {
     assert.strictEqual(totalDe(armado, LUIS), 8);
     assert.strictEqual(armado.partida.jugadoresParaDescartar.has(ALAN), false);
     assert.strictEqual(armado.partida.jugadoresParaDescartar.has(LUIS), true);
+  });
+
+  //* Sin construcciones el objetivo del bot es una carta: lana, trigo y mineral
+  it("se queda con lo que le sirve para su objetivo y descarta lo demas", () => {
+    const armado = armarDescarte();
+    const alan = armado.jugadores.get(ALAN);
+    alan.recursos.set("madera", 6);
+    alan.recursos.set("lana", 1);
+    alan.recursos.set("trigo", 1);
+    alan.recursos.set("mineral", 1);
+    armado.partida.jugadoresParaDescartar.set(ALAN, 4);
+
+    decidirDescarte(armado.sala, ALAN);
+
+    assert.strictEqual(alan.recursos.get("madera"), 2);
+    assert.strictEqual(alan.recursos.get("lana"), 1);
+    assert.strictEqual(alan.recursos.get("trigo"), 1);
+    assert.strictEqual(alan.recursos.get("mineral"), 1);
+  });
+
+  it("con un asentamiento su objetivo es la ciudad y cuida el mineral y el trigo", () => {
+    const armado = armarDescarte();
+    const alan = armado.jugadores.get(ALAN);
+    const vertice = [...armado.tablero.vertices.values()][0];
+    vertice.setPropietario(ALAN);
+    vertice.setConstruccion(Construccion.ASENTAMIENTO);
+    alan.recursos.set("mineral", 3);
+    alan.recursos.set("trigo", 2);
+    alan.recursos.set("madera", 2);
+    alan.recursos.set("lana", 2);
+    armado.partida.jugadoresParaDescartar.set(ALAN, 4);
+
+    decidirDescarte(armado.sala, ALAN);
+
+    assert.strictEqual(alan.recursos.get("mineral"), 3);
+    assert.strictEqual(alan.recursos.get("trigo"), 2);
+    assert.strictEqual(alan.recursos.get("madera"), 0);
+    assert.strictEqual(alan.recursos.get("lana"), 0);
+  });
+
+  it("descarta parejo de lo que le sobra", () => {
+    //* Luis tiene 4 lanas y 4 trigos y debe 4: le sobran 3 de cada uno para su carta
+    const armado = armarDescarte();
+
+    decidirDescarte(armado.sala, LUIS);
+
+    assert.strictEqual(armado.jugadores.get(LUIS).recursos.get("lana"), 2);
+    assert.strictEqual(armado.jugadores.get(LUIS).recursos.get("trigo"), 2);
   });
 
   it("deja correr el reloj de descarte mientras falte otro jugador", () => {
