@@ -1,4 +1,5 @@
 import type { CatanRoom } from "../../rooms/CatanRoom.js";
+import { accionCaballero } from "./accionCaballero.js";
 import { accionComprarCarta } from "./accionComprarCarta.js";
 import { accionConstruir } from "./accionConstruir.js";
 
@@ -6,4 +7,4 @@ import { accionConstruir } from "./accionConstruir.js";
 export type AccionBot = (sala: CatanRoom, sessionId: string) => boolean;
 
 //? Acciones del bot en la fase de acciones, de mayor a menor prioridad
-export const ACCIONES_BOT: AccionBot[] = [accionConstruir, accionComprarCarta];
+export const ACCIONES_BOT: AccionBot[] = [accionCaballero, accionConstruir, accionComprarCarta];
