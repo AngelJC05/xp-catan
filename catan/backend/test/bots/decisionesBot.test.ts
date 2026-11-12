@@ -5,6 +5,7 @@ import { decidirAcciones } from "../../src/bots/decisiones/decidirAcciones.js";
 import { decidirDados } from "../../src/bots/decisiones/decidirDados.js";
 import { decidirDescarte } from "../../src/bots/decisiones/decidirDescarte.js";
 import { decidirLadron } from "../../src/bots/decisiones/decidirLadron.js";
+import { decidirOferta } from "../../src/bots/decisiones/decidirOferta.js";
 import { decidirPreconstruccion } from "../../src/bots/decisiones/decidirPreconstruccion.js";
 import { decidirRobo } from "../../src/bots/decisiones/decidirRobo.js";
 
@@ -18,10 +19,10 @@ describe("DECISIONES_BOT", () => {
     assert.strictEqual(DECISIONES_BOT.descarte, decidirDescarte);
     assert.strictEqual(DECISIONES_BOT.ladron, decidirLadron);
     assert.strictEqual(DECISIONES_BOT.robo, decidirRobo);
+    assert.strictEqual(DECISIONES_BOT.oferta, decidirOferta);
   });
 
-  it("no tiene decision para lo que todavia no esta hecho: carreteras y ofertas", () => {
+  it("no tiene decision para lo que todavia no esta hecho: carreteras", () => {
     assert.strictEqual(DECISIONES_BOT.carreteras, undefined);
-    assert.strictEqual(DECISIONES_BOT.oferta, undefined);
   });
 });

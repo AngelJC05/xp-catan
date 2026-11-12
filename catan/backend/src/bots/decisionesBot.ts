@@ -4,6 +4,7 @@ import { decidirAcciones } from "./decisiones/decidirAcciones.js";
 import { decidirDados } from "./decisiones/decidirDados.js";
 import { decidirDescarte } from "./decisiones/decidirDescarte.js";
 import { decidirLadron } from "./decisiones/decidirLadron.js";
+import { decidirOferta } from "./decisiones/decidirOferta.js";
 import { decidirPreconstruccion } from "./decisiones/decidirPreconstruccion.js";
 import { decidirRobo } from "./decisiones/decidirRobo.js";
 
@@ -19,5 +20,6 @@ export const DECISIONES_BOT: DecisionesBot = {
     dados: decidirDados,
     descarte: decidirDescarte,
     ladron: decidirLadron,
-    robo: decidirRobo
+    robo: decidirRobo,
+    oferta: decidirOferta
 };
