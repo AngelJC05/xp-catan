@@ -9,6 +9,13 @@ import { armarCadena, construir, fijarNumeros, hacerRelevantes, trazar, vecinoDe
 const BOT = "bot-1";
 const RIVAL = "jugadorRival";
 
+const TODOS = ["madera", "ladrillo", "trigo", "lana", "mineral"];
+
+//? Funcion que arma la produccion con todos los recursos menos los indicados
+function produciendoSin(...faltantes: string[]) {
+  return new Set(TODOS.filter((recurso) => !faltantes.includes(recurso)));
+}
+
 //? Funcion que devuelve una cadena con todos los numeros en 0, para que ningun vertice valga la pena, y un jugador con todas sus piezas
 function armarEscenario() {
   const cadena = armarCadena();
@@ -19,9 +26,9 @@ function armarEscenario() {
 
 type Escenario = ReturnType<typeof armarEscenario>;
 
-//? Funcion que calcula el objetivo del bot en el escenario
-function calcular({ cadena, jugador }: Escenario) {
-  return objetivoDelBot(cadena.tablero, jugador, BOT);
+//? Funcion que calcula el objetivo del bot en el escenario; por defecto produce todos los recursos
+function calcular({ cadena, jugador }: Escenario, produccion = produciendoSin()) {
+  return objetivoDelBot(cadena.tablero, jugador, BOT, produccion);
 }
 
 //? Funcion que comprueba el tipo, el vertice y que el costo sea el de ese tipo
@@ -42,13 +49,49 @@ describe("objetivo del bot", () => {
       verificar(calcular(escenario), "ciudad", escenario.vertices[0]);
     });
 
-    it("va primero aunque haya un vertice relevante cerca", () => {
+    it("va despues de un camino hacia un vertice relevante", () => {
       const escenario = armarEscenario();
-      const [v0, v1, v2] = escenario.vertices;
+      const [v0, , v2, v3] = escenario.vertices;
       construir(escenario.cadena, v0, BOT);
-      hacerRelevantes(escenario.cadena, v1, v2);
+      hacerRelevantes(escenario.cadena, v2, v3);
+
+      verificar(calcular(escenario), "camino", v2);
+    });
+
+    it("va despues de un poblado en un vertice relevante", () => {
+      const escenario = armarEscenario();
+      const [v0, , v2, v3] = escenario.vertices;
+      construir(escenario.cadena, v0, BOT);
+      trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+      trazar(escenario.cadena, escenario.cadena.caminos[1], BOT);
+      hacerRelevantes(escenario.cadena, v2, v3);
+
+      verificar(calcular(escenario), "poblado", v2);
+    });
+
+    it("va antes que un poblado pobre", () => {
+      const escenario = armarEscenario();
+      const [v0] = escenario.vertices;
+      construir(escenario.cadena, v0, BOT);
+      trazar(escenario.cadena, escenario.cadena.caminos[1], BOT);
 
       verificar(calcular(escenario), "ciudad", v0);
+    });
+
+    it("no es objetivo si no produce mineral: busca el poblado pobre", () => {
+      const escenario = armarEscenario();
+      const [v0, , v2] = escenario.vertices;
+      construir(escenario.cadena, v0, BOT);
+      trazar(escenario.cadena, escenario.cadena.caminos[1], BOT);
+
+      verificar(calcular(escenario, produciendoSin("mineral")), "poblado", v2);
+    });
+
+    it("no es objetivo si no produce trigo", () => {
+      const escenario = armarEscenario();
+      construir(escenario.cadena, escenario.vertices[0], BOT);
+
+      verificar(calcular(escenario, produciendoSin("trigo")), "carta");
     });
 
     it("con varios asentamientos mejora el de mayor valor", () => {
@@ -83,14 +126,23 @@ describe("objetivo del bot", () => {
 
     it("se recalcula: si un rival construye pegado al vertice deja de ser el objetivo", () => {
       const escenario = armarEscenario();
-      const [, v1, v2] = escenario.vertices;
+      const [v0, v1, v2] = escenario.vertices;
       trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
       hacerRelevantes(escenario.cadena, v1, v2);
       verificar(calcular(escenario), "poblado", v1);
 
       construir(escenario.cadena, v2, RIVAL);
 
-      verificar(calcular(escenario), "carta");
+      verificar(calcular(escenario), "poblado", v0);
+    });
+
+    it("se salta el poblado si no produce uno de sus recursos", () => {
+      const escenario = armarEscenario();
+      const [, v1, v2] = escenario.vertices;
+      trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+      hacerRelevantes(escenario.cadena, v1, v2);
+
+      verificar(calcular(escenario, produciendoSin("trigo")), "carta");
     });
   });
 
@@ -107,16 +159,28 @@ describe("objetivo del bot", () => {
 
     it("con dos vertices relevantes del mismo valor prefiere el mas cercano", () => {
       const escenario = armarEscenario();
-      const [, , v2, v3] = escenario.vertices;
+      const [v0, , v2, v3] = escenario.vertices;
+      //* Un rival pegado a v1 evita que ese vertice sea un poblado mejor que el camino
+      construir(escenario.cadena, v0, RIVAL);
       trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
       hacerRelevantes(escenario.cadena, v2, v3);
 
       verificar(calcular(escenario), "camino", v2);
     });
 
+    it("se salta el camino si no podria pagar el poblado al que lleva", () => {
+      const escenario = armarEscenario();
+      const [, , , v3, v4] = escenario.vertices;
+      trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+      hacerRelevantes(escenario.cadena, v3, v4);
+
+      verificar(calcular(escenario, produciendoSin("lana")), "carta");
+    });
+
     it("no considera vertices a mas de 2 caminos nuevos", () => {
       const escenario = armarEscenario();
-      const v4 = escenario.vertices[4];
+      const [v0, , , , v4] = escenario.vertices;
+      construir(escenario.cadena, v0, RIVAL);
       trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
       hacerRelevantes(escenario.cadena, v4, vecinoDe(escenario.cadena, v4, escenario.vertices[3]));
 
@@ -126,8 +190,10 @@ describe("objetivo del bot", () => {
 
   describe("carta", () => {
 
-    it("es el objetivo si no hay ningun vertice relevante", () => {
+    it("es el objetivo si no hay nada que construir", () => {
       const escenario = armarEscenario();
+      const v0 = escenario.vertices[0];
+      construir(escenario.cadena, v0, RIVAL);
       trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
 
       verificar(calcular(escenario), "carta");

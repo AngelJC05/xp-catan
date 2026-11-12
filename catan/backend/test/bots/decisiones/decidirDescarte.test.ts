@@ -1,7 +1,8 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
 import { decidirDescarte } from "../../../src/bots/decisiones/decidirDescarte.js";
-import { Construccion, FaseJuego } from "../../../src/common/enums.js";
+import { Construccion, FaseJuego, Terreno } from "../../../src/common/enums.js";
+import { hexagonosDelVertice } from "../../../src/functions/hexagonosDelVertice.js";
 import { Jugador } from "../../../src/schemas/Jugador.js";
 import { aplicarTirada } from "../../../src/rooms/acciones/dados/aplicarTirada.js";
 import { ALAN, ANGEL, armarJuegoConReloj, tiradaDe } from "../../ayudas/juegoConReloj.js";
@@ -61,9 +62,17 @@ describe("decision del bot en el descarte", () => {
   it("con un asentamiento su objetivo es la ciudad y cuida el mineral y el trigo", () => {
     const armado = armarDescarte();
     const alan = armado.jugadores.get(ALAN);
-    const vertice = [...armado.tablero.vertices.values()][0];
+    const vertice = [...armado.tablero.vertices.values()]
+      .find((candidato) => hexagonosDelVertice(armado.tablero.hexagonos, candidato).length === 3);
     vertice.setPropietario(ALAN);
     vertice.setConstruccion(Construccion.ASENTAMIENTO);
+
+    //* Para que la ciudad sea viable su asentamiento tiene que producir mineral y trigo
+    const [hexagonoMineral, hexagonoTrigo] = hexagonosDelVertice(armado.tablero.hexagonos, vertice);
+    hexagonoMineral.terreno = Terreno.MINERAL;
+    hexagonoMineral.numero = 8;
+    hexagonoTrigo.terreno = Terreno.TRIGO;
+    hexagonoTrigo.numero = 6;
     alan.recursos.set("mineral", 3);
     alan.recursos.set("trigo", 2);
     alan.recursos.set("madera", 2);

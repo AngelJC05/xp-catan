@@ -1,6 +1,7 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
-import { FaseJuego } from "../../src/common/enums.js";
+import { Construccion, FaseJuego, Terreno } from "../../src/common/enums.js";
+import { hexagonosDelVertice } from "../../src/functions/hexagonosDelVertice.js";
 import { aplicarTirada } from "../../src/rooms/acciones/dados/aplicarTirada.js";
 import { iniciarRelojAcciones } from "../../src/timers/acciones/iniciarRelojAcciones.js";
 import { PAUSA_BOT_MS } from "../../src/bots/despertarBots.js";
@@ -9,6 +10,7 @@ import { iniciarRelojPreconstruccion } from "../../src/timers/preconstruccion/in
 import { Jugador } from "../../src/schemas/Jugador.js";
 import { armarJuegoConReloj, tiradaDe } from "../ayudas/juegoConReloj.js";
 import { ALAN, ANGEL, armarPreconstruccionConReloj } from "../ayudas/preconstruccionConReloj.js";
+import { armarCadena, construir, fijarNumeros } from "../ayudas/cadena.js";
 import { armarReloj } from "../ayudas/relojFalso.js";
 
 const LUIS = "jugadorLuis";
@@ -122,7 +124,7 @@ describe("bots jugando con las decisiones reales", () => {
       return armado;
     }
 
-    it("el bot pasa el turno a los 5 s sin esperar el reloj humano de las acciones", () => {
+    it("el bot pasa el turno tras su pausa sin esperar el reloj humano de las acciones", () => {
       const armado = armarEnAcciones();
       const { programados, vencer } = ponerBots(armado, ANGEL);
       iniciarRelojAcciones(armado.sala);
@@ -164,6 +166,72 @@ describe("bots jugando con las decisiones reales", () => {
       }
 
       assert.deepStrictEqual([...turnos].sort(), [ALAN, ANGEL, LUIS].sort());
+    });
+  });
+
+  describe("construccion", () => {
+
+    //? Funcion que deja a Angel con asentamientos en los dos extremos de una cadena de vertices; el primero produce mineral y trigo
+    function armarConAsentamientos() {
+      const armado = armarJuegoConReloj();
+      armado.partida.faseJuego = FaseJuego.ACCIONES;
+
+      const cadena = armarCadena(armado.tablero);
+      fijarNumeros(cadena, 0);
+      const [inicio, , , , fin] = cadena.vertices;
+      construir(cadena, inicio, ANGEL);
+      construir(cadena, fin, ANGEL);
+
+      const [mineral, trigo] = hexagonosDelVertice(armado.tablero.hexagonos, armado.tablero.vertices.get(inicio));
+      mineral.terreno = Terreno.MINERAL;
+      mineral.numero = 8;
+      trigo.terreno = Terreno.TRIGO;
+      trigo.numero = 6;
+
+      return { ...armado, ciudades: () => contarCiudades(armado.tablero.vertices.values()) };
+    }
+
+    //? Funcion que cuenta las ciudades del bot
+    function contarCiudades(vertices: Iterable<{ propietario: string, constuccion: number }>) {
+      let total = 0;
+      for (const vertice of vertices) {
+        if (vertice.propietario === ANGEL && vertice.constuccion === Construccion.CIUDAD) total++;
+      }
+      return total;
+    }
+
+    it("el bot mejora una ciudad por cada despertar y despues pasa el turno", () => {
+      const armado = armarConAsentamientos();
+      const jugador = armado.jugadores.get(ANGEL);
+      jugador.recursos.set("mineral", 6);
+      jugador.recursos.set("trigo", 4);
+      const { programados, vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+      assert.strictEqual(armado.ciudades(), 1);
+      assert.strictEqual(armado.partida.turnoActual, ANGEL);
+      assert.strictEqual(programados.length, 2);
+
+      vencer(1);
+      assert.strictEqual(armado.ciudades(), 2);
+      assert.strictEqual(armado.partida.turnoActual, ANGEL);
+
+      vencer(2);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+      assert.strictEqual(armado.partida.faseJuego, FaseJuego.DADOS);
+    });
+
+    it("si no le alcanzan los recursos no construye y pasa el turno", () => {
+      const armado = armarConAsentamientos();
+      armado.jugadores.get(ANGEL).recursos.set("mineral", 2);
+      const { vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+
+      assert.strictEqual(armado.ciudades(), 0);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
     });
   });
 });
