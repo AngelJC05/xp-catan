@@ -4,7 +4,7 @@ import { esConstruible } from "./esConstruible.js";
 import { puntuarVertice } from "./puntuarVertice.js";
 
 //? Hasta cuantos caminos de distancia busca el bot un vertice donde construir
-const DISTANCIA_MAXIMA = 2;
+export const DISTANCIA_MAXIMA = 2;
 
 //? Lo que vale un camino posible: el mejor vertice al que lleva y a cuantos caminos esta
 interface Destino {
