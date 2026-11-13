@@ -2,6 +2,7 @@ import { describe, it } from "mocha";
 import assert from "node:assert";
 import { DECISIONES_BOT } from "../../src/bots/decisionesBot.js";
 import { decidirAcciones } from "../../src/bots/decisiones/decidirAcciones.js";
+import { decidirCarreteras } from "../../src/bots/decisiones/decidirCarreteras.js";
 import { decidirDados } from "../../src/bots/decisiones/decidirDados.js";
 import { decidirDescarte } from "../../src/bots/decisiones/decidirDescarte.js";
 import { decidirLadron } from "../../src/bots/decisiones/decidirLadron.js";
@@ -19,10 +20,7 @@ describe("DECISIONES_BOT", () => {
     assert.strictEqual(DECISIONES_BOT.descarte, decidirDescarte);
     assert.strictEqual(DECISIONES_BOT.ladron, decidirLadron);
     assert.strictEqual(DECISIONES_BOT.robo, decidirRobo);
+    assert.strictEqual(DECISIONES_BOT.carreteras, decidirCarreteras);
     assert.strictEqual(DECISIONES_BOT.oferta, decidirOferta);
-  });
-
-  it("no tiene decision para lo que todavia no esta hecho: carreteras", () => {
-    assert.strictEqual(DECISIONES_BOT.carreteras, undefined);
   });
 });

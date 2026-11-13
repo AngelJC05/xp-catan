@@ -1,6 +1,7 @@
 import type { CatanRoom } from "../rooms/CatanRoom.js";
 import type { SituacionBot } from "./situacionDelBot.js";
 import { decidirAcciones } from "./decisiones/decidirAcciones.js";
+import { decidirCarreteras } from "./decisiones/decidirCarreteras.js";
 import { decidirDados } from "./decisiones/decidirDados.js";
 import { decidirDescarte } from "./decisiones/decidirDescarte.js";
 import { decidirLadron } from "./decisiones/decidirLadron.js";
@@ -21,5 +22,6 @@ export const DECISIONES_BOT: DecisionesBot = {
     descarte: decidirDescarte,
     ladron: decidirLadron,
     robo: decidirRobo,
+    carreteras: decidirCarreteras,
     oferta: decidirOferta
 };
