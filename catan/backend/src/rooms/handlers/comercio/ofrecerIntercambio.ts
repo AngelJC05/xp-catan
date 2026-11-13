@@ -1,8 +1,8 @@
 import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
 import { FaseJuego } from "../../../common/enums.js";
-import { enviarError, registrarLogDeJugador } from "../../ayudantes/notificaciones.js";
-import { iniciarRelojOferta } from "../../../timers/oferta/iniciarRelojOferta.js";
+import { proponerOfertaDeJugador } from "../../acciones/comercio/proponerOfertaDeJugador.js";
+import { enviarError } from "../../ayudantes/notificaciones.js";
 import { enFaseJuego, esSuTurno, partidaEnCurso, sinOfertaActiva, validar } from "../../validaciones/guardias.js";
 
 //? Atiende el mensaje msgIntercambiarJugador: el jugador del turno publica una oferta con recursos de cada lado
@@ -22,21 +22,12 @@ export function manejarOfrecerIntercambio(
         return;
     }
 
-    //* Validar y llenar la oferta, si hay error no se modifica nada
-    const resultado = sala.partida.ofertaIntercambio.setOfertaMixta(
+    const resultado = proponerOfertaDeJugador(
+        sala,
         client.sessionId,
-        sala.jugadores,
         mensaje.ofrecidos ?? {},
         mensaje.solicitados ?? {}
     );
 
-    if (resultado.error) {
-        enviarError(client, resultado.mensaje);
-        return;
-    }
-
-    registrarLogDeJugador(sala, client.sessionId, " ha hecho una oferta de intercambio");
-
-    //* Los demas tienen un tiempo limite para responder
-    iniciarRelojOferta(sala);
+    if (resultado.error) enviarError(client, resultado.mensaje);
 }
