@@ -11,7 +11,7 @@ export function accionConstruirCamino(sala: CatanRoom, sessionId: string, produc
     const jugador = sala.jugadores.get(sessionId);
     if (!jugador) return false;
 
-    const objetivo = objetivoDelBot(sala.tablero, jugador, sessionId, produccion);
+    const objetivo = objetivoDelBot(sala.tablero, jugador, sessionId, produccion, sala.banca);
     if (objetivo.tipo !== "camino" || Object.keys(objetivo.falta).length > 0) return false;
 
     const camino = elegirMejorCamino(sala.tablero, sessionId, caminosPosibles(sala.tablero, sessionId));

@@ -10,7 +10,7 @@ export function decidirDescarte(sala: CatanRoom, sessionId: string): void {
     if (!jugador || !cantidad) return;
 
     //* El objetivo no cambia mientras descarta; lo que le sobra se recalcula con cada carta
-    const { costo } = objetivoDelBot(sala.tablero, jugador, sessionId);
+    const { costo } = objetivoDelBot(sala.tablero, jugador, sessionId, undefined, sala.banca);
 
     for (let i = 0; i < cantidad; i++) {
         const recurso = recursoParaDescartar(jugador, costo);

@@ -11,7 +11,7 @@ export function accionComprarCarta(sala: CatanRoom, sessionId: string, produccio
     const jugador = sala.jugadores.get(sessionId);
     if (!jugador || sala.banca.cartas.length === 0) return false;
 
-    const objetivo = objetivoDelBot(sala.tablero, jugador, sessionId, produccion);
+    const objetivo = objetivoDelBot(sala.tablero, jugador, sessionId, produccion, sala.banca);
 
     //* Con otro objetivo solo compra con lo que le sobra de el, para no quitarle nada
     const puedeComprar = objetivo.tipo === "carta"

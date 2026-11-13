@@ -28,7 +28,7 @@ function recursoParaObjetivo(sala: CatanRoom, sessionId: string, deLosDemas: (re
     const jugador = sala.jugadores.get(sessionId);
     if (!jugador) return "";
 
-    const tipos = Object.keys(objetivoDelBot(sala.tablero, jugador, sessionId).falta);
+    const tipos = Object.keys(objetivoDelBot(sala.tablero, jugador, sessionId, undefined, sala.banca).falta);
     if (tipos.length !== 1 || deLosDemas(tipos[0]) < 1) return "";
 
     return tipos[0];
