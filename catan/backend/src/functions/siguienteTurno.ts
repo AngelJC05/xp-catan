@@ -16,4 +16,7 @@ export function siguienteTurno(
 
     // Cambiamos la fase del juego a DADOS
     partida.faseJuego = FaseJuego.DADOS;
+
+    // El siguiente jugador empieza sin ofertas propuestas
+    partida.ofertasDelTurno = [];
 }
