@@ -10,7 +10,7 @@ export function accionAbundancia(sala: CatanRoom, sessionId: string, azar: () =>
     const jugador = sala.jugadores.get(sessionId);
     if (!jugador || !puedeUsarla(sala, sessionId)) return false;
 
-    const { falta } = objetivoDelBot(sala.tablero, jugador, sessionId);
+    const { falta } = objetivoDelBot(sala.tablero, jugador, sessionId, undefined, sala.banca);
     const faltantes = Object.entries(falta).flatMap(([recurso, cantidad]) => Array(cantidad).fill(recurso));
 
     if (faltantes.length === 0 || faltantes.length > 2) return false;

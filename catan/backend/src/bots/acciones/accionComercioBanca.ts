@@ -11,7 +11,7 @@ export function accionComercioBanca(sala: CatanRoom, sessionId: string): boolean
     const jugador = sala.jugadores.get(sessionId);
     if (!jugador || !esSuFaseDeAcciones(sala, sessionId)) return false;
 
-    const { falta, sobra } = objetivoDelBot(sala.tablero, jugador, sessionId);
+    const { falta, sobra } = objetivoDelBot(sala.tablero, jugador, sessionId, undefined, sala.banca);
 
     //* Solo cuando le falta exactamente una carta: con un cambio ya completa su objetivo
     const faltantes = Object.entries(falta);

@@ -9,7 +9,7 @@ export function accionConstruir(sala: CatanRoom, sessionId: string, produccion?:
     const jugador = sala.jugadores.get(sessionId);
     if (!jugador) return false;
 
-    const objetivo = objetivoDelBot(sala.tablero, jugador, sessionId, produccion);
+    const objetivo = objetivoDelBot(sala.tablero, jugador, sessionId, produccion, sala.banca);
     if (objetivo.tipo !== "poblado" && objetivo.tipo !== "ciudad") return false;
     if (Object.keys(objetivo.falta).length > 0) return false;
 

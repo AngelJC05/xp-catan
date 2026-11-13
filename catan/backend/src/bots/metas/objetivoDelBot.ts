@@ -1,9 +1,11 @@
 import { Construccion, Desarrollo } from "../../common/enums.js";
 import { obtenerTasaDeComercio } from "../../functions/comerciarBanca.js";
+import type { Banca } from "../../schemas/Banca.js";
 import type { Jugador } from "../../schemas/Jugador.js";
 import type { Tablero } from "../../schemas/Tablero.js";
 import { DISTANCIA_MAXIMA } from "../criterios/elegirMejorCamino.js";
 import { esConstruible } from "../criterios/esConstruible.js";
+import { recursosDeLosDemas } from "../criterios/recursosDeLosDemas.js";
 import { puntuarVertice, VALOR_INTERES } from "../criterios/puntuarVertice.js";
 import { COSTOS, type Costo, type TipoObjetivo } from "./costos.js";
 import { faltaYSobra } from "./faltaYSobra.js";
@@ -31,25 +33,32 @@ const VALOR_POBLADO_ACEPTABLE = 4;
 
 //? Devuelve el primer objetivo posible segun la prioridad: poblado, camino hacia un poblado, ciudad, poblado pobre y carta
 //? Si ya le alcanza para una ciudad la toma de una vez, salvo que tambien le alcance para el poblado, que va primero
-//? Una meta solo se toma si el bot ya tiene lo que pide, lo produce o lo puede conseguir con la banca o la abundancia; si no, pasa a la siguiente para no estancarse
+//? Una meta solo se toma si el bot ya tiene lo que pide, lo produce o lo puede conseguir con la banca, la abundancia o el monopolio; si no, pasa a la siguiente para no estancarse
 //? Se calcula con el tablero de ese momento, asi que si un rival invalida un vertice la siguiente vez sale otro
 //? La produccion se puede pasar ya calculada; si no, se saca del tablero
 export function objetivoDelBot(
     tablero: Tablero,
     jugador: Jugador,
     sessionId: string,
-    produccion: Set<string> = recursosQueProduce(tablero, sessionId)
+    produccion: Set<string> = recursosQueProduce(tablero, sessionId),
+    banca?: Banca
 ): Objetivo {
     const tiene = (recurso: string, cantidad: number) => (jugador.recursos.get(recurso) ?? 0) >= cantidad;
     const alcanza = (tipo: TipoObjetivo) => Object.entries(COSTOS[tipo]).every(([recurso, cantidad]) => tiene(recurso, cantidad));
     const viable = (tipo: TipoObjetivo) => {
         const costo = COSTOS[tipo];
 
-        //* Lo que le falta de recursos que no produce: solo se puede conseguir con la banca o con la abundancia
-        const sinCubrir = Object.entries(costo).reduce((suma, [recurso, cantidad]) =>
-            produccion.has(recurso) ? suma : suma + Math.max(0, cantidad - (jugador.recursos.get(recurso) ?? 0)), 0);
+        //* Lo que le falta de recursos que no produce: solo se puede conseguir con la banca, la abundancia o el monopolio
+        const sinCubrir = Object.entries(costo)
+            .filter(([recurso]) => !produccion.has(recurso))
+            .map(([recurso, cantidad]) => [recurso, Math.max(0, cantidad - (jugador.recursos.get(recurso) ?? 0))] as const)
+            .filter(([, cantidad]) => cantidad > 0);
 
-        return sinCubrir <= cambiosConLaBanca(tablero, jugador, sessionId, costo) + recursosDeAbundancia(jugador);
+        const total = sinCubrir.reduce((suma, [, cantidad]) => suma + cantidad, 0);
+        if (total <= cambiosConLaBanca(tablero, jugador, sessionId, costo) + recursosDeAbundancia(jugador)) return true;
+
+        //* El monopolio solo cubre un tipo de recurso, y los demas tienen que tener lo que le falta
+        return sinCubrir.length === 1 && alcanzaElMonopolio(jugador, banca, sinCubrir[0][0], sinCubrir[0][1]);
     };
 
     const puedePoblar = quedan(jugador, Construccion.ASENTAMIENTO) && viable("poblado");
@@ -100,6 +109,13 @@ function cambiosConLaBanca(tablero: Tablero, jugador: Jugador, sessionId: string
 //? Una carta de abundancia le da hasta 2 recursos de la banca
 function recursosDeAbundancia(jugador: Jugador): number {
     return (jugador.cartas_usables.get(`${Desarrollo.ABUNDANCIA}`) ?? 0) > 0 ? 2 : 0;
+}
+
+//? El monopolio sirve si tiene la carta y los demas jugadores tienen al menos lo que le falta de ese recurso
+function alcanzaElMonopolio(jugador: Jugador, banca: Banca | undefined, recurso: string, faltante: number): boolean {
+    if (!banca || (jugador.cartas_usables.get(`${Desarrollo.MONOPOLIO}`) ?? 0) <= 0) return false;
+
+    return recursosDeLosDemas(banca, jugador, recurso) >= faltante;
 }
 
 function quedan(jugador: Jugador, construccion: Construccion): boolean {

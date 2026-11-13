@@ -12,7 +12,7 @@ export function decidirOferta(sala: CatanRoom, sessionId: string): void {
     //* Solo responde si hay una oferta esperando su respuesta
     if (!jugador || oferta.jugador === "" || oferta.respuestas.get(sessionId) !== 0) return;
 
-    const { falta, sobra } = objetivoDelBot(sala.tablero, jugador, sessionId);
+    const { falta, sobra } = objetivoDelBot(sala.tablero, jugador, sessionId, undefined, sala.banca);
     const ofrecidos = Object.fromEntries(oferta.recursosOfrecidos.entries());
     const solicitados = Object.fromEntries(oferta.recursosSolicitados.entries());
 

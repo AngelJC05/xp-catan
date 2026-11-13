@@ -3,6 +3,7 @@ import assert from "node:assert";
 import { COSTOS, type TipoObjetivo } from "../../../src/bots/metas/costos.js";
 import { objetivoDelBot, type Objetivo } from "../../../src/bots/metas/objetivoDelBot.js";
 import { Construccion, Desarrollo } from "../../../src/common/enums.js";
+import { Banca } from "../../../src/schemas/Banca.js";
 import { Jugador } from "../../../src/schemas/Jugador.js";
 import { armarCadena, construir, fijarNumeros, hacerRelevantes, trazar, vecinoDe } from "../../ayudas/cadena.js";
 
@@ -270,6 +271,66 @@ describe("objetivo del bot", () => {
       const escenario = armarCiudadSinPiedra({ mineral: 1, trigo: 2 });
 
       verificar(calcularSinPiedra(escenario), "carta");
+    });
+  });
+
+  describe("viabilidad con el monopolio", () => {
+
+    //? Funcion que deja un asentamiento listo para ser ciudad, sin producir piedra, y una banca donde los demas tienen la piedra indicada
+    function armarCiudadConMonopolio(propias: number, enManosDeLosDemas: number, monopolio = 1) {
+      const escenario = armarEscenario();
+      construir(escenario.cadena, escenario.vertices[0], BOT);
+      escenario.jugador.recursos.set("mineral", propias);
+      escenario.jugador.recursos.set("trigo", 2);
+      escenario.jugador.cartas_usables.set(`${Desarrollo.MONOPOLIO}`, monopolio);
+
+      const banca = new Banca();
+      banca.recursos.set("mineral", 19 - propias - enManosDeLosDemas);
+
+      return { escenario, banca };
+    }
+
+    const calcularConBanca = (escenario: Escenario, banca: Banca, produccion = produciendoSin("mineral")) =>
+      objetivoDelBot(escenario.cadena.tablero, escenario.jugador, BOT, produccion, banca);
+
+    it("mantiene la ciudad si le falta un solo tipo de recurso y los demas tienen suficiente para el monopolio", () => {
+      const { escenario, banca } = armarCiudadConMonopolio(1, 3);
+
+      const objetivo = calcularConBanca(escenario, banca);
+
+      verificar(objetivo, "ciudad", escenario.vertices[0]);
+      assert.deepStrictEqual(objetivo.falta, { mineral: 2 });
+    });
+
+    it("la mantiene si los demas tienen justo lo que le falta", () => {
+      const { escenario, banca } = armarCiudadConMonopolio(0, 3);
+
+      verificar(calcularConBanca(escenario, banca), "ciudad", escenario.vertices[0]);
+    });
+
+    it("no la mantiene si los demas tienen menos de lo que le falta", () => {
+      const { escenario, banca } = armarCiudadConMonopolio(1, 1);
+
+      verificar(calcularConBanca(escenario, banca), "carta");
+    });
+
+    it("no la mantiene sin la carta de monopolio", () => {
+      const { escenario, banca } = armarCiudadConMonopolio(1, 3, 0);
+
+      verificar(calcularConBanca(escenario, banca), "carta");
+    });
+
+    it("no la mantiene si le faltan dos tipos de recurso", () => {
+      const { escenario, banca } = armarCiudadConMonopolio(1, 3);
+      escenario.jugador.recursos.set("trigo", 0);
+
+      verificar(calcularConBanca(escenario, banca, produciendoSin("mineral", "trigo")), "carta");
+    });
+
+    it("no cuenta con el monopolio si no se le pasa la banca", () => {
+      const { escenario } = armarCiudadConMonopolio(1, 3);
+
+      verificar(calcular(escenario, produciendoSin("mineral")), "carta");
     });
   });
 });
