@@ -388,5 +388,48 @@ describe("bots jugando con las decisiones reales", () => {
       vencer(2);
       assert.strictEqual(armado.partida.turnoActual, ALAN);
     });
+
+    it("usa el monopolio para completar lo que le falta, construye la ciudad y pasa el turno", () => {
+      const armado = armarCiudadIncompleta({ mineral: 1, trigo: 2 });
+      armado.jugador.cartas_usables.set(`${Desarrollo.MONOPOLIO}`, 1);
+
+      //* Alan tiene 2 de mineral, asi que el bot ve en la banca que a los demas les quedan 2: justo lo que le falta
+      armado.jugadores.get(ALAN).recursos.set("mineral", 2);
+      armado.banca.recursos.set("mineral", 16);
+
+      const { vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+      assert.strictEqual(armado.jugador.recursos.get("mineral"), 3);
+      assert.strictEqual(armado.jugadores.get(ALAN).recursos.get("mineral"), 0);
+      assert.strictEqual(armado.jugador.cartas_usables.get(`${Desarrollo.MONOPOLIO}`), 0);
+      assert.strictEqual(armado.ciudades(), 0);
+
+      vencer(1);
+      assert.strictEqual(armado.ciudades(), 1);
+
+      vencer(2);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+    });
+
+    it("guarda el monopolio si los demas tienen menos de lo que le falta", () => {
+      const armado = armarCiudadIncompleta({ mineral: 1, trigo: 2 });
+      armado.jugador.cartas_usables.set(`${Desarrollo.MONOPOLIO}`, 1);
+
+      //* A Alan solo le queda 1 de mineral y al bot le faltan 2
+      armado.jugadores.get(ALAN).recursos.set("mineral", 1);
+      armado.banca.recursos.set("mineral", 17);
+
+      const { vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+
+      assert.strictEqual(armado.jugador.cartas_usables.get(`${Desarrollo.MONOPOLIO}`), 1);
+      assert.strictEqual(armado.jugadores.get(ALAN).recursos.get("mineral"), 1);
+      assert.strictEqual(armado.ciudades(), 0);
+    });
+
   });
 });
