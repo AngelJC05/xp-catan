@@ -10,7 +10,7 @@ import { iniciarRelojPreconstruccion } from "../../src/timers/preconstruccion/in
 import { Jugador } from "../../src/schemas/Jugador.js";
 import { armarJuegoConReloj, tiradaDe } from "../ayudas/juegoConReloj.js";
 import { ALAN, ANGEL, armarPreconstruccionConReloj } from "../ayudas/preconstruccionConReloj.js";
-import { armarCadena, construir, fijarNumeros } from "../ayudas/cadena.js";
+import { armarCadena, construir, fijarNumeros, hacerRelevantes, trazar } from "../ayudas/cadena.js";
 import { armarReloj } from "../ayudas/relojFalso.js";
 
 const LUIS = "jugadorLuis";
@@ -285,6 +285,47 @@ describe("bots jugando con las decisiones reales", () => {
 
       assert.strictEqual(armado.cartas(), 0);
       assert.strictEqual(armado.partida.turnoActual, ALAN);
+    });
+  });
+
+  describe("construccion de caminos", () => {
+
+    //? Funcion que deja a Angel con un camino y dos vertices valiosos a 2 caminos de distancia, con recursos para un solo camino
+    function armarParaCamino() {
+      const armado = armarJuegoConReloj();
+      armado.partida.faseJuego = FaseJuego.ACCIONES;
+
+      const cadena = armarCadena(armado.tablero);
+      fijarNumeros(cadena, 0);
+      const [, , , v3, v4] = cadena.vertices;
+      trazar(cadena, cadena.caminos[0], ANGEL);
+      hacerRelevantes(cadena, v3, v4);
+
+      //* Con trigo y lana en la mano el poblado al que lleva el camino se puede pagar
+      const jugador = armado.jugadores.get(ANGEL);
+      for (const [recurso, cantidad] of Object.entries({ madera: 1, ladrillo: 1, trigo: 1, lana: 1 })) {
+        jugador.recursos.set(recurso, cantidad);
+      }
+
+      return { ...armado, jugador, caminos: () => contarPiezas(armado.tablero.aristas.values(), ANGEL) };
+    }
+
+    it("el bot construye un camino en su despertar y despues pasa el turno", () => {
+      const armado = armarParaCamino();
+      const { programados, vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+      assert.strictEqual(armado.caminos(), 1);
+
+      vencer(0);
+      assert.strictEqual(armado.caminos(), 2);
+      assert.strictEqual(armado.jugador.recursos.get("madera"), 0);
+      assert.strictEqual(armado.partida.turnoActual, ANGEL);
+      assert.strictEqual(programados.length, 2);
+
+      vencer(1);
+      assert.strictEqual(armado.caminos(), 2);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+      assert.strictEqual(armado.partida.faseJuego, FaseJuego.DADOS);
     });
   });
 });
