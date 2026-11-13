@@ -2,7 +2,7 @@ import { describe, it } from "mocha";
 import assert from "node:assert";
 import { COSTOS, type TipoObjetivo } from "../../../src/bots/metas/costos.js";
 import { objetivoDelBot, type Objetivo } from "../../../src/bots/metas/objetivoDelBot.js";
-import { Construccion } from "../../../src/common/enums.js";
+import { Construccion, Desarrollo } from "../../../src/common/enums.js";
 import { Jugador } from "../../../src/schemas/Jugador.js";
 import { armarCadena, construir, fijarNumeros, hacerRelevantes, trazar, vecinoDe } from "../../ayudas/cadena.js";
 
@@ -214,6 +214,62 @@ describe("objetivo del bot", () => {
       verificar(objetivo, "camino", v3);
       assert.deepStrictEqual(objetivo.falta, { madera: 1 });
       assert.deepStrictEqual(objetivo.sobra, { ladrillo: 2 });
+    });
+  });
+
+  describe("viabilidad con la banca y la abundancia", () => {
+
+    //? Funcion que deja un asentamiento listo para ser ciudad, sin producir piedra, con los recursos indicados
+    function armarCiudadSinPiedra(recursos: Record<string, number>, abundancia = 0) {
+      const escenario = armarEscenario();
+      construir(escenario.cadena, escenario.vertices[0], BOT);
+      for (const [recurso, cantidad] of Object.entries(recursos)) escenario.jugador.recursos.set(recurso, cantidad);
+      escenario.jugador.cartas_usables.set(`${Desarrollo.ABUNDANCIA}`, abundancia);
+      return escenario;
+    }
+
+    const calcularSinPiedra = (escenario: Escenario) => calcular(escenario, produciendoSin("mineral"));
+
+    it("mantiene la ciudad si le falta una piedra y le sobra lo de la tasa para cambiarla", () => {
+      const escenario = armarCiudadSinPiedra({ mineral: 2, trigo: 2, madera: 4 });
+
+      const objetivo = calcularSinPiedra(escenario);
+
+      verificar(objetivo, "ciudad", escenario.vertices[0]);
+      assert.deepStrictEqual(objetivo.falta, { mineral: 1 });
+    });
+
+    it("no la mantiene si no le sobra lo que pide la tasa", () => {
+      const escenario = armarCiudadSinPiedra({ mineral: 2, trigo: 2, madera: 3 });
+
+      verificar(calcularSinPiedra(escenario), "carta");
+    });
+
+    it("no la mantiene si le faltan 2 piedras y solo le alcanza para un cambio", () => {
+      const escenario = armarCiudadSinPiedra({ mineral: 1, trigo: 2, madera: 4 });
+
+      verificar(calcularSinPiedra(escenario), "carta");
+    });
+
+    it("la mantiene si con una carta de abundancia puede completar lo que le falta", () => {
+      const escenario = armarCiudadSinPiedra({ mineral: 1, trigo: 2 }, 1);
+
+      const objetivo = calcularSinPiedra(escenario);
+
+      verificar(objetivo, "ciudad", escenario.vertices[0]);
+      assert.deepStrictEqual(objetivo.falta, { mineral: 2 });
+    });
+
+    it("no la mantiene si le faltan 3 recursos aunque tenga la carta de abundancia", () => {
+      const escenario = armarCiudadSinPiedra({ mineral: 0, trigo: 2 }, 1);
+
+      verificar(calcularSinPiedra(escenario), "carta");
+    });
+
+    it("no la mantiene si le faltan recursos y no tiene la carta de abundancia", () => {
+      const escenario = armarCiudadSinPiedra({ mineral: 1, trigo: 2 });
+
+      verificar(calcularSinPiedra(escenario), "carta");
     });
   });
 });

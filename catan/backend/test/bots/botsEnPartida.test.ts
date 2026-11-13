@@ -1,6 +1,6 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
-import { Construccion, FaseJuego, Terreno } from "../../src/common/enums.js";
+import { Construccion, Desarrollo, FaseJuego, Terreno } from "../../src/common/enums.js";
 import { hexagonosDelVertice } from "../../src/functions/hexagonosDelVertice.js";
 import { aplicarTirada } from "../../src/rooms/acciones/dados/aplicarTirada.js";
 import { iniciarRelojAcciones } from "../../src/timers/acciones/iniciarRelojAcciones.js";
@@ -10,7 +10,7 @@ import { iniciarRelojPreconstruccion } from "../../src/timers/preconstruccion/in
 import { Jugador } from "../../src/schemas/Jugador.js";
 import { armarJuegoConReloj, tiradaDe } from "../ayudas/juegoConReloj.js";
 import { ALAN, ANGEL, armarPreconstruccionConReloj } from "../ayudas/preconstruccionConReloj.js";
-import { armarCadena, construir, fijarNumeros } from "../ayudas/cadena.js";
+import { armarCadena, construir, fijarNumeros, hacerRelevantes, trazar } from "../ayudas/cadena.js";
 import { armarReloj } from "../ayudas/relojFalso.js";
 
 const LUIS = "jugadorLuis";
@@ -231,6 +231,161 @@ describe("bots jugando con las decisiones reales", () => {
       vencer(0);
 
       assert.strictEqual(armado.ciudades(), 0);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+    });
+  });
+
+  describe("compra de cartas", () => {
+
+    //? Funcion que deja el juego en la fase de acciones de Angel, sin construcciones, para que su objetivo sea la carta
+    function armarSinConstrucciones(recursos: number) {
+      const armado = armarJuegoConReloj();
+      armado.partida.faseJuego = FaseJuego.ACCIONES;
+
+      const jugador = armado.jugadores.get(ANGEL);
+      for (const recurso of ["mineral", "trigo", "lana"]) jugador.recursos.set(recurso, recursos);
+
+      return { ...armado, cartas: () => contarCartas(jugador.cartas_inusables.values()) + contarCartas(jugador.cartas_usables.values()) };
+    }
+
+    //? Funcion que suma las cantidades de cartas; al pasar el turno las compradas pasan de inusables a usables
+    function contarCartas(cantidades: Iterable<number>) {
+      let total = 0;
+      for (const cantidad of cantidades) total += cantidad;
+      return total;
+    }
+
+    it("el bot compra una carta por cada despertar mientras le alcance y despues pasa el turno", () => {
+      const armado = armarSinConstrucciones(2);
+      const { programados, vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+      assert.strictEqual(armado.cartas(), 1);
+      assert.strictEqual(armado.partida.turnoActual, ANGEL);
+      assert.strictEqual(programados.length, 2);
+
+      vencer(1);
+      assert.strictEqual(armado.cartas(), 2);
+      assert.strictEqual(armado.partida.turnoActual, ANGEL);
+
+      vencer(2);
+      assert.strictEqual(armado.cartas(), 2);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+      assert.strictEqual(armado.partida.faseJuego, FaseJuego.DADOS);
+    });
+
+    it("si el mazo esta vacio no compra y pasa el turno", () => {
+      const armado = armarSinConstrucciones(2);
+      while (armado.banca.cartas.length > 0) armado.banca.cartas.shift();
+      const { vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+
+      assert.strictEqual(armado.cartas(), 0);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+    });
+  });
+
+  describe("construccion de caminos", () => {
+
+    //? Funcion que deja a Angel con un camino y dos vertices valiosos a 2 caminos de distancia, con recursos para un solo camino
+    function armarParaCamino() {
+      const armado = armarJuegoConReloj();
+      armado.partida.faseJuego = FaseJuego.ACCIONES;
+
+      const cadena = armarCadena(armado.tablero);
+      fijarNumeros(cadena, 0);
+      const [, , , v3, v4] = cadena.vertices;
+      trazar(cadena, cadena.caminos[0], ANGEL);
+      hacerRelevantes(cadena, v3, v4);
+
+      //* Con trigo y lana en la mano el poblado al que lleva el camino se puede pagar
+      const jugador = armado.jugadores.get(ANGEL);
+      for (const [recurso, cantidad] of Object.entries({ madera: 1, ladrillo: 1, trigo: 1, lana: 1 })) {
+        jugador.recursos.set(recurso, cantidad);
+      }
+
+      return { ...armado, jugador, caminos: () => contarPiezas(armado.tablero.aristas.values(), ANGEL) };
+    }
+
+    it("el bot construye un camino en su despertar y despues pasa el turno", () => {
+      const armado = armarParaCamino();
+      const { programados, vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+      assert.strictEqual(armado.caminos(), 1);
+
+      vencer(0);
+      assert.strictEqual(armado.caminos(), 2);
+      assert.strictEqual(armado.jugador.recursos.get("madera"), 0);
+      assert.strictEqual(armado.partida.turnoActual, ANGEL);
+      assert.strictEqual(programados.length, 2);
+
+      vencer(1);
+      assert.strictEqual(armado.caminos(), 2);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+      assert.strictEqual(armado.partida.faseJuego, FaseJuego.DADOS);
+    });
+  });
+
+  describe("completar una meta con la banca o la abundancia", () => {
+
+    //? Funcion que deja a Angel con un asentamiento que no produce nada y los recursos indicados, para que su objetivo sea la ciudad
+    function armarCiudadIncompleta(recursos: Record<string, number>, abundancia = 0) {
+      const armado = armarJuegoConReloj();
+      armado.partida.faseJuego = FaseJuego.ACCIONES;
+      armado.partida.cartaJugable = true;
+
+      const cadena = armarCadena(armado.tablero);
+      fijarNumeros(cadena, 0);
+      construir(cadena, cadena.vertices[0], ANGEL);
+
+      const jugador = armado.jugadores.get(ANGEL);
+      for (const [recurso, cantidad] of Object.entries(recursos)) jugador.recursos.set(recurso, cantidad);
+      jugador.cartas_usables.set(`${Desarrollo.ABUNDANCIA}`, abundancia);
+
+      return {
+        ...armado,
+        jugador,
+        ciudades: () => [...armado.tablero.vertices.values()]
+          .filter((vertice) => vertice.propietario === ANGEL && vertice.constuccion === Construccion.CIUDAD).length
+      };
+    }
+
+    it("cambia con la banca lo que le falta, construye la ciudad y pasa el turno", () => {
+      const armado = armarCiudadIncompleta({ mineral: 2, trigo: 2, madera: 4 });
+      const { programados, vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+      assert.strictEqual(armado.jugador.recursos.get("mineral"), 3);
+      assert.strictEqual(armado.jugador.recursos.get("madera"), 0);
+      assert.strictEqual(armado.ciudades(), 0);
+
+      vencer(1);
+      assert.strictEqual(armado.ciudades(), 1);
+      assert.strictEqual(armado.partida.turnoActual, ANGEL);
+      assert.strictEqual(programados.length, 3);
+
+      vencer(2);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+    });
+
+    it("usa la carta de abundancia para completar lo que le falta, construye la ciudad y pasa el turno", () => {
+      const armado = armarCiudadIncompleta({ mineral: 1, trigo: 2 }, 1);
+      const { vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+      assert.strictEqual(armado.jugador.recursos.get("mineral"), 3);
+      assert.strictEqual(armado.jugador.cartas_usables.get(`${Desarrollo.ABUNDANCIA}`), 0);
+      assert.strictEqual(armado.ciudades(), 0);
+
+      vencer(1);
+      assert.strictEqual(armado.ciudades(), 1);
+
+      vencer(2);
       assert.strictEqual(armado.partida.turnoActual, ALAN);
     });
   });
