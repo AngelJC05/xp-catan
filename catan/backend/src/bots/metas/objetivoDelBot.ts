@@ -1,5 +1,6 @@
 import { Construccion, Desarrollo } from "../../common/enums.js";
 import { obtenerTasaDeComercio } from "../../functions/comerciarBanca.js";
+import type { Banca } from "../../schemas/Banca.js";
 import type { Jugador } from "../../schemas/Jugador.js";
 import type { Tablero } from "../../schemas/Tablero.js";
 import { DISTANCIA_MAXIMA } from "../criterios/elegirMejorCamino.js";
@@ -38,7 +39,8 @@ export function objetivoDelBot(
     tablero: Tablero,
     jugador: Jugador,
     sessionId: string,
-    produccion: Set<string> = recursosQueProduce(tablero, sessionId)
+    produccion: Set<string> = recursosQueProduce(tablero, sessionId),
+    banca?: Banca
 ): Objetivo {
     const tiene = (recurso: string, cantidad: number) => (jugador.recursos.get(recurso) ?? 0) >= cantidad;
     const alcanza = (tipo: TipoObjetivo) => Object.entries(COSTOS[tipo]).every(([recurso, cantidad]) => tiene(recurso, cantidad));
