@@ -86,3 +86,17 @@ export function vecinoDe(cadena: Cadena, vertice: string, excepto: string): stri
 
   throw new Error("El vertice no tiene otro vecino");
 }
+
+//? Funcion que le da un valor mediano a dos vertices vecinos: un solo terreno que comparten, y que no toca el vertice anterior, pasa a tener el numero
+//? Con el numero 9 valen 4 y con el 8 valen 5; el vertice anterior queda en 0 para que no compita
+export function hacerMedianos(cadena: Cadena, a: string, b: string, anterior: string, numero: number) {
+  const { tablero } = cadena;
+  const terrenosDe = (vertice: string) => hexagonosDelVertice(tablero.hexagonos, tablero.vertices.get(vertice) as Vertice);
+  const mismo = (uno: { h: number, d: number }, otro: { h: number, d: number }) => uno.h === otro.h && uno.d === otro.d;
+
+  const compartido = terrenosDe(a).find((terreno) =>
+    terrenosDe(b).some((otro) => mismo(terreno, otro)) && !terrenosDe(anterior).some((otro) => mismo(terreno, otro)));
+
+  if (!compartido) throw new Error("Los vertices no comparten un terreno que no toque el anterior");
+  compartido.numero = numero;
+}

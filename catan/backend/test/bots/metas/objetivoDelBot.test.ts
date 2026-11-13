@@ -3,11 +3,9 @@ import assert from "node:assert";
 import { COSTOS, type TipoObjetivo } from "../../../src/bots/metas/costos.js";
 import { objetivoDelBot, type Objetivo } from "../../../src/bots/metas/objetivoDelBot.js";
 import { Construccion, Desarrollo } from "../../../src/common/enums.js";
-import { hexagonosDelVertice } from "../../../src/functions/hexagonosDelVertice.js";
 import { Banca } from "../../../src/schemas/Banca.js";
 import { Jugador } from "../../../src/schemas/Jugador.js";
-import type { Vertice } from "../../../src/schemas/Vertices.js";
-import { armarCadena, construir, fijarNumeros, hacerRelevantes, trazar, vecinoDe } from "../../ayudas/cadena.js";
+import { armarCadena, construir, fijarNumeros, hacerMedianos, hacerRelevantes, trazar, vecinoDe } from "../../ayudas/cadena.js";
 
 const BOT = "bot-1";
 const RIVAL = "jugadorRival";
@@ -39,20 +37,6 @@ function verificar(objetivo: Objetivo, tipo: TipoObjetivo, vertice = "") {
   assert.strictEqual(objetivo.tipo, tipo);
   assert.strictEqual(objetivo.vertice, vertice);
   assert.deepStrictEqual(objetivo.costo, COSTOS[tipo]);
-}
-
-//? Funcion que le da un valor mediano a dos vertices vecinos: un solo terreno que comparten, y que no toca el vertice anterior, pasa a tener el numero
-//? Con el numero 9 valen 4 y con el 8 valen 5; el vertice anterior queda en 0 para que no compita
-function hacerMedianos(cadena: Escenario["cadena"], a: string, b: string, anterior: string, numero: number) {
-  const { tablero } = cadena;
-  const terrenosDe = (vertice: string) => hexagonosDelVertice(tablero.hexagonos, tablero.vertices.get(vertice) as Vertice);
-  const mismo = (uno: { h: number, d: number }, otro: { h: number, d: number }) => uno.h === otro.h && uno.d === otro.d;
-
-  const compartido = terrenosDe(a).find((terreno) =>
-    terrenosDe(b).some((otro) => mismo(terreno, otro)) && !terrenosDe(anterior).some((otro) => mismo(terreno, otro)));
-
-  if (!compartido) throw new Error("Los vertices no comparten un terreno que no toque el anterior");
-  compartido.numero = numero;
 }
 
 describe("objetivo del bot", () => {
