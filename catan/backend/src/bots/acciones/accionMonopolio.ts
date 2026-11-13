@@ -1,10 +1,8 @@
 import type { CatanRoom } from "../../rooms/CatanRoom.js";
 import { Desarrollo, FaseJuego, FasePartida } from "../../common/enums.js";
 import { usarCartaMonopolio } from "../../rooms/acciones/cartas/usarCartaMonopolio.js";
+import { recursosDeLosDemas } from "../criterios/recursosDeLosDemas.js";
 import { objetivoDelBot } from "../metas/objetivoDelBot.js";
-
-//? Cartas de cada recurso en todo el juego: empiezan todas en la banca
-const RECURSOS_POR_TIPO = 19;
 
 //? Desde cuantas cartas en manos de los demas vale la pena el monopolio aunque el objetivo no las pida
 export const MINIMO_MONOPOLIO = 5;
@@ -17,9 +15,7 @@ export function accionMonopolio(sala: CatanRoom, sessionId: string): boolean {
     const jugador = sala.jugadores.get(sessionId);
     if (!jugador || !puedeUsarla(sala, sessionId)) return false;
 
-    //* Cuanto tienen los demas de un recurso: lo que no esta en la banca ni en su mano
-    const deLosDemas = (recurso: string) =>
-        RECURSOS_POR_TIPO - (sala.banca.recursos.get(recurso) ?? 0) - (jugador.recursos.get(recurso) ?? 0);
+    const deLosDemas = (recurso: string) => recursosDeLosDemas(sala.banca, jugador, recurso);
 
     const recurso = recursoParaObjetivo(sala, sessionId, deLosDemas) || recursoMasJuntado(sala, deLosDemas);
     if (recurso === "") return false;
