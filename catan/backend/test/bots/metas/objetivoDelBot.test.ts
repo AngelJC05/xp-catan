@@ -3,8 +3,10 @@ import assert from "node:assert";
 import { COSTOS, type TipoObjetivo } from "../../../src/bots/metas/costos.js";
 import { objetivoDelBot, type Objetivo } from "../../../src/bots/metas/objetivoDelBot.js";
 import { Construccion, Desarrollo } from "../../../src/common/enums.js";
+import { hexagonosDelVertice } from "../../../src/functions/hexagonosDelVertice.js";
 import { Banca } from "../../../src/schemas/Banca.js";
 import { Jugador } from "../../../src/schemas/Jugador.js";
+import type { Vertice } from "../../../src/schemas/Vertices.js";
 import { armarCadena, construir, fijarNumeros, hacerRelevantes, trazar, vecinoDe } from "../../ayudas/cadena.js";
 
 const BOT = "bot-1";
@@ -37,6 +39,20 @@ function verificar(objetivo: Objetivo, tipo: TipoObjetivo, vertice = "") {
   assert.strictEqual(objetivo.tipo, tipo);
   assert.strictEqual(objetivo.vertice, vertice);
   assert.deepStrictEqual(objetivo.costo, COSTOS[tipo]);
+}
+
+//? Funcion que le da un valor mediano a dos vertices vecinos: un solo terreno que comparten, y que no toca el vertice anterior, pasa a tener el numero
+//? Con el numero 9 valen 4 y con el 8 valen 5; el vertice anterior queda en 0 para que no compita
+function hacerMedianos(cadena: Escenario["cadena"], a: string, b: string, anterior: string, numero: number) {
+  const { tablero } = cadena;
+  const terrenosDe = (vertice: string) => hexagonosDelVertice(tablero.hexagonos, tablero.vertices.get(vertice) as Vertice);
+  const mismo = (uno: { h: number, d: number }, otro: { h: number, d: number }) => uno.h === otro.h && uno.d === otro.d;
+
+  const compartido = terrenosDe(a).find((terreno) =>
+    terrenosDe(b).some((otro) => mismo(terreno, otro)) && !terrenosDe(anterior).some((otro) => mismo(terreno, otro)));
+
+  if (!compartido) throw new Error("Los vertices no comparten un terreno que no toque el anterior");
+  compartido.numero = numero;
 }
 
 describe("objetivo del bot", () => {
@@ -186,6 +202,65 @@ describe("objetivo del bot", () => {
       hacerRelevantes(escenario.cadena, v4, vecinoDe(escenario.cadena, v4, escenario.vertices[3]));
 
       verificar(calcular(escenario), "carta");
+    });
+  
+
+    describe("hacia vertices de valor 4 o 5 cuando no hay mejores", () => {
+
+      it("va hacia un vertice de valor 4 a 2 caminos nuevos si no hay ninguno de 6 o mas", () => {
+        const escenario = armarEscenario();
+        const [, , v2, v3, v4] = escenario.vertices;
+        trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+        hacerMedianos(escenario.cadena, v3, v4, v2, 9);
+
+        verificar(calcular(escenario), "camino", v3);
+      });
+
+      it("va hacia un vertice de valor 5 a 2 caminos nuevos si no hay ninguno de 6 o mas", () => {
+        const escenario = armarEscenario();
+        const [, , v2, v3, v4] = escenario.vertices;
+        trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+        hacerMedianos(escenario.cadena, v3, v4, v2, 8);
+
+        verificar(calcular(escenario), "camino", v3);
+      });
+
+      it("los de 6 o mas siguen teniendo prioridad aunque haya uno mediano mas cerca", () => {
+        const escenario = armarEscenario();
+        const [, , , v3, v4] = escenario.vertices;
+        trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+        hacerRelevantes(escenario.cadena, v3, v4);
+
+        //* El terreno que v2 comparte con v3 ahora vale 8: v2 es mediano y esta a 1 camino, pero v3 vale mas
+        verificar(calcular(escenario), "camino", v3);
+      });
+
+      it("no va hacia un vertice de valor menor a 4", () => {
+        const escenario = armarEscenario();
+        const [, , v2, v3, v4] = escenario.vertices;
+        trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+        hacerMedianos(escenario.cadena, v3, v4, v2, 11);
+
+        assert.notStrictEqual(calcular(escenario).tipo, "camino");
+      });
+
+      it("no va hacia un vertice mediano a mas de 2 caminos nuevos", () => {
+        const escenario = armarEscenario();
+        const [, , , v3, v4] = escenario.vertices;
+        trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+        hacerMedianos(escenario.cadena, v4, vecinoDe(escenario.cadena, v4, v3), v3, 9);
+
+        assert.notStrictEqual(calcular(escenario).tipo, "camino");
+      });
+
+      it("se salta el camino mediano si no podria pagar el poblado al que lleva", () => {
+        const escenario = armarEscenario();
+        const [, , v2, v3, v4] = escenario.vertices;
+        trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+        hacerMedianos(escenario.cadena, v3, v4, v2, 9);
+
+        verificar(calcular(escenario, produciendoSin("lana")), "carta");
+      });
     });
   });
 
