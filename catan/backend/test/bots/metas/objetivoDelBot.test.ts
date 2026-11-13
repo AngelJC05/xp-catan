@@ -201,7 +201,9 @@ describe("objetivo del bot", () => {
       trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
       hacerRelevantes(escenario.cadena, v4, vecinoDe(escenario.cadena, v4, escenario.vertices[3]));
 
-      verificar(calcular(escenario), "carta");
+      //* v4 vale 10 pero esta a 3 caminos: lo unico alcanzable son vertices vecinos que comparten un terreno con el
+      const objetivo = calcular(escenario);
+      assert.notStrictEqual(objetivo.vertice, v4);
     });
   
 
@@ -233,6 +235,16 @@ describe("objetivo del bot", () => {
 
         //* El terreno que v2 comparte con v3 ahora vale 8: v2 es mediano y esta a 1 camino, pero v3 vale mas
         verificar(calcular(escenario), "camino", v3);
+      });
+
+      it("la ciudad va antes que un camino hacia un vertice mediano", () => {
+        const escenario = armarEscenario();
+        const [v0, , v2, v3, v4] = escenario.vertices;
+        construir(escenario.cadena, v0, BOT);
+        trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+        hacerMedianos(escenario.cadena, v3, v4, v2, 9);
+
+        verificar(calcular(escenario), "ciudad", v0);
       });
 
       it("no va hacia un vertice de valor menor a 4", () => {

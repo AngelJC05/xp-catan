@@ -32,6 +32,7 @@ interface Candidato {
 const VALOR_POBLADO_ACEPTABLE = 4;
 
 //? Devuelve el primer objetivo posible segun la prioridad: poblado, camino hacia un poblado, ciudad, poblado pobre y carta
+//? El camino va hacia vertices de 6 o mas; la ciudad va antes que un camino hacia uno de 4 o 5, que es el ultimo recurso para progresar
 //? Si ya le alcanza para una ciudad la toma de una vez, salvo que tambien le alcance para el poblado, que va primero
 //? Una meta solo se toma si el bot ya tiene lo que pide, lo produce o lo puede conseguir con la banca, la abundancia o el monopolio; si no, pasa a la siguiente para no estancarse
 //? Se calcula con el tablero de ese momento, asi que si un rival invalida un vertice la siguiente vez sale otro
@@ -76,13 +77,19 @@ export function objetivoDelBot(
 
     if (poblado) return armar(jugador, "poblado", poblado.vertice);
 
-    if (puedePoblar && quedan(jugador, Construccion.CAMINO) && viable("camino")) {
-        const camino = mejorCandidato(candidatos.filter((candidato) =>
-            candidato.caminosNuevos > 0 && candidato.valor >= VALOR_INTERES));
-        if (camino) return armar(jugador, "camino", camino.vertice);
-    }
+    //* Un camino solo se extiende si podria pagar el poblado al que lleva
+    const lejanos = puedePoblar && quedan(jugador, Construccion.CAMINO) && viable("camino")
+        ? candidatos.filter((candidato) => candidato.caminosNuevos > 0)
+        : [];
+
+    const camino = mejorCandidato(lejanos.filter((candidato) => candidato.valor >= VALOR_INTERES));
+    if (camino) return armar(jugador, "camino", camino.vertice);
 
     if (ciudad) return armar(jugador, "ciudad", ciudad.vertice);
+
+    //* Sin vertices buenos ni ciudad, uno aceptable para no quedarse sin progresar
+    const aceptable = mejorCandidato(lejanos.filter((candidato) => candidato.valor >= VALOR_POBLADO_ACEPTABLE));
+    if (aceptable) return armar(jugador, "camino", aceptable.vertice);
 
     if (puedePoblar) {
         const pobre = mejorCandidato(conectados);
