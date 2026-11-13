@@ -5,7 +5,7 @@ import { jugarCartaCaballero } from "../../rooms/acciones/cartas/jugarCartaCabal
 import { hexagonoParaLadron } from "../criterios/hexagonoParaLadron.js";
 
 //? Probabilidad de que el bot juegue el caballero en un turno aunque el ladron no lo afecte
-export const PROBABILIDAD_CABALLERO = 0.3;
+export const PROBABILIDAD_CABALLERO = 0.5;
 
 //? Bots de cada sala que ya probaron el 30% en este turno; se olvida al tirar los dados del siguiente
 const yaProbaron = new WeakMap<CatanRoom, Set<string>>();

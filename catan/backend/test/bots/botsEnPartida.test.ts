@@ -10,7 +10,7 @@ import { iniciarRelojPreconstruccion } from "../../src/timers/preconstruccion/in
 import { Jugador } from "../../src/schemas/Jugador.js";
 import { armarJuegoConReloj, tiradaDe } from "../ayudas/juegoConReloj.js";
 import { ALAN, ANGEL, armarPreconstruccionConReloj } from "../ayudas/preconstruccionConReloj.js";
-import { armarCadena, construir, fijarNumeros, hacerRelevantes, trazar } from "../ayudas/cadena.js";
+import { armarCadena, construir, fijarNumeros, hacerMedianos, hacerRelevantes, trazar } from "../ayudas/cadena.js";
 import { armarReloj } from "../ayudas/relojFalso.js";
 
 const LUIS = "jugadorLuis";
@@ -290,16 +290,18 @@ describe("bots jugando con las decisiones reales", () => {
 
   describe("construccion de caminos", () => {
 
-    //? Funcion que deja a Angel con un camino y dos vertices valiosos a 2 caminos de distancia, con recursos para un solo camino
-    function armarParaCamino() {
+    //? Funcion que deja a Angel con un camino y dos vertices a 2 caminos de distancia, con recursos para un solo camino
+    //? Por defecto los vertices son valiosos; con medianos valen solo 4
+    function armarParaCamino(medianos = false) {
       const armado = armarJuegoConReloj();
       armado.partida.faseJuego = FaseJuego.ACCIONES;
 
       const cadena = armarCadena(armado.tablero);
       fijarNumeros(cadena, 0);
-      const [, , , v3, v4] = cadena.vertices;
+      const [, , v2, v3, v4] = cadena.vertices;
       trazar(cadena, cadena.caminos[0], ANGEL);
-      hacerRelevantes(cadena, v3, v4);
+      if (medianos) hacerMedianos(cadena, v3, v4, v2, 9);
+      else hacerRelevantes(cadena, v3, v4);
 
       //* Con trigo y lana en la mano el poblado al que lleva el camino se puede pagar
       const jugador = armado.jugadores.get(ANGEL);
@@ -326,6 +328,20 @@ describe("bots jugando con las decisiones reales", () => {
       assert.strictEqual(armado.caminos(), 2);
       assert.strictEqual(armado.partida.turnoActual, ALAN);
       assert.strictEqual(armado.partida.faseJuego, FaseJuego.DADOS);
+    });
+
+    it("si no hay vertices buenos construye el camino hacia uno de valor 4 en vez de quedarse parado", () => {
+      const armado = armarParaCamino(true);
+      const { vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+      assert.strictEqual(armado.caminos(), 2);
+      assert.strictEqual(armado.jugador.recursos.get("madera"), 0);
+      assert.strictEqual(armado.partida.turnoActual, ANGEL);
+
+      vencer(1);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
     });
   });
 
@@ -431,5 +447,64 @@ describe("bots jugando con las decisiones reales", () => {
       assert.strictEqual(armado.ciudades(), 0);
     });
 
+  });
+
+  describe("carta de carreteras", () => {
+
+    //? Funcion que deja a Angel con un camino, dos vertices valiosos a 2 caminos, la carta de carreteras y sin recursos
+    function armarConCartaDeCarreteras() {
+      const armado = armarJuegoConReloj();
+      armado.partida.faseJuego = FaseJuego.ACCIONES;
+      armado.partida.cartaJugable = true;
+
+      const cadena = armarCadena(armado.tablero);
+      fijarNumeros(cadena, 0);
+      const [, , , v3, v4] = cadena.vertices;
+      trazar(cadena, cadena.caminos[0], ANGEL);
+      hacerRelevantes(cadena, v3, v4);
+
+      const jugador = armado.jugadores.get(ANGEL);
+      jugador.cartas_usables.set(`${Desarrollo.CARRETERA}`, 1);
+
+      return { ...armado, jugador, caminos: () => contarPiezas(armado.tablero.aristas.values(), ANGEL) };
+    }
+
+    it("el bot juega la carta, construye los dos caminos gratis y despues pasa el turno", () => {
+      const armado = armarConCartaDeCarreteras();
+      const { programados, vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+      assert.strictEqual(armado.caminos(), 1);
+
+      vencer(0);
+      assert.strictEqual(armado.jugador.cartas_usables.get(`${Desarrollo.CARRETERA}`), 0);
+      assert.strictEqual(armado.partida.faseJuego, FaseJuego.CARRETERAS);
+      assert.strictEqual(programados.length, 2);
+
+      vencer(1);
+      assert.strictEqual(armado.caminos(), 2);
+      assert.strictEqual(armado.partida.faseJuego, FaseJuego.CARRETERAS);
+
+      vencer(2);
+      assert.strictEqual(armado.caminos(), 3);
+      assert.strictEqual(armado.partida.faseJuego, FaseJuego.ACCIONES);
+      assert.strictEqual(armado.partida.turnoActual, ANGEL);
+      assert.strictEqual(armado.jugador.recursos.get("madera"), 0);
+
+      vencer(3);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+      assert.strictEqual(armado.partida.faseJuego, FaseJuego.DADOS);
+    });
+
+    it("sin camino que valga la pena se guarda la carta y pasa el turno", () => {
+      const armado = armarConCartaDeCarreteras();
+      armado.jugador.construccionesDisponibles.set(`${Construccion.CAMINO}`, 0);
+      const { vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+
+      assert.strictEqual(armado.jugador.cartas_usables.get(`${Desarrollo.CARRETERA}`), 1);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+    });
   });
 });

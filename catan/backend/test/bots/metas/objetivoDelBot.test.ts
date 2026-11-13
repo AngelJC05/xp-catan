@@ -5,7 +5,7 @@ import { objetivoDelBot, type Objetivo } from "../../../src/bots/metas/objetivoD
 import { Construccion, Desarrollo } from "../../../src/common/enums.js";
 import { Banca } from "../../../src/schemas/Banca.js";
 import { Jugador } from "../../../src/schemas/Jugador.js";
-import { armarCadena, construir, fijarNumeros, hacerRelevantes, trazar, vecinoDe } from "../../ayudas/cadena.js";
+import { armarCadena, construir, fijarNumeros, hacerMedianos, hacerRelevantes, trazar, vecinoDe } from "../../ayudas/cadena.js";
 
 const BOT = "bot-1";
 const RIVAL = "jugadorRival";
@@ -185,7 +185,78 @@ describe("objetivo del bot", () => {
       trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
       hacerRelevantes(escenario.cadena, v4, vecinoDe(escenario.cadena, v4, escenario.vertices[3]));
 
-      verificar(calcular(escenario), "carta");
+      //* v4 vale 10 pero esta a 3 caminos: lo unico alcanzable son vertices vecinos que comparten un terreno con el
+      const objetivo = calcular(escenario);
+      assert.notStrictEqual(objetivo.vertice, v4);
+    });
+  
+
+    describe("hacia vertices de valor 4 o 5 cuando no hay mejores", () => {
+
+      it("va hacia un vertice de valor 4 a 2 caminos nuevos si no hay ninguno de 6 o mas", () => {
+        const escenario = armarEscenario();
+        const [, , v2, v3, v4] = escenario.vertices;
+        trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+        hacerMedianos(escenario.cadena, v3, v4, v2, 9);
+
+        verificar(calcular(escenario), "camino", v3);
+      });
+
+      it("va hacia un vertice de valor 5 a 2 caminos nuevos si no hay ninguno de 6 o mas", () => {
+        const escenario = armarEscenario();
+        const [, , v2, v3, v4] = escenario.vertices;
+        trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+        hacerMedianos(escenario.cadena, v3, v4, v2, 8);
+
+        verificar(calcular(escenario), "camino", v3);
+      });
+
+      it("los de 6 o mas siguen teniendo prioridad aunque haya uno mediano mas cerca", () => {
+        const escenario = armarEscenario();
+        const [, , , v3, v4] = escenario.vertices;
+        trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+        hacerRelevantes(escenario.cadena, v3, v4);
+
+        //* El terreno que v2 comparte con v3 ahora vale 8: v2 es mediano y esta a 1 camino, pero v3 vale mas
+        verificar(calcular(escenario), "camino", v3);
+      });
+
+      it("la ciudad va antes que un camino hacia un vertice mediano", () => {
+        const escenario = armarEscenario();
+        const [v0, , v2, v3, v4] = escenario.vertices;
+        construir(escenario.cadena, v0, BOT);
+        trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+        hacerMedianos(escenario.cadena, v3, v4, v2, 9);
+
+        verificar(calcular(escenario), "ciudad", v0);
+      });
+
+      it("no va hacia un vertice de valor menor a 4", () => {
+        const escenario = armarEscenario();
+        const [, , v2, v3, v4] = escenario.vertices;
+        trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+        hacerMedianos(escenario.cadena, v3, v4, v2, 11);
+
+        assert.notStrictEqual(calcular(escenario).tipo, "camino");
+      });
+
+      it("no va hacia un vertice mediano a mas de 2 caminos nuevos", () => {
+        const escenario = armarEscenario();
+        const [, , , v3, v4] = escenario.vertices;
+        trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+        hacerMedianos(escenario.cadena, v4, vecinoDe(escenario.cadena, v4, v3), v3, 9);
+
+        assert.notStrictEqual(calcular(escenario).tipo, "camino");
+      });
+
+      it("se salta el camino mediano si no podria pagar el poblado al que lleva", () => {
+        const escenario = armarEscenario();
+        const [, , v2, v3, v4] = escenario.vertices;
+        trazar(escenario.cadena, escenario.cadena.caminos[0], BOT);
+        hacerMedianos(escenario.cadena, v3, v4, v2, 9);
+
+        verificar(calcular(escenario, produciendoSin("lana")), "carta");
+      });
     });
   });
 
