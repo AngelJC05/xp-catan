@@ -8,7 +8,7 @@ import { objetivoDelBot } from "../metas/objetivoDelBot.js";
 export const MINIMO_MONOPOLIO = 5;
 
 //? Usa la carta de monopolio:
-//? 1. si para su objetivo le falta un solo tipo de recurso y los demas tienen de ese
+//? 1. si para su objetivo le falta un solo tipo de recurso y los demas tienen al menos lo que le falta
 //? 2. si no, si los demas juntan 5 o mas de algun recurso (el que mas tengan)
 //? Lo de los demas lo calcula viendo la banca, como cualquier jugador. Devuelve true si la uso
 export function accionMonopolio(sala: CatanRoom, sessionId: string): boolean {
@@ -23,15 +23,16 @@ export function accionMonopolio(sala: CatanRoom, sessionId: string): boolean {
     return !usarCartaMonopolio(sala, sessionId, recurso).error;
 }
 
-//? El unico tipo de recurso que le falta para su objetivo, si los demas tienen de ese; si no, ""
+//? El unico tipo de recurso que le falta para su objetivo, si los demas tienen al menos lo que le falta; si no, ""
 function recursoParaObjetivo(sala: CatanRoom, sessionId: string, deLosDemas: (recurso: string) => number): string {
     const jugador = sala.jugadores.get(sessionId);
     if (!jugador) return "";
 
-    const tipos = Object.keys(objetivoDelBot(sala.tablero, jugador, sessionId, undefined, sala.banca).falta);
-    if (tipos.length !== 1 || deLosDemas(tipos[0]) < 1) return "";
+    const faltantes = Object.entries(objetivoDelBot(sala.tablero, jugador, sessionId, undefined, sala.banca).falta);
+    if (faltantes.length !== 1) return "";
 
-    return tipos[0];
+    const [recurso, cantidad] = faltantes[0];
+    return deLosDemas(recurso) >= cantidad ? recurso : "";
 }
 
 //? El recurso que mas tienen los demas, si llega a 5; si no, ""
