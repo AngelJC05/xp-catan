@@ -2,6 +2,7 @@ import { describe, it } from "mocha";
 import assert from "node:assert";
 import { accionMonopolio } from "../../../src/bots/acciones/accionMonopolio.js";
 import { Desarrollo, FaseJuego } from "../../../src/common/enums.js";
+import { armarCadena, construir, fijarNumeros } from "../../ayudas/cadena.js";
 import { ALAN, ANGEL, armarJuegoConReloj } from "../../ayudas/juegoConReloj.js";
 
 const MONOPOLIO = `${Desarrollo.MONOPOLIO}`;
@@ -122,5 +123,36 @@ describe("accion del bot con la carta de monopolio", () => {
     dar(otroTurno, ALAN, { madera: 6 });
     otroTurno.partida.turnoActual = ALAN;
     assert.strictEqual(accionMonopolio(otroTurno.sala, ANGEL), false);
+  });
+
+  describe("cuando le falta mas de uno de ese recurso", () => {
+
+    //* Con un asentamiento que no produce nada y 12 maderas, su ciudad es viable con la banca pero le faltan 3 piedras
+    function armarCiudadSinPiedra(piedraDeAlan: number) {
+      const armado = armarMonopolio();
+      const cadena = armarCadena(armado.tablero);
+      fijarNumeros(cadena, 0);
+      construir(cadena, cadena.vertices[0], ANGEL);
+
+      dar(armado, ANGEL, { madera: 12, trigo: 2 });
+      dar(armado, ALAN, { mineral: piedraDeAlan });
+      return armado;
+    }
+
+    it("se guarda la carta si los demas tienen menos de lo que le falta", () => {
+      const armado = armarCiudadSinPiedra(1);
+
+      assert.strictEqual(accionMonopolio(armado.sala, ANGEL), false);
+      assert.strictEqual(armado.jugadores.get(ANGEL).cartas_usables.get(MONOPOLIO), 1);
+      assert.strictEqual(recursoDe(armado, ALAN, "mineral"), 1);
+    });
+
+    it("la usa si los demas tienen justo lo que le falta", () => {
+      const armado = armarCiudadSinPiedra(3);
+
+      assert.strictEqual(accionMonopolio(armado.sala, ANGEL), true);
+      assert.strictEqual(recursoDe(armado, ANGEL, "mineral"), 3);
+      assert.strictEqual(recursoDe(armado, ALAN, "mineral"), 0);
+    });
   });
 });
