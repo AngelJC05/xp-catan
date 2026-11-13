@@ -1,6 +1,6 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
-import { Construccion, FaseJuego, Terreno } from "../../src/common/enums.js";
+import { Construccion, Desarrollo, FaseJuego, Terreno } from "../../src/common/enums.js";
 import { hexagonosDelVertice } from "../../src/functions/hexagonosDelVertice.js";
 import { aplicarTirada } from "../../src/rooms/acciones/dados/aplicarTirada.js";
 import { iniciarRelojAcciones } from "../../src/timers/acciones/iniciarRelojAcciones.js";
@@ -326,6 +326,67 @@ describe("bots jugando con las decisiones reales", () => {
       assert.strictEqual(armado.caminos(), 2);
       assert.strictEqual(armado.partida.turnoActual, ALAN);
       assert.strictEqual(armado.partida.faseJuego, FaseJuego.DADOS);
+    });
+  });
+
+  describe("completar una meta con la banca o la abundancia", () => {
+
+    //? Funcion que deja a Angel con un asentamiento que no produce nada y los recursos indicados, para que su objetivo sea la ciudad
+    function armarCiudadIncompleta(recursos: Record<string, number>, abundancia = 0) {
+      const armado = armarJuegoConReloj();
+      armado.partida.faseJuego = FaseJuego.ACCIONES;
+      armado.partida.cartaJugable = true;
+
+      const cadena = armarCadena(armado.tablero);
+      fijarNumeros(cadena, 0);
+      construir(cadena, cadena.vertices[0], ANGEL);
+
+      const jugador = armado.jugadores.get(ANGEL);
+      for (const [recurso, cantidad] of Object.entries(recursos)) jugador.recursos.set(recurso, cantidad);
+      jugador.cartas_usables.set(`${Desarrollo.ABUNDANCIA}`, abundancia);
+
+      return {
+        ...armado,
+        jugador,
+        ciudades: () => [...armado.tablero.vertices.values()]
+          .filter((vertice) => vertice.propietario === ANGEL && vertice.constuccion === Construccion.CIUDAD).length
+      };
+    }
+
+    it("cambia con la banca lo que le falta, construye la ciudad y pasa el turno", () => {
+      const armado = armarCiudadIncompleta({ mineral: 2, trigo: 2, madera: 4 });
+      const { programados, vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+      assert.strictEqual(armado.jugador.recursos.get("mineral"), 3);
+      assert.strictEqual(armado.jugador.recursos.get("madera"), 0);
+      assert.strictEqual(armado.ciudades(), 0);
+
+      vencer(1);
+      assert.strictEqual(armado.ciudades(), 1);
+      assert.strictEqual(armado.partida.turnoActual, ANGEL);
+      assert.strictEqual(programados.length, 3);
+
+      vencer(2);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+    });
+
+    it("usa la carta de abundancia para completar lo que le falta, construye la ciudad y pasa el turno", () => {
+      const armado = armarCiudadIncompleta({ mineral: 1, trigo: 2 }, 1);
+      const { vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+      assert.strictEqual(armado.jugador.recursos.get("mineral"), 3);
+      assert.strictEqual(armado.jugador.cartas_usables.get(`${Desarrollo.ABUNDANCIA}`), 0);
+      assert.strictEqual(armado.ciudades(), 0);
+
+      vencer(1);
+      assert.strictEqual(armado.ciudades(), 1);
+
+      vencer(2);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
     });
   });
 });
