@@ -27,4 +27,6 @@ hay ausencia de uno de ellos, además de permitir indicar cuantos puntos se requ
 de los establecidos por defecto (Para más detalles revisar la documentacion)
 
 **V1.4 - Beta**
-Aun sin definir
+Esta versión permite agregar bots a las partidas, por parte del creador y en la sala de espera, ahora hay un ícono para agregar a
+un bot, estos se comportan con cierto nivel de inteligencia, intentando ser un jugador competente para rellenar la ausencia de
+algún integrante (Para más detalles revisar la documentación)
