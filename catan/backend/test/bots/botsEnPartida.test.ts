@@ -5,6 +5,7 @@ import { hexagonosDelVertice } from "../../src/functions/hexagonosDelVertice.js"
 import { aplicarTirada } from "../../src/rooms/acciones/dados/aplicarTirada.js";
 import { iniciarRelojAcciones } from "../../src/timers/acciones/iniciarRelojAcciones.js";
 import { PAUSA_BOT_MS } from "../../src/bots/despertarBots.js";
+import { vencerOferta } from "../../src/autoFunctions/comercio/vencerOferta.js";
 import { iniciarRelojDados } from "../../src/timers/dados/iniciarRelojDados.js";
 import { iniciarRelojPreconstruccion } from "../../src/timers/preconstruccion/iniciarRelojPreconstruccion.js";
 import { Jugador } from "../../src/schemas/Jugador.js";
@@ -505,6 +506,98 @@ describe("bots jugando con las decisiones reales", () => {
 
       assert.strictEqual(armado.jugador.cartas_usables.get(`${Desarrollo.CARRETERA}`), 1);
       assert.strictEqual(armado.partida.turnoActual, ALAN);
+    });
+  });
+
+  describe("ofertas de intercambio", () => {
+
+    //? Funcion que deja a Angel con un asentamiento que produce mineral y trigo, para que su objetivo sea la ciudad
+    //? A Angel le faltan 2 de mineral y le sobran 3 de lana; Alan tiene mineral de sobra y le falta lana
+    function armarParaOfertar() {
+      const armado = armarJuegoConReloj();
+      armado.partida.faseJuego = FaseJuego.ACCIONES;
+
+      const cadena = armarCadena(armado.tablero);
+      fijarNumeros(cadena, 0);
+      const inicio = cadena.vertices[0];
+      construir(cadena, inicio, ANGEL);
+
+      const [mineral, trigo] = hexagonosDelVertice(armado.tablero.hexagonos, armado.tablero.vertices.get(inicio));
+      mineral.terreno = Terreno.MINERAL;
+      mineral.numero = 8;
+      trigo.terreno = Terreno.TRIGO;
+      trigo.numero = 6;
+
+      const angel = armado.jugadores.get(ANGEL);
+      angel.recursos.set("mineral", 1);
+      angel.recursos.set("trigo", 2);
+      angel.recursos.set("lana", 3);
+
+      const alan = armado.jugadores.get(ALAN);
+      alan.recursos.set("mineral", 3);
+      alan.recursos.set("trigo", 1);
+
+      return {
+        ...armado,
+        angel,
+        alan,
+        oferta: () => armado.partida.ofertaIntercambio,
+        ciudades: () => [...armado.tablero.vertices.values()]
+          .filter((vertice) => vertice.propietario === ANGEL && vertice.constuccion === Construccion.CIUDAD).length
+      };
+    }
+
+    it("ofrece lana por mineral, otro bot la acepta y despues construye la ciudad y pasa el turno", () => {
+      const armado = armarParaOfertar();
+      const { vencer } = ponerBots(armado, ANGEL, ALAN);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+      assert.strictEqual(armado.oferta().jugador, ANGEL);
+      assert.deepStrictEqual(Object.fromEntries(armado.oferta().recursosOfrecidos.entries()), { lana: 2 });
+      assert.deepStrictEqual(Object.fromEntries(armado.oferta().recursosSolicitados.entries()), { mineral: 2 });
+
+      //* Mientras su oferta sigue activa el bot espera sin pasar el turno
+      vencer(1);
+      assert.strictEqual(armado.partida.turnoActual, ANGEL);
+      assert.strictEqual(armado.oferta().jugador, ANGEL);
+
+      vencer(2);
+      assert.strictEqual(armado.oferta().jugador, "");
+      assert.strictEqual(armado.angel.recursos.get("mineral"), 3);
+      assert.strictEqual(armado.angel.recursos.get("lana"), 1);
+      assert.strictEqual(armado.alan.recursos.get("mineral"), 1);
+      assert.strictEqual(armado.alan.recursos.get("lana"), 2);
+
+      vencer(3);
+      assert.strictEqual(armado.ciudades(), 1);
+
+      vencer(4);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+    });
+
+    it("si nadie responde ofrece otra distinta, y al agotarlas pasa el turno", () => {
+      const armado = armarParaOfertar();
+      const { vencer } = ponerBots(armado, ANGEL);
+      iniciarRelojAcciones(armado.sala);
+
+      vencer(0);
+      assert.strictEqual(armado.partida.ofertasDelTurno.length, 1);
+
+      //* El humano no responde y se acaba el tiempo de la oferta
+      vencer(1);
+      assert.strictEqual(armado.partida.turnoActual, ANGEL);
+      vencerOferta(armado.sala);
+
+      vencer(2);
+      assert.strictEqual(armado.partida.ofertasDelTurno.length, 2);
+      assert.deepStrictEqual(Object.fromEntries(armado.oferta().recursosOfrecidos.entries()), { lana: 1 });
+      assert.deepStrictEqual(Object.fromEntries(armado.oferta().recursosSolicitados.entries()), { mineral: 1 });
+      vencerOferta(armado.sala);
+
+      vencer(3);
+      assert.strictEqual(armado.partida.turnoActual, ALAN);
+      assert.strictEqual(armado.partida.ofertasDelTurno.length, 0);
     });
   });
 });

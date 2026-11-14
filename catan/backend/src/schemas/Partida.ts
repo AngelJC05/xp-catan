@@ -24,6 +24,9 @@ export class Partida extends Schema {
   @type({ map: Reloj }) relojes = new MapSchema<Reloj>();
   @type(Configuracion) configuracion = new Configuracion();
 
+  //* Ofertas que un bot ya propuso en el turno actual; no se publica a los clientes
+  ofertasDelTurno: { ofrecidos: Record<string, number>, solicitados: Record<string, number> }[] = [];
+
   constructor() {
     super();
     this.creador = "";

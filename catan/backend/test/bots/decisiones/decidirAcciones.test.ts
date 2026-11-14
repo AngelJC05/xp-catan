@@ -3,6 +3,7 @@ import assert from "node:assert";
 import type { AccionBot } from "../../../src/bots/acciones/accionesBot.js";
 import { decidirAcciones } from "../../../src/bots/decisiones/decidirAcciones.js";
 import { FaseJuego } from "../../../src/common/enums.js";
+import { cerrarOferta } from "../../../src/rooms/acciones/comercio/cerrarOferta.js";
 import { iniciarRelojAcciones } from "../../../src/timers/acciones/iniciarRelojAcciones.js";
 import { ALAN, ANGEL, armarJuegoConReloj } from "../../ayudas/juegoConReloj.js";
 
@@ -98,6 +99,48 @@ describe("decision del bot en la fase de acciones", () => {
       }]);
 
       assert.deepStrictEqual(recibidos, [sala, ANGEL]);
+    });
+  });
+
+  describe("cuando su oferta de intercambio sigue activa", () => {
+
+    //? Funcion que deja una oferta de Angel esperando respuesta
+    function armarConOfertaPropia() {
+      const armado = armarAcciones();
+      armado.partida.ofertaIntercambio.setOfertaMixta(ANGEL, armado.jugadores, { madera: 1 }, { lana: 1 });
+      return armado;
+    }
+
+    it("espera: no prueba las acciones ni pasa el turno", () => {
+      const { sala, partida } = armarConOfertaPropia();
+      const llamadas: string[] = [];
+
+      decidirAcciones(sala, ANGEL, [accionFalsa("construir", llamadas, true)]);
+
+      assert.deepStrictEqual(llamadas, []);
+      assert.strictEqual(partida.turnoActual, ANGEL);
+      assert.strictEqual(partida.faseJuego, FaseJuego.ACCIONES);
+      assert.strictEqual(sala.temporizador.estaActivo("acciones"), true);
+    });
+
+    it("cuando la oferta se cierra vuelve a probar sus acciones", () => {
+      const { sala, partida } = armarConOfertaPropia();
+      const llamadas: string[] = [];
+      cerrarOferta(sala);
+
+      decidirAcciones(sala, ANGEL, [accionFalsa("construir", llamadas, true)]);
+
+      assert.deepStrictEqual(llamadas, ["construir"]);
+      assert.strictEqual(partida.turnoActual, ANGEL);
+    });
+
+    it("cuando la oferta se cierra y no tiene nada mas que hacer pasa el turno", () => {
+      const { sala, partida } = armarConOfertaPropia();
+      cerrarOferta(sala);
+
+      decidirAcciones(sala, ANGEL, []);
+
+      assert.strictEqual(partida.turnoActual, ALAN);
     });
   });
 });

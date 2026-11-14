@@ -6,6 +6,7 @@ import { accionCarreteras } from "./accionCarreteras.js";
 import { accionComprarCarta } from "./accionComprarCarta.js";
 import { accionConstruir } from "./accionConstruir.js";
 import { accionMonopolio } from "./accionMonopolio.js";
+import { accionOfertar } from "./accionOfertar.js";
 import { accionConstruirCamino } from "./accionConstruirCamino.js";
 
 //? Una accion del turno del bot: intenta hacer algo y devuelve true si lo hizo
@@ -20,5 +21,6 @@ export const ACCIONES_BOT: AccionBot[] = [
     accionComercioBanca,
     accionConstruir,
     accionConstruirCamino,
+    accionOfertar,
     accionComprarCarta
 ];
