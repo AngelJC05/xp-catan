@@ -42,4 +42,5 @@ export const ICONO_UI = {
   adelante: '/svg/ui/adelante.svg',
   atras: '/svg/ui/atras.svg',
   ayuda: '/svg/ui/ayuda.svg',
+  bot: '/svg/ui/bot.svg',
 } as const;

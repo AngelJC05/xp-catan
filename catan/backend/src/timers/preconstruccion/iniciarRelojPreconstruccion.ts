@@ -1,4 +1,5 @@
 import type { CatanRoom } from "../../rooms/CatanRoom.js";
+import { despertarBots } from "../../bots/despertarBots.js";
 import { FasePartida } from "../../common/enums.js";
 import { accionAutomaticaPreconstruccion } from "../../autoFunctions/preconstruccion/accionAutomaticaPreconstruccion.js";
 import { actualizarRelojDados } from "../dados/actualizarRelojDados.js";
@@ -21,4 +22,6 @@ export function iniciarRelojPreconstruccion(sala: CatanRoom): void {
             actualizarRelojDados(sala);
         }
     );
+
+    despertarBots(sala, sala.clock);
 }

@@ -1,6 +1,7 @@
 import { MapSchema } from "@colyseus/schema";
 import { Arista } from "../schemas/Arista.js";
 import { Vertice } from "../schemas/Vertices.js";
+import { aristasDelVertice, extremosDeArista } from "./aristas.js";
 
 //? Devuelve la longitud del camino mas largo de un jugador
 export function longitudCaminoMasLargo(
@@ -20,7 +21,7 @@ export function longitudCaminoMasLargo(
     let mayor = 0;
     for (const inicial of mias) {
         const usadas = new Set<string>([inicial]);
-        const [a, b] = extremos(inicial);
+        const [a, b] = extremosDeArista(inicial);
 
         const largo = 1 + Math.max(
             explorar(a, vertices, sessionId, mias, usadas),
@@ -53,25 +54,10 @@ function explorar(
         if (!mias.has(clave) || usadas.has(clave)) continue;
 
         usadas.add(clave);
-        const [a, b] = extremos(clave);
+        const [a, b] = extremosDeArista(clave);
         const otroExtremo = a === vertice ? b : a;
         mejor = Math.max(mejor, 1 + explorar(otroExtremo, vertices, sessionId, mias, usadas));
         usadas.delete(clave);
     }
     return mejor;
-}
-
-//* Devuelve clave de los 2 vertices que une una carretera
-function extremos(clave: string): [string, string] {
-    const [h, d, p] = clave.split(",").map(Number);
-    if (p === 0) return [`${h},${d},0`, `${h + 1},${d},1`];
-    if (p === 1) return [`${h},${d},0`, `${h},${d},1`];
-    return [`${h},${d},1`, `${h - 1},${d + 1},0`];
-}
-
-//* Devuelve las claves de las carreteras que tocan un vertice
-function aristasDelVertice(clave: string): string[] {
-    const [h, d, p] = clave.split(",").map(Number);
-    if (p === 0) return [`${h},${d},0`, `${h},${d},1`, `${h + 1},${d - 1},2`];
-    return [`${h},${d},1`, `${h},${d},2`, `${h - 1},${d},0`];
 }

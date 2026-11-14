@@ -46,12 +46,14 @@ export function armarSala(nombresPorId: Record<string, string> = {}) {
     banca,
     metadata: {},
     codigoAcceso: "",
+    maxClients: 4,
     temporizador: {
       limpiar: () => { estado.relojesLimpiados++; },
       programar: () => {},
       cancelar: () => {},
       estaActivo: () => false
     },
+    clock: { setTimeout: () => ({ clear: () => {} }) },
     tiempos: { ...TIEMPOS_POR_DEFECTO },
     ofertas: new Map<string, unknown>(),
     broadcast: (tipo: string, mensaje: unknown) => difundidos.push({ tipo, mensaje }),

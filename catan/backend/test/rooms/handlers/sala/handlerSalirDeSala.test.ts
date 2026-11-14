@@ -1,6 +1,7 @@
 import { describe, it } from "mocha";
 import assert from "node:assert";
 import { FaseJuego, FasePartida } from "../../../../src/common/enums.js";
+import { Jugador } from "../../../../src/schemas/Jugador.js";
 import { manejarSalida } from "../../../../src/rooms/handlers/sala/salirDeSala.js";
 import { armarCliente, armarSala } from "../../../ayudas/salaFalsa.js";
 
@@ -57,6 +58,35 @@ describe("handler de salir de la sala", () => {
       assert.deepStrictEqual(sala.metadata, { alias: "Sala", anfitrion: "Alan" });
     });
 
+    it("si se va el creador, el nuevo creador es el siguiente humano y no un bot", () => {
+      const { sala, partida, jugadores } = armarLobby();
+      const bot = new Jugador("Kernel");
+      bot.esBot = true;
+      jugadores.set("bot-1", bot);
+      partida.ordenJugadores.splice(1, 0, "bot-1");
+
+      manejarSalida(sala, armarCliente(ANGEL).client);
+
+      assert.strictEqual(partida.creador, ALAN);
+      assert.deepStrictEqual(sala.metadata, { alias: "Sala", anfitrion: "Alan" });
+    });
+
+    it("si solo quedan bots no queda creador ni anfitrion", () => {
+      const { sala, partida, jugadores } = armarSala({ [ANGEL]: "Angel" });
+      partida.ordenJugadores.push(ANGEL);
+      partida.creador = ANGEL;
+      sala.metadata = { alias: "Sala", anfitrion: "Angel" };
+      const bot = new Jugador("Kernel");
+      bot.esBot = true;
+      jugadores.set("bot-1", bot);
+      partida.ordenJugadores.push("bot-1");
+
+      manejarSalida(sala, armarCliente(ANGEL).client);
+
+      assert.strictEqual(partida.creador, "");
+      assert.deepStrictEqual(sala.metadata, { alias: "Sala", anfitrion: "" });
+    });
+
     it("si se va el ultimo jugador no queda creador ni anfitrion", () => {
       const { sala, partida } = armarSala({ [ANGEL]: "Angel" });
       partida.ordenJugadores.push(ANGEL);
@@ -99,6 +129,50 @@ describe("handler de salir de la sala", () => {
 
       assert.strictEqual(jugadores.has(ALAN), false);
       assert.deepStrictEqual([...partida.ordenJugadores], [ANGEL, LUIS]);
+    });
+
+    it("si se va el creador, el nuevo creador es el siguiente humano y no un bot", () => {
+      const { sala, partida, jugadores } = armarJuego();
+      const bot = new Jugador("Kernel");
+      bot.esBot = true;
+      jugadores.set("bot-1", bot);
+      partida.ordenJugadores.splice(1, 0, "bot-1");
+
+      manejarSalida(sala, armarCliente(ANGEL).client);
+
+      assert.strictEqual(partida.creador, ALAN);
+      assert.deepStrictEqual(sala.metadata, { alias: "Sala", anfitrion: "Alan" });
+    });
+
+    it("si solo quedan bots no queda creador ni anfitrion", () => {
+      const { sala, partida, jugadores } = armarSala({ [ANGEL]: "Angel" });
+      partida.fase = FasePartida.JUEGO;
+      partida.faseJuego = FaseJuego.ACCIONES;
+      partida.turnoActual = ANGEL;
+      partida.creador = ANGEL;
+      partida.ordenJugadores.push(ANGEL);
+      sala.metadata = { alias: "Sala", anfitrion: "Angel" };
+      const bot = new Jugador("Kernel");
+      bot.esBot = true;
+      jugadores.set("bot-1", bot);
+      partida.ordenJugadores.push("bot-1");
+
+      manejarSalida(sala, armarCliente(ANGEL).client);
+
+      assert.strictEqual(partida.creador, "");
+      assert.deepStrictEqual(sala.metadata, { alias: "Sala", anfitrion: "" });
+    });
+
+    it("si se va una persona que no es el creador, el creador sigue siendo el mismo aunque haya bots", () => {
+      const { sala, partida, jugadores } = armarJuego();
+      const bot = new Jugador("Kernel");
+      bot.esBot = true;
+      jugadores.set("bot-1", bot);
+      partida.ordenJugadores.splice(1, 0, "bot-1");
+
+      manejarSalida(sala, armarCliente(LUIS).client);
+
+      assert.strictEqual(partida.creador, ANGEL);
     });
 
     it("devuelve sus recursos a la banca", () => {

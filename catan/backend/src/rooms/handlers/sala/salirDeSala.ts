@@ -1,6 +1,7 @@
 import type { Client } from "colyseus";
 import type { CatanRoom } from "../../CatanRoom.js";
 import { FaseJuego, FasePartida } from "../../../common/enums.js";
+import { elegirNuevoCreador } from "../../../functions/elegirNuevoCreador.js";
 import { sacarJugador } from "../../../functions/sacarJugador.js";
 import { actualizarRelojPreconstruccion } from "../../../timers/preconstruccion/actualizarRelojPreconstruccion.js";
 import { actualizarRelojDados } from "../../../timers/dados/actualizarRelojDados.js";
@@ -27,9 +28,9 @@ function salirDelLobby(sala: CatanRoom, sessionId: string): void {
         sala.partida.ordenJugadores.splice(indice, 1);
     }
 
-    //* Si se fue el creador, el siguiente en entrar pasa a ser el anfitrion
+    //* Si se fue el creador, el siguiente en entrar que no sea un bot pasa a ser el anfitrion
     if (sala.partida.creador === sessionId) {
-        sala.partida.creador = sala.partida.ordenJugadores[0] ?? "";
+        sala.partida.creador = elegirNuevoCreador(sala.partida.ordenJugadores, sala.jugadores);
         actualizarAnfitrion(sala);
     }
 }

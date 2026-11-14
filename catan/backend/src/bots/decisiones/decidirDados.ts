@@ -1,0 +1,13 @@
+import type { CatanRoom } from "../../rooms/CatanRoom.js";
+import { tiradaAutomatica } from "../../autoFunctions/dados/tiradaAutomatica.js";
+import { olvidarDecisionCaballero } from "../acciones/accionCaballero.js";
+
+//? Tira los dados por el bot
+export function decidirDados(sala: CatanRoom, sessionId: string): void {
+    sala.temporizador.cancelar("dados");
+
+    //* Empieza su turno: puede volver a probar si juega el caballero
+    olvidarDecisionCaballero(sala, sessionId);
+
+    tiradaAutomatica(sala);
+}

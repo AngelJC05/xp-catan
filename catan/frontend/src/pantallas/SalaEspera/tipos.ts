@@ -5,6 +5,7 @@ export interface JugadorVista {
   nombre: string;
   color: number;
   score: number;
+  esBot: boolean;
   esUsuarioActual: boolean;
   esSuTurno: boolean;
 }

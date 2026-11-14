@@ -6,6 +6,7 @@ import { generarConstruccionesDisponibles } from "../generators/generarConstrucc
 
 export class Jugador extends Schema {
     @type("string") nombre: string;
+    @type("boolean") esBot: boolean;
     @type ("uint8") color: number;
     @type("uint16") puntuacion: number;
     @type("uint16") puntosParaGanar: number;
@@ -21,6 +22,7 @@ export class Jugador extends Schema {
     constructor(nombre: string = "") {
         super();
         this.nombre = nombre;
+        this.esBot = false;
         this.color = ColorJugador.SIN_COLOR;
         this.puntuacion = 0;
         this.puntosParaGanar = 10;

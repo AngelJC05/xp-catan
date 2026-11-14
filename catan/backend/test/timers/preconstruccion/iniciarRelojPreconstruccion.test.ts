@@ -12,6 +12,7 @@ function armarSalaConReloj() {
   const temporizador = new Temporizador(reloj);
   const sala = {
     temporizador,
+    jugadores: new Map(),
     tiempos: { ...TIEMPOS_POR_DEFECTO }
   } as unknown as CatanRoom;
 

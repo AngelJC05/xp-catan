@@ -25,3 +25,8 @@ mejor manejo de errores y una experiencia de juego mucho más agradable. (Para m
 Esta versión integra cronómetros que se encargan de realizar automáticamente las acciones por parte de los jugadores por si 
 hay ausencia de uno de ellos, además de permitir indicar cuantos puntos se requieren para ganar o algunos tiempos mismamente
 de los establecidos por defecto (Para más detalles revisar la documentacion)
+
+**V1.4 - Beta**
+Esta versión permite agregar bots a las partidas, por parte del creador y en la sala de espera, ahora hay un ícono para agregar a
+un bot, estos se comportan con cierto nivel de inteligencia, intentando ser un jugador competente para rellenar la ausencia de
+algún integrante (Para más detalles revisar la documentación)
